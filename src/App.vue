@@ -11,6 +11,7 @@
       </div>
 
       <v-spacer></v-spacer>
+      <v-btn tile color="blue" @click="login()">Sign-in</v-btn>
     </v-app-bar>
 
     <v-content>
@@ -20,16 +21,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Vue } from "vue-property-decorator";
 
-export default Vue.extend({
-  name: 'App',
-  components: {
-
-  },
-
-  data: () => ({
-    //
-  }),
-});
+@Component({
+  name: "Home"
+})
+export default class extends Vue {
+  private login(){
+    this.$router.push('/login');
+  }
+}
 </script>
