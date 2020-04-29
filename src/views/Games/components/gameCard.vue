@@ -1,6 +1,7 @@
 <template>
-    <v-card @click="dialog = true" class="gameCard">
+    <v-card class="gameCard">
       <v-img
+        @click="dialog = true"
         :src="game.img"
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -8,10 +9,12 @@
       >
         <v-card-title v-text="game.name"></v-card-title>
       </v-img>
-    <v-dialog
-      v-model="dialog"
-      max-width="290"
-    >
+      <v-dialog
+        v-model="dialog"
+        max-width="290"
+        overlay-opacity=0.5
+        overlay-color="black"
+      >
       <v-card>
         <v-img
           :src="game.img"
@@ -31,7 +34,7 @@
             block 
             @click="dialog = false"
           >
-          <v-icon class="mr-3">mdi-trumpet</v-icon>
+          <v-icon class="mr-3">mdi-bugle</v-icon>
             Call to arms
           </v-btn>
         </v-card-actions>
