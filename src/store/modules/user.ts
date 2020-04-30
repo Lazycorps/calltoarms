@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Token } from '@/models/Login/token';
 import store from '@/store/index';
 import { Utilisateur } from '@/models/Login/utilisateur';
+import { UserRegister } from '@/models/User/UserRegister';
 
 export interface IUserState {
   token: string,
@@ -22,12 +23,9 @@ class User extends VuexModule implements IUserState {
   public username: string = '';
 
   @Mutation
-  private SET_TOKEN(resp: Token): void {
-    var dateExpire: string = (((resp.expires_in * 1000) + Date.now()).toString());
-    localStorage.setItem("user-token", resp.value);
-    localStorage.setItem("token-expire", dateExpire);
-    this.token = resp.value;
-    this.expire = dateExpire;
+  private SET_TOKEN(token: string): void {
+    localStorage.setItem("user-token", token);
+    this.token = token;
     this.status = "success";
   };
 
@@ -53,46 +51,40 @@ class User extends VuexModule implements IUserState {
   @Action({rawError: true})
   public Login(userInfo: { username: string, password: string }): Promise<any> {
     return new Promise((resolve, reject) => {
-      if(userInfo.username == "Mars" && userInfo.password == "1234")
-      {
-        this.SET_TOKEN(new Token({value:"caca", expires_in: 9999999}));
-        resolve();
-      }else{
-        this.LOGIN_FAIL();
-        reject();
-      }
-      // axios.post<Token>(process.env.VUE_APP_ApiUrl + "/Authentication/Login", userInfo)
-      //   .then((resp) => {
-      //     this.SET_TOKEN(resp.data);
-      //     resolve(resp);
-      //   })
-      //   .catch((err) => {
-      //     this.LOGIN_FAIL();
-      //     let errorMessage: string = "Impossible de se connecter au serveur d'authentification";
-      //     if (err.response && err.response.status === 400) {
-      //       errorMessage = err.response.data.Message;
-      //     };
-      //     reject(errorMessage);
-      //   });
+      let user : {email: string, password: string} =  {email: userInfo.username, password: userInfo.password};
+      axios.post('https://api.iplaybitch.cornet.dev/api/v1/users/sign_in', user)
+        .then((resp) => {
+          let token = resp.headers['access-token'];
+          this.SET_TOKEN(token);
+          resolve(resp);
+        })
+        .catch((err) => {
+          this.LOGIN_FAIL();
+          let errorMessage: string = "Impossible de se connecter au serveur d'authentification";
+          if (err.response && err.response.status === 400) {
+            errorMessage = err.response.data.Message;
+          };
+          reject(errorMessage);
+        });
     });
   }
 
   @Action({rawError: true})
-  public Register(userInfo: { username: string, password: string }): Promise<any> {
+  public Register(userInfo: UserRegister): Promise<any> {
     return new Promise((resolve, reject) => {
-      // axios.post<Token>(process.env.VUE_APP_ApiAuth + "/Authentication/Login", userInfo)
-      //   .then((resp) => {
-      //     this.SET_TOKEN(resp.data);
-      //     resolve(resp);
-      //   })
-      //   .catch((err) => {
-      //     this.LOGIN_FAIL();
-      //     let errorMessage: string = "Impossible de se connecter au serveur d'authentification";
-      //     if (err.response && err.response.status === 400) {
-      //       errorMessage = err.response.data.Message;
-      //     };
-      //     reject(errorMessage);
-      //   });
+      axios.post<Token>("https://api.iplaybitch.cornet.dev/api/v1/users/sign_up", userInfo)
+        .then((resp) => {
+          //this.SET_TOKEN(resp.data);
+          resolve(resp);
+        })
+        .catch((err) => {
+          //this.LOGIN_FAIL();
+          let errorMessage: string = "Impossible de se connecter au serveur d'authentification";
+          if (err.response && err.response.status === 400) {
+            errorMessage = err.response.data.Message;
+          };
+          reject(errorMessage);
+        });
     });
   }
 

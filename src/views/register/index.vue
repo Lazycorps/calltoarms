@@ -49,7 +49,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn tile color="primary" :loading="loading" @click="login"
+              <v-btn tile color="primary" :loading="loading" @click="Register"
                 >Register</v-btn
               >
             </v-card-actions>
@@ -66,6 +66,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { UserModule } from "@/store/modules/user";
+import { UserRegister } from "@/models/User/UserRegister";
 
 @Component({
   name: "Register"
@@ -99,7 +100,15 @@ export default class extends Vue {
   }
 
   public Register() {
-
+    let userRegister = new UserRegister({email: this.email, 
+      password: this.password, 
+      password_confirmation: this.password});
+      
+      UserModule.Register(userRegister).then((resp) => {
+        UserModule.Login({ username: this.email, password: this.password});
+      }).catch(() => {
+        this.errorMessage = "An error occurred during registration";
+      });
   }
 }
 </script>
