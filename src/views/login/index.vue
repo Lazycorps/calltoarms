@@ -10,7 +10,7 @@
             <v-card-text>
               <v-form>
                 <v-text-field
-                  label="User"
+                  label="Username or email"
                   ref="loginElement"
                   name="login"
                   prepend-icon="mdi-account"
@@ -33,7 +33,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn tile outlined color="primary" :disabled="loading" @click="register"
+              <v-btn tile outlined color="primary" tabindex="-1" :disabled="loading" @click="register"
                 ><b>New account</b></v-btn
               >
               <v-btn tile color="primary" :loading="loading" @click="login"
@@ -64,26 +64,26 @@ export default class extends Vue {
   public errorMessage: string = "";
 
   public register(){
-    this.$router.push("/register");
+    this.$router.push("/user/register");
   }
 
-  public login() {
-    this.loading = true;
-    this.errorMessage = "";
+  public async login() {
+    try {
+      this.loading = true;
+          this.errorMessage = "";
+      const { username, password } = this;
+      await UserModule.Login({ login: username, password });
 
-    const { username, password } = this;
-    UserModule.Login({ username, password })
-      .then(() => {
-        this.username = "";
-        this.password = "";
-        this.$router.push("/");
-      })
-      .catch(reason => {
-        this.errorMessage = reason;
-      })
-      .finally(() => {
-        this.loading = false;
-      });
+      this.username = "";
+      this.password = "";
+      this.$router.push("/");
+
+      this.loading = false;
+    } catch (error) {
+      this.errorMessage = error;
+    } finally{
+      this.loading = false;    
+    }
   }
 }
 </script>

@@ -53,7 +53,7 @@
                 >Register</v-btn
               >
             </v-card-actions>
-            <v-card-text v-if="errorMessage != ''">
+            <v-card-text v-if="errorMessage">
               <v-alert type="warning">{{ errorMessage }}</v-alert>
             </v-card-text>
           </v-card>
@@ -99,16 +99,15 @@ export default class extends Vue {
     );
   }
 
-  public Register() {
-    let userRegister = new UserRegister({email: this.email, 
-      password: this.password, 
-      password_confirmation: this.password});
-      
-      UserModule.Register(userRegister).then((resp) => {
-        UserModule.Login({ username: this.email, password: this.password});
-      }).catch(() => {
-        this.errorMessage = "An error occurred during registration";
-      });
+  public async Register() {
+    try{
+      let userRegister = new UserRegister({username:this.username, email: this.email, password: this.password, password_confirmation: this.password});
+      await UserModule.Register(userRegister);
+      await UserModule.Login({ login: this.email, password: this.password});
+      this.$router.push('/');
+    }catch(err){
+      this.errorMessage = err;
+    }
   }
 }
 </script>

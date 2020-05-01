@@ -2,8 +2,9 @@
  import { Permission } from "./permission";
 
 export class UtilisateurDTO {
-  public ID: string = '';
-  public NomPrenom: string = '';
+  public id: string = '';
+  public username: string = '';
+  public email: string = '';
   public Permissions: Permission[] = [];
 }
 

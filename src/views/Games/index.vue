@@ -30,6 +30,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { Game } from "@/models/Game/game";
 import GameCard from "./components/gameCard.vue";
+import { UserApi } from '../../api/UserApi';
 
 @Component({
   name: "Games",
