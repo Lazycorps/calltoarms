@@ -13,6 +13,11 @@ export abstract class GamesApi {
     return response.data.map(d => new Game(d));
   }
 
+  static async fetchGamesCrud(): Promise<GameCrud[]>{
+    let response = await this.axios.get<GameCrud[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`);
+    return response.data.map(d => new GameCrud(d));
+  }
+
   static async getGame(id: string): Promise<GameCrud>{
     let response = await this.axios.get<GameCrud>(`${process.env.VUE_APP_ApiUrl}/api/v1/games/${id}`);
     return new GameCrud(response.data);

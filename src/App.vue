@@ -49,7 +49,6 @@ export default class extends Vue {
 		try {
 			if(UserModule.token){
 				let userConnected = await UserApi.getConnected();
-				userConnected.firebase_token = firebaseToken;
 				await UserApi.updateUser({email: userConnected.email, username: userConnected.username, firebase_token: firebaseToken});
 				console.log("token updated");
 			}

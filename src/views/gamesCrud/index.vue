@@ -76,16 +76,16 @@ import { GamesApi } from "@/api/GamesApi";
   name: "GamesCrud"
 })
 export default class extends Vue {
-  private games: GameCrud[] = []
+    private games: GameCrud[] = []
     private dialog: boolean = false;
     private headers = [
-    { text:"Id", value: "id"},
-    { text: "Title", value: "title" },
-    { text: "Img", value: "image_url" },
-    { text: "Created", value: "created_at" },
-    { text: "Updated", value: "updated_at" },
-    { text: 'Actions', value: 'actions', sortable: false },
-  ];
+      { text:"Id", value: "id"},
+      { text: "Title", value: "title" },
+      { text: "Img", value: "image_url" },
+      { text: "Created", value: "created_at" },
+      { text: "Updated", value: "updated_at" },
+      { text: 'Actions', value: 'actions', sortable: false },
+    ];
  
   private action: string = "";
   private editedItem: GameCrud = new GameCrud();
@@ -98,7 +98,7 @@ export default class extends Vue {
   }
 
   private async RefreshGames(){
-    this.games = await GamesApi.fetchGames();
+    this.games = await GamesApi.fetchGamesCrud();
   }
 
   private addItem(){
