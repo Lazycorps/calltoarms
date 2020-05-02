@@ -7,6 +7,7 @@ import { UserRegister } from '@/models/User/UserRegister';
 import { UserApi } from '@/api/UserApi';
 import { JsonObject, JsonProperty, JsonConvert } from "json2typescript";
 import jwtDecode from "jwt-decode";
+import router, { resetRouter } from '@/router/index'
 
 export interface IUserState {
   token: string,
@@ -79,6 +80,7 @@ class User extends VuexModule implements IUserState {
   @Action
   public Logout() {
     this.RESET_TOKEN();
+    resetRouter();
   }
 }
  

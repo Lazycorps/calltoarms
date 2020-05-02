@@ -2,7 +2,6 @@ import Vue from "vue";
 import Router, { Route, RouteConfig } from "vue-router";
 import Layout from "@/layout/index.vue";
 import Home from "../views/Home.vue";
-import { PermissionModule } from "@/store/modules/permissions";
 import { UserModule } from "@/store/modules/user";
 
 Vue.use(Router);
@@ -21,11 +20,8 @@ export const constantRoutes: RouteConfig[] = [
 				meta: { icon: "mdi-gamepad-square", title: "Games", affix: true },
 			},
 		],
-	},
-];
-
-export const asyncRoutes: RouteConfig[] = [
-	{
+  },
+  {
 		path: "/user",
 		name: "user",
 		component: Layout,
@@ -35,32 +31,41 @@ export const asyncRoutes: RouteConfig[] = [
 			{
 				path: "login",
 				name: "log",
-				component: () => import(/* webpackChunkName: "login" */ "@/views/login/index.vue"),
-				meta: { icon: "mdi-login", title: "Login", affix: true },
+				component: () => import(/* webpackChunkName: "login" */ "@/views/user/login/index.vue"),
+				meta: { icon: "mdi-login", title: "Login", hidden: true },
 			},
 			{
 				path: "register",
 				name: "Register",
-				component: () => import(/* webpackChunkName: "register" */ "@/views/register/index.vue"),
-				meta: { icon: "mdi-account", title: "Logout" },
-			},
+				component: () => import(/* webpackChunkName: "register" */ "@/views/user/register/index.vue"),
+				meta: { icon: "mdi-account", title: "Logout", hidden: true },
+      },
+			// {
+			// 	path: "profile",
+			// 	name: "Profile",
+			// 	component: () => import(/* webpackChunkName: "profile" */ "@/views/user/profile/index.vue"),
+			// 	meta: { icon: "mdi-account", title: "Logout" },
+			// },
 		],
 	},
-	{
+];
+
+export const adminRoutes: RouteConfig[] = [
+  {
 		path: "/admin",
 		name: "CRUD Games",
 		component: Layout,
-		redirect: "/games",
-		meta: { roles: ["admin"] },
+		redirect: "admin/games",
+		meta: { roles: ["admin"]},
 		children: [
 			{
 				path: "games",
 				name: "CRUD Games",
 				component: () => import(/* webpackChunkName: "gamesCrud" */ "@/views/gamesCrud/index.vue"),
-				meta: { icon: "mdi-gamepad-round-outline", title: "Games" },
+				meta: { icon: "mdi-gamepad-round-outline", title: "Games", roles: ["admin"] },
 			},
 		],
-	},
+	}
 ];
 
 const createRouter = () =>
@@ -78,22 +83,19 @@ const createRouter = () =>
 	});
 
 const router = createRouter();
+let adminRoutLoaded = false;
 router.beforeEach(async (to: Route, from: Route, next: any) => {
-  let roles = [];
-  if(UserModule.token)
-    roles.push("admin");
-
-	if (PermissionModule.routes && PermissionModule.routes.length === 0) {
-    PermissionModule.GenerateRoutes(roles);
-		router.addRoutes(PermissionModule.dynamicRoutes);
-		if (to.path.toUpperCase() == "/USER/LOGIN") {
-			next({ path: "/" });
-		} else {
-			next({ ...to, replace: true });
-		}
-	} else {
-		PermissionModule.GenerateRoutes(roles);
-		next();
-	}
+  if(UserModule.token && !adminRoutLoaded){
+    adminRoutLoaded = true;
+    router.addRoutes(adminRoutes);
+    next();
+  }
+  else next();
 });
+
+export function resetRouter() {
+  const newRouter = createRouter();
+  (router as any).matcher = (newRouter as any).matcher // reset router
+}
+
 export default router;

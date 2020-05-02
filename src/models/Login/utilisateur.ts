@@ -5,11 +5,11 @@ export class UtilisateurDTO {
   public id: string = '';
   public username: string = '';
   public email: string = '';
-  public Permissions: Permission[] = [];
+  public firebase_token: string = '';
 }
 
-export class Utilisateur extends UtilisateurDTO{
-  constructor(data?: UtilisateurDTO){
+export class Utilisateur extends UtilisateurDTO {
+  constructor(data?: UtilisateurDTO) {
     super();
     Object.assign(this, data || new UtilisateurDTO());
   }

@@ -2,7 +2,7 @@
     <v-card class="gameCard">
       <v-img
         @click="dialog = true"
-        :src="game.img"
+        :src="game.image_url"
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         height="200px"
@@ -17,12 +17,12 @@
       >
       <v-card>
         <v-img
-          :src="game.img"
+          :src="game.image_url"
           class="white--text align-end"
           gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
           height="120px"
         >
-          <v-card-title v-text="game.name"></v-card-title>
+          <v-card-title v-text="game.title"></v-card-title>
         </v-img>
         <v-card-text class="mt-5">
          Need help noob ? Call comrads to arms !

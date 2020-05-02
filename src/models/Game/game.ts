@@ -1,7 +1,9 @@
 export class GameDTO {
-  public name: string = '';
-  public img: string = '';
-  public thumbnail : string = '';
+  public id: string = '';
+  public title: string = '';
+  public image_url: string = '';
+  public created_at: string = '';
+  public updated_at: string = '';
 }
 
 export class Game extends GameDTO{
