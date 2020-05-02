@@ -20,32 +20,28 @@ export const constantRoutes: RouteConfig[] = [
 				meta: { icon: "mdi-gamepad-square", title: "Games", affix: true },
 			},
 		],
-  },
+	},
   {
 		path: "/user",
 		name: "user",
 		component: Layout,
 		redirect: "user/login",
-		meta: { hidden: true },
 		children: [
 			{
 				path: "login",
 				name: "log",
 				component: () => import(/* webpackChunkName: "login" */ "@/views/user/login/index.vue"),
-				meta: { icon: "mdi-login", title: "Login", hidden: true },
 			},
 			{
 				path: "register",
 				name: "Register",
 				component: () => import(/* webpackChunkName: "register" */ "@/views/user/register/index.vue"),
-				meta: { icon: "mdi-account", title: "Logout", hidden: true },
-      },
-			// {
-			// 	path: "profile",
-			// 	name: "Profile",
-			// 	component: () => import(/* webpackChunkName: "profile" */ "@/views/user/profile/index.vue"),
-			// 	meta: { icon: "mdi-account", title: "Logout" },
-			// },
+			},
+			{
+				path: "friends",
+				name: "Friends",
+				component: () => import(/* webpackChunkName: "friends" */ "@/views/user/friends/index.vue"),
+			}
 		],
 	},
 ];

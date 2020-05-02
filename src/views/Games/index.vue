@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid>
+  <div>
     <v-row dense>
-      <v-text-field class="mr-5 ml-5" label="Filter games" append-icon="mdi-magnify" v-model="searchGame" ></v-text-field>
+      <v-text-field class="mr-5 ml-5" label="Filter games" append-icon="mdi-magnify" v-model="searchGame"></v-text-field>
     </v-row>
     <v-data-iterator
       :items="games"
@@ -23,7 +23,7 @@
         </v-row>
       </template>
     </v-data-iterator>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">

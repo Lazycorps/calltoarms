@@ -1,10 +1,7 @@
 <template>
 	<v-app id="inspire">
-		<v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" clipped app>
+		<v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" v-if="$vuetify.breakpoint.mdAndUp" mobile-break-point="960" clipped app>
 			<v-list>
-				<!-- <v-app-bar-nav-icon @click.stop="mini = !mini">
-
-				</v-app-bar-nav-icon> -->
 				<v-list-item >
 					<v-list-item-action @click="mini = !mini">
            	<v-icon v-if="mini">mdi-arrow-expand-right</v-icon>
@@ -22,6 +19,21 @@
         </v-list-item>
       </v-list>
 		</v-navigation-drawer>
+		<v-bottom-navigation
+			v-if="$vuetify.breakpoint.smAndDown"
+			color="primary"
+			grow
+			app
+		>
+			<v-btn to="/games">
+				<span>Games</span>
+				<v-icon>mdi-gamepad-square</v-icon>
+			</v-btn>
+			<v-btn  to="/user/friends">
+				<span>Friends</span>
+				<v-icon>mdi-account-multiple</v-icon>
+			</v-btn>
+		</v-bottom-navigation>
 		<v-app-bar app color="primary" dark clipped-left>
 			<v-toolbar-title class="d-flex justify-start">
        <v-icon x-large class="mr-5" @click="goHome">mdi-gamepad-variant</v-icon>
@@ -80,6 +92,7 @@ export default class extends Vue {
   private mini: Boolean = true;
 	private source: String = "";
 	private menu: {title: string, icon: string, link: string}[] = [];
+	private bottom!: boolean;
 
 	get isLogged(): boolean{
 		return !!UserModule.token;

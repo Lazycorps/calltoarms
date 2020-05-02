@@ -11,7 +11,7 @@
       </v-img>
       <v-dialog
         v-model="dialog"
-        max-width="290"
+        max-width="400"
         overlay-opacity=0.5
         overlay-color="black"
       >
@@ -20,18 +20,19 @@
           :src="game.image_url"
           class="white--text align-end"
           gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-          height="120px"
+          height="180px"
         >
           <v-card-title v-text="game.title"></v-card-title>
         </v-img>
-        <v-card-text class="mt-5">
-         Need help noob ? Call comrads to arms !
+        <v-card-text class="mt-5" >
+         <p style="font-size: 16px;">Need help noob ? Call comrads to arms !</p>
         </v-card-text>
         <v-card-actions>
           <v-btn
             color="primary"
             tile 
             block 
+            large
             @click="dialog = false"
           >
           <v-icon class="mr-3">mdi-bugle</v-icon>

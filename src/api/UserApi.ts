@@ -23,4 +23,9 @@ export abstract class UserApi {
   static async updateUser(user: {email: string, username: string, firebase_token: string}): Promise<void>{
     await this.axios.put(`${process.env.VUE_APP_ApiUrl}/api/v1/user`, user, {headers: { Authorization: `Bearer ${UserModule.token}` }});
   }
+
+  static async addFriend(username: string): Promise<Utilisateur>{
+    let response = await this.axios.put(`${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships`, { username: username }, {headers: { Authorization: `Bearer ${UserModule.token}` }});
+    return new Utilisateur(response.data);
+  }
 }
