@@ -7,7 +7,8 @@ import { UserRegister } from '@/models/User/UserRegister';
 import { UserApi } from '@/api/UserApi';
 import { JsonObject, JsonProperty, JsonConvert } from "json2typescript";
 import jwtDecode from "jwt-decode";
-import router, { resetRouter } from '@/router/index'
+import router, { resetRouter, initDynamicRoutes } from '@/router/index'
+import { AppModule } from './app';
 
 export interface IUserState {
   token: string,
@@ -22,6 +23,7 @@ class User extends VuexModule implements IUserState {
   public status: string = '';
   public utilisateur: Utilisateur = new Utilisateur();
   public username: string = localStorage.getItem("username") || "";
+  public isAdmin: boolean = false;
 
   @Mutation
   private SET_TOKEN(token: string): void {
@@ -42,6 +44,16 @@ class User extends VuexModule implements IUserState {
   };
 
   @Mutation
+  private SET_USERNAME(username: string): void {
+    this.status = username;
+  };
+
+  @Mutation
+  private SET_IS_ADMIN(isAdmin: boolean): void {
+    this.isAdmin = isAdmin;
+  };
+
+  @Mutation
   private RESET_TOKEN(): void {
     localStorage.removeItem("user-token");
     localStorage.removeItem("username");
@@ -54,8 +66,30 @@ class User extends VuexModule implements IUserState {
     try{
       let token = await UserApi.login(userInfo);
       this.SET_TOKEN(token);
+      this.ReadToken();
+      AppModule.InitPushNotification();
     }catch(err){
       this.LOGIN_FAIL();
+      let errorMessage = err;
+      if (err.response) {
+        errorMessage = `${err.response.data.status} : ${err.response.data.error}`;
+      }
+      throw(errorMessage);
+    }
+  }
+
+  @Action
+  public ReadToken(): void {
+    try{
+      if(this.token){
+        let tokenDecode = jwtDecode(this.token);
+        let jsonConvert: JsonConvert = new JsonConvert();
+        let tokenValue = jsonConvert.deserializeObject(tokenDecode, TokenDTO);
+        this.SET_USERNAME(tokenValue?.username);
+        this.SET_IS_ADMIN(tokenValue?.is_admin);
+        initDynamicRoutes();
+      }
+    }catch(err){
       let errorMessage = err;
       if (err.response) {
         errorMessage = `${err.response.data.status} : ${err.response.data.error}`;

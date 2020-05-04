@@ -10,6 +10,8 @@ export class TokenDTO {
   public iat: number = 0;
   @JsonProperty("username", String)
   public username: string = '';
+  @JsonProperty("is_admin", Boolean, true)
+  public is_admin: boolean = false;
 }
 
 export class Token extends TokenDTO{

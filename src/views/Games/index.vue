@@ -7,12 +7,13 @@
       :items="games"
       :search="searchGame"
       hide-default-footer
+      disable-pagination
     >
       <template v-slot:default="props">
         <v-row dense>
           <v-col
             v-for="game in props.items"
-            :key="game.name"
+            :key="game.tilte"
             cols="12"
             xl="3"
             md="6"

@@ -19,25 +19,10 @@
         </v-list-item>
       </v-list>
 		</v-navigation-drawer>
-		<v-bottom-navigation
-			v-if="$vuetify.breakpoint.smAndDown"
-			color="primary"
-			grow
-			app
-		>
-			<v-btn to="/games">
-				<span>Games</span>
-				<v-icon>mdi-gamepad-square</v-icon>
-			</v-btn>
-			<v-btn  to="/user/friends">
-				<span>Friends</span>
-				<v-icon>mdi-account-multiple</v-icon>
-			</v-btn>
-		</v-bottom-navigation>
 		<v-app-bar app color="primary" dark clipped-left>
 			<v-toolbar-title class="d-flex justify-start">
        <v-icon x-large class="mr-5" @click="goHome">mdi-gamepad-variant</v-icon>
-        <h2>I Play <b>BITCH</b></h2>
+        <h2>I Play <b>BITCH</b>, ici on aime le caca</h2>
 				</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-btn text	color="white"	class="mr-2" v-if="!token" @click="logout">
@@ -63,12 +48,35 @@
 				</v-list>
 			</v-menu>
 		</v-app-bar>
-	
 		<v-content>
 			<v-container fluid>
+				<v-alert v-if="!pushEnabled" border="left" text outlined prominent type="warning">
+					<v-row align="center">
+						<v-col class="grow">Oh nooo, i play bitch can't work correctly without notifications enabled :'(</v-col>
+						<!-- <v-col class="shrink">
+							<v-btn>Enable notification</v-btn>
+						</v-col> -->
+					</v-row>
+				</v-alert>
 				<app-main />
 			</v-container>
 		</v-content>
+		<v-bottom-navigation
+			v-if="$vuetify.breakpoint.smAndDown"
+			color="primary"
+			grow
+			app
+		>
+			<v-btn to="/games">
+				<span>Games</span>
+				<v-icon>mdi-gamepad-square</v-icon>
+			</v-btn>
+
+			<v-btn  to="/user/friends">
+				<span>Friends</span>
+				<v-icon>mdi-account-multiple</v-icon>
+			</v-btn>
+		</v-bottom-navigation>
 	</v-app>
 </template>
 
@@ -80,6 +88,7 @@ import { UserModule } from "@/store/modules/user";
 import { Route, RouteConfig } from "vue-router";
 import { Getter } from "vuex-class";
 import { constantRoutes } from "@/router/index";
+import { AppModule } from "@/store/modules/app";
 
 @Component({
   name: "Layout",
@@ -94,19 +103,24 @@ export default class extends Vue {
 	private menu: {title: string, icon: string, link: string}[] = [];
 	private bottom!: boolean;
 
-	get isLogged(): boolean{
-		return !!UserModule.token;
+	get pushEnabled(){
+		return AppModule.pushNotificationEnabled;
+	}
+
+	get isAdmin(): boolean{
+		return !!UserModule.isAdmin;
 	}
 
 	mounted(){
 		this.routeChanged(!!UserModule.token);
 	}
 
-	@Watch("isLogged")
-	private routeChanged(islogged: boolean){
+	@Watch("isAdmin")
+	private routeChanged(isAdmin: boolean){
 		this.menu = [];
 		this.menu.push({ title: 'Games', icon: 'mdi-gamepad-square', link: '/games' });
-		if(islogged){
+		this.menu.push({ title: 'Friends', icon: 'mdi-account-multiple', link: '/user/friends' });
+		if(isAdmin){
 			this.menu.push({ title: 'CRUD games', icon:'mdi-gamepad-round-outline', link: '/admin/games' });
 		}
 	}
@@ -129,3 +143,9 @@ export default class extends Vue {
 	}
 }
 </script>
+
+<style>
+.v-item-group.v-bottom-navigation .v-btn {
+    height: inherit !important;
+}
+</style>

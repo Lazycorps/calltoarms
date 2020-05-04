@@ -79,15 +79,24 @@ const createRouter = () =>
 	});
 
 const router = createRouter();
-let adminRoutLoaded = false;
+
 router.beforeEach(async (to: Route, from: Route, next: any) => {
-  if(UserModule.token && !adminRoutLoaded){
-    adminRoutLoaded = true;
-    router.addRoutes(adminRoutes);
-    next();
-  }
+	if (UserModule.token) {
+    if (to.path === '/user/login') {
+      // If is logged in, redirect to the home page
+      next({ path: '/' })
+		}else	next();
+	}
   else next();
 });
+
+let adminRoutLoaded = false;
+export function initDynamicRoutes() {
+	if(UserModule.isAdmin && !adminRoutLoaded){
+		adminRoutLoaded = true;
+		router.addRoutes(adminRoutes);
+	}
+}
 
 export function resetRouter() {
   const newRouter = createRouter();

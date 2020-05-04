@@ -7,7 +7,7 @@
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         height="200px"
       >
-        <v-card-title v-text="game.name"></v-card-title>
+        <v-card-title v-text="game.title"></v-card-title>
       </v-img>
       <v-dialog
         v-model="dialog"
@@ -24,8 +24,8 @@
         >
           <v-card-title v-text="game.title"></v-card-title>
         </v-img>
-        <v-card-text class="mt-5" >
-         <p style="font-size: 16px;">Need help noob ? Call comrads to arms !</p>
+        <v-card-text class="mt-5 mb-0 pb-0" >
+          <v-textarea v-model="message" label="Message" outlined counter="140" auto-grow rows="1" class="mb-0 pa-0"></v-textarea>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -33,9 +33,10 @@
             tile 
             block 
             large
-            @click="dialog = false"
+            @click="notify"
+            :loading="loading"
           >
-          <v-icon class="mr-3">mdi-bugle</v-icon>
+          <v-icon class="mr-3 mt-0">mdi-bugle</v-icon>
             Call to arms
           </v-btn>
         </v-card-actions>
@@ -47,6 +48,9 @@
 <script lang="ts">
 import { Component, Vue, PropSync, Prop } from "vue-property-decorator";
 import { Game } from "@/models/Game/game";
+import { Notification } from "@/models/Notification/notification";
+import { NotificationApi } from "@/api/NotificationApi";
+import { UserModule } from '../../../store/modules/user';
 
 @Component({
   name: "GameCard"
@@ -55,9 +59,24 @@ export default class extends Vue {
   @Prop()
   private game!: Game;
   private dialog: boolean = false;
+  private loading: boolean = false;
+  private message: string = "I'm so noob, help me please !"
 
-  private notify(){
-    //TODO CALL NOTIFY API
+  private async notify(){
+    try {
+      this.loading = true;
+      let notification = new Notification();
+      notification.title = `${UserModule.username} play ${this.game.title}`;
+      notification.content = this.message;
+      notification.notification_type = 'wanna_play';
+      notification.game_id = this.game.id;
+      await NotificationApi.sendNotification(notification);
+      this.dialog = false;
+    } catch (error) {
+      console.log(error);
+    }finally{
+      this.loading = false;
+    }
   }
 }
 </script>

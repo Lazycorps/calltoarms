@@ -20,12 +20,12 @@ export abstract class UserApi {
     return response.data;
   }
 
-  static async updateUser(user: {email: string, username: string, firebase_token: string}): Promise<void>{
-    await this.axios.put(`${process.env.VUE_APP_ApiUrl}/api/v1/user`, user, {headers: { Authorization: `Bearer ${UserModule.token}` }});
+  static async updateFirebaseToken(firebaseToken: string): Promise<void>{
+    await this.axios.post(`${process.env.VUE_APP_ApiUrl}/api/v1/user/user_firebase_tokens`, { firebase_token: firebaseToken }, {headers: { Authorization: `Bearer ${UserModule.token}` }});
   }
 
   static async addFriend(username: string): Promise<Utilisateur>{
-    let response = await this.axios.put(`${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships`, { username: username }, {headers: { Authorization: `Bearer ${UserModule.token}` }});
+    let response = await this.axios.post(`${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships`, { username: username }, {headers: { Authorization: `Bearer ${UserModule.token}` }});
     return new Utilisateur(response.data);
   }
 }
