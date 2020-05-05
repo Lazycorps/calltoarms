@@ -21,14 +21,16 @@
 		</v-navigation-drawer>
 		<v-app-bar app color="primary" dark clipped-left>
 			<v-toolbar-title class="d-flex justify-start">
-       <v-icon x-large class="mr-5" @click="goHome">mdi-gamepad-variant</v-icon>
+       	<v-btn icon to="/" x-large ><v-icon x-large>mdi-gamepad-variant</v-icon></v-btn>
         <h2>I Play <b>BITCH</b></h2>
 				</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-btn text	color="white"	class="mr-2" v-if="!token" @click="logout">
 				<b>Sign-in</b>
 			</v-btn>
-			<b v-if="token" class="mr-2">{{ username }}</b>
+			<router-link v-if="isLogin" to="/user/profile" v-slot="{ href, route, navigate, isActive }">
+				<NavLink :active="isActive" :href="href" @click="navigate">{{ username }}</NavLink>		
+			</router-link>
 			<v-menu bottom offset-y v-if="token">
 				<template v-slot:activator="{ on }">
 					<v-btn
@@ -42,6 +44,10 @@
 					</v-btn>
 				</template>
 				<v-list>
+					<v-list-item to="/user/profile">
+						<v-list-item-title><v-icon class="mr-2">mdi-account</v-icon> Profile</v-list-item-title>
+					</v-list-item>
+					<v-divider></v-divider>
 					<v-list-item @click="logout">
 						<v-list-item-title><v-icon class="mr-2">mdi-logout</v-icon> Logout</v-list-item-title>
 					</v-list-item>
@@ -111,16 +117,21 @@ export default class extends Vue {
 		return !!UserModule.isAdmin;
 	}
 
+	get isLogin(): boolean{
+		return !!UserModule.token;
+	}
+
 	mounted(){
-		this.routeChanged(!!UserModule.token);
+		this.routeChanged();
 	}
 
 	@Watch("isAdmin")
-	private routeChanged(isAdmin: boolean){
+	@Watch('isLogin')
+	private routeChanged(){
 		this.menu = [];
 		this.menu.push({ title: 'Games', icon: 'mdi-gamepad-square', link: '/games' });
 		this.menu.push({ title: 'Friends', icon: 'mdi-account-multiple', link: '/user/friends' });
-		if(isAdmin){
+		if(this.isAdmin){
 			this.menu.push({ title: 'CRUD games', icon:'mdi-gamepad-round-outline', link: '/admin/games' });
 		}
 	}

@@ -41,6 +41,11 @@ export const constantRoutes: RouteConfig[] = [
 				path: "friends",
 				name: "Friends",
 				component: () => import(/* webpackChunkName: "friends" */ "@/views/user/friends/index.vue"),
+			},
+			{
+				path: "profile",
+				name: "Profile",
+				component: () => import(/* webpackChunkName: "profile" */ "@/views/user/profile/index.vue"),
 			}
 		],
 	},

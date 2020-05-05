@@ -8,9 +8,9 @@
 				append-icon="mdi-plus"
 				v-model="userToAdd"
 				@keypress.enter="addFriend"
-        @click:append="addFriend"
-        :loading="loading"
-        :error-messages="errorMessage"
+				@click:append="addFriend"
+				:loading="loading"
+				:error-messages="errorMessage"
 			></v-text-field>
 		</v-row>
 		<v-data-iterator :items="friends" hide-default-footer class="ml-5 mr-5" no-data-text="No friends found">

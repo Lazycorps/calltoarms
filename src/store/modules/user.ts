@@ -114,6 +114,8 @@ class User extends VuexModule implements IUserState {
   @Action
   public Logout() {
     this.RESET_TOKEN();
+    this.SET_IS_ADMIN(false);
+    this.SET_USERNAME("");
     resetRouter();
   }
 }
