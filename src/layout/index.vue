@@ -22,7 +22,7 @@
 		<v-app-bar app color="primary" dark clipped-left>
 			<v-toolbar-title class="d-flex justify-start">
        <v-icon x-large class="mr-5" @click="goHome">mdi-gamepad-variant</v-icon>
-        <h2>I Play <b>BITCH</b>, ici on aime le caca</h2>
+        <h2>I Play <b>BITCH</b></h2>
 				</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-btn text	color="white"	class="mr-2" v-if="!token" @click="logout">

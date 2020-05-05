@@ -31,7 +31,7 @@ export default class extends Vue {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (this.refreshing) return
       this.refreshing = true
-      window.location.reload()
+      window.location.reload(true);
     });
   }
 
@@ -44,14 +44,13 @@ export default class extends Vue {
     // to an app update being available.
     // The new service worker is installed, but not yet active.
     // Store the ServiceWorkerRegistration instance for later use.
-    console.log("I'm here bitch proute caca");
     const h = this.$createElement;
     this.registration = (e as CustomEvent).detail;
     this.snackbar = true;
   }
 
   private refreshApp() {
-    location.reload();
+    window.location.reload(true);
     // // Protect against missing registration.waiting.
     // if (!this.registration || !this.registration.waiting) return
     // this.registration.waiting.postMessage('skipWaiting')
