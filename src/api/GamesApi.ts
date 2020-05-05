@@ -9,8 +9,13 @@ export abstract class GamesApi {
   private static axios = Axios.create();
 
   static async fetchGames(): Promise<Game[]>{
-    let response = await this.axios.get<Game[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`);
-    return response.data.map(d => new Game(d));
+    if(UserModule.token){
+      let response = await this.axios.get<Game[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`, {headers: { Authorization: `Bearer ${UserModule.token}` }});
+      return response.data.map(d => new Game(d));
+    }else{
+      let response = await this.axios.get<Game[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`);
+      return response.data.map(d => new Game(d)); 
+   }
   }
 
   static async fetchGamesCrud(): Promise<GameCrud[]>{

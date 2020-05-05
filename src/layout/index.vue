@@ -28,9 +28,10 @@
 			<v-btn text	color="white"	class="mr-2" v-if="!token" @click="logout">
 				<b>Sign-in</b>
 			</v-btn>
-			<router-link v-if="isLogin" to="/user/profile" v-slot="{ href, route, navigate, isActive }">
+			<!-- <router-link v-if="isLogin" to="/user/profile" v-slot="{ href, route, navigate, isActive }">
 				<NavLink :active="isActive" :href="href" @click="navigate">{{ username }}</NavLink>		
-			</router-link>
+			</router-link> -->
+			<b class="mr-2">{{ username }}</b>
 			<v-menu bottom offset-y v-if="token">
 				<template v-slot:activator="{ on }">
 					<v-btn
