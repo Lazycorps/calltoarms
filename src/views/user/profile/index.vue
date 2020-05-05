@@ -16,6 +16,21 @@
           </v-card>
         </v-col>
       </v-row>
+            <v-row align="center" justify="center">
+        <v-col cols="12" sm="8" md="4">
+          <v-card>
+            <v-card-title class="red--text">
+              <h3>{{ user.username}}</h3>
+            </v-card-title>
+            <v-card-text>
+              <v-switch value input-value="true" label="Notification"></v-switch>
+            </v-card-text>
+            <v-card-text v-if="errorMessage != ''">
+              <v-alert type="warning">{{ errorMessage }}</v-alert>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </v-content>
 </template>

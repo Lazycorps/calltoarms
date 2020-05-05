@@ -31,8 +31,8 @@ export default class extends Vue {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (this.refreshing) return
       this.refreshing = true
-      window.location.reload(true);
-    });
+      window.location.reload()
+    })
   }
 
   render() {
@@ -50,10 +50,9 @@ export default class extends Vue {
   }
 
   private refreshApp() {
-    window.location.reload(true);
-    // // Protect against missing registration.waiting.
-    // if (!this.registration || !this.registration.waiting) return
-    // this.registration.waiting.postMessage('skipWaiting')
+    // Protect against missing registration.waiting.
+    if (!this.registration || !this.registration.waiting) return
+    this.registration.waiting.postMessage('skipWaiting')
   }
 }
 </script>
