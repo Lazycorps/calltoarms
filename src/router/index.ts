@@ -47,11 +47,11 @@ export const constantRoutes: RouteConfig[] = [
 				name: "Profile",
 				component: () => import(/* webpackChunkName: "profile" */ "@/views/user/profile/index.vue"),
 			},
-			// {
-			// 	path: "notification",
-			// 	name: "Notification",
-			// 	component: () => import(/* webpackChunkName: "notifications" */ "@/views/notifications/index.vue"),
-			// }
+			{
+				path: "notifications",
+				name: "Notifications",
+				component: () => import(/* webpackChunkName: "notifications" */ "@/views/notifications/index.vue"),
+			}
 		],
 	},
 ];

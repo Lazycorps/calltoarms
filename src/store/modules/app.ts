@@ -18,6 +18,7 @@ export interface IAppState {
 class App extends VuexModule implements IAppState {
   public device = DeviceType.Desktop
   public pushNotificationEnabled: boolean = true;
+  public newNotification: boolean = false;
 
   @Mutation
   private TOGGLE_DEVICE(device: DeviceType) {
@@ -29,9 +30,19 @@ class App extends VuexModule implements IAppState {
     this.pushNotificationEnabled = enabled;
   }
 
+  @Mutation
+  private SET_NEW_NOTIFICATION(value: boolean) {
+    this.newNotification = value;
+  }
+
   @Action
   public ToggleDevice(device: DeviceType) {
     this.TOGGLE_DEVICE(device)
+  }
+
+  @Action
+  public NewNotificationReceived(value: boolean) {
+    this.SET_NEW_NOTIFICATION(value)
   }
 
   @Action

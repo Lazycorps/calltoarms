@@ -44,6 +44,11 @@ class User extends VuexModule implements IUserState {
   };
 
   @Mutation
+  private SET_UTILISATEUR(user: Utilisateur): void {
+    this.utilisateur = user;
+  };
+
+  @Mutation
   private SET_USERNAME(username: string): void {
     this.status = username;
   };
@@ -69,6 +74,21 @@ class User extends VuexModule implements IUserState {
       window.location.reload(true);
       //this.ReadToken();
       //AppModule.InitPushNotification();
+    }catch(err){
+      this.LOGIN_FAIL();
+      let errorMessage = err;
+      if (err.response) {
+        errorMessage = `${err.response.data.status} : ${err.response.data.error}`;
+      }
+      throw(errorMessage);
+    }
+  }
+
+  @Action({rawError: true})
+  public async LoadUtilisateur(): Promise<any> {
+    try{
+     let user = await UserApi.getConnected();
+     this.SET_UTILISATEUR(user);
     }catch(err){
       this.LOGIN_FAIL();
       let errorMessage = err;

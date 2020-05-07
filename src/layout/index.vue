@@ -82,10 +82,17 @@
 				<span>Friends</span>
 				<v-icon>mdi-account-multiple</v-icon>
 			</v-btn>
-			<!-- <v-btn to="/user/notifications">
+			<v-btn to="/user/notifications">
 				<span>Notifications</span>
+				<v-badge
+					:value="newNotification"
+					color="blue"
+					overlap
+					dot
+				>
 				<v-icon>mdi-bell</v-icon>
-			</v-btn> -->
+				 </v-badge>
+			</v-btn>
 		</v-bottom-navigation>
 	</v-app>
 </template>
@@ -125,6 +132,10 @@ export default class extends Vue {
 		return !!UserModule.token;
 	}
 
+	get newNotification(){
+		return AppModule.newNotification;
+	}
+
 	mounted(){
 		this.routeChanged();
 	}
@@ -135,7 +146,7 @@ export default class extends Vue {
 		this.menu = [];
 		this.menu.push({ title: 'Games', icon: 'mdi-gamepad-square', link: '/games' });
 		this.menu.push({ title: 'Friends', icon: 'mdi-account-multiple', link: '/user/friends' });
-		// this.menu.push({ title: 'Notifications', icon: 'mdi-account-multiple', link: '/user/notifications' });
+		this.menu.push({ title: 'Notifications', icon: 'mdi-bell', link: '/user/notifications' });
 		if(this.isAdmin){
 			this.menu.push({ title: 'CRUD games', icon:'mdi-gamepad-round-outline', link: '/admin/games' });
 		}
