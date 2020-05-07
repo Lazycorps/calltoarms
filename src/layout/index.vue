@@ -59,7 +59,7 @@
 			<v-container fluid>
 				<v-alert v-if="!pushEnabled" border="left" text outlined prominent type="warning">
 					<v-row align="center">
-						<v-col class="grow">Oh nooo, i play bitch can't work correctly without notifications enabled :'(</v-col>
+						<v-col class="grow">Oh nooo, i play bitch can't work correctly without notifications enabled :'(, try a refresh ?</v-col>
 						<!-- <v-col class="shrink">
 							<v-btn>Enable notification</v-btn>
 						</v-col> -->
@@ -78,11 +78,14 @@
 				<span>Games</span>
 				<v-icon>mdi-gamepad-square</v-icon>
 			</v-btn>
-
-			<v-btn  to="/user/friends">
+			<v-btn to="/user/friends">
 				<span>Friends</span>
 				<v-icon>mdi-account-multiple</v-icon>
 			</v-btn>
+			<!-- <v-btn to="/user/notifications">
+				<span>Notifications</span>
+				<v-icon>mdi-bell</v-icon>
+			</v-btn> -->
 		</v-bottom-navigation>
 	</v-app>
 </template>
@@ -132,6 +135,7 @@ export default class extends Vue {
 		this.menu = [];
 		this.menu.push({ title: 'Games', icon: 'mdi-gamepad-square', link: '/games' });
 		this.menu.push({ title: 'Friends', icon: 'mdi-account-multiple', link: '/user/friends' });
+		// this.menu.push({ title: 'Notifications', icon: 'mdi-account-multiple', link: '/user/notifications' });
 		if(this.isAdmin){
 			this.menu.push({ title: 'CRUD games', icon:'mdi-gamepad-round-outline', link: '/admin/games' });
 		}

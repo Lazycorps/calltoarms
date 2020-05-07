@@ -4,7 +4,7 @@ export class NotificationDTO {
   public icon: string = '';
   public action: string = '';
   public notification_type: string = '';
-  public game_id: string = '';
+  public game_id: number = 0;
 }
 
 export class Notification extends NotificationDTO {

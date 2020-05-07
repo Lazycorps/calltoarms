@@ -66,8 +66,9 @@ class User extends VuexModule implements IUserState {
     try{
       let token = await UserApi.login(userInfo);
       this.SET_TOKEN(token);
-      this.ReadToken();
-      AppModule.InitPushNotification();
+      window.location.reload(true);
+      //this.ReadToken();
+      //AppModule.InitPushNotification();
     }catch(err){
       this.LOGIN_FAIL();
       let errorMessage = err;

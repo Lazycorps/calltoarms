@@ -8,7 +8,7 @@ module.exports = {
     name: "iplaybitch",
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
-      swSrc: path.resolve(__dirname, 'src/service-worker.js')
+      swSrc: path.resolve(__dirname, 'src/firebase-messaging-sw.js')
     }
   }
 };
