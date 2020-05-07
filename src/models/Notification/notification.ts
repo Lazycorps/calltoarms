@@ -5,6 +5,7 @@ export class NotificationDTO {
   public action: string = '';
   public notification_type: string = '';
   public game_id: number = 0;
+  public usernames!: string[];
 }
 
 export class Notification extends NotificationDTO {

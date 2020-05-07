@@ -5,7 +5,7 @@
 		</v-row>
 		<v-data-iterator :items="notifications" hide-default-footer no-data-text="No notifications">
 			<template v-slot:default="props">
-				<v-row v-for="notification in props.items" :key="notification.title" class="mt-3" no-gutters>
+				<v-row v-for="notification in props.items" :key="notification.id" class="mt-3" no-gutters>
 					<v-col cols="12" lg="6" md="12">
 						<v-card>
 							<v-card-text class="pa-2">
@@ -28,7 +28,8 @@
 										</v-row>
 									</v-col>
 									<v-col cols="auto">
-										<v-btn outlined text rounded @click="sendResponse(item)">I'm in</v-btn>
+										<v-btn v-if="!notification.response" outlined text rounded @click="sendResponse(notification)">I'm in</v-btn>
+										<v-icon v-else right color="green" class="ml-2" large>mdi-check-circle</v-icon>
 									</v-col>
 								</v-row>
 							</v-card-text>
@@ -56,7 +57,7 @@ import { Notification } from "@/models/Notification/notification";
 })
 export default class extends Vue {
 	private loading: boolean = false;
-  private errorMessage: string = "";
+  	private errorMessage: string = "";
 
 	get notifications(){
 		return UserModule.utilisateur.notifications_received.reverse();
@@ -68,10 +69,14 @@ export default class extends Vue {
 
 	private sendResponse(notifReceived:NotificationReceived){
 		let notif = new Notification();
-		notif.title = "Incoming !!";
+		notif.title = UserModule.utilisateur.username;
 		notif.content = "I'm in comrade !";
-
-		NotificationApi.sendNotification(notif, [notifReceived.sender_id.toString()])
+		notif.notification_type = "comrade_joining"
+		notif.game_id = notifReceived.game_id;
+		notif.usernames = [notifReceived.title.split(" ")[0]];
+		NotificationApi.sendNotification(notif).then(() =>{
+			notifReceived.response = "true";
+		});
 	}
 }
 </script>
