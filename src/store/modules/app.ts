@@ -11,7 +11,6 @@ export enum DeviceType {
 
 export interface IAppState {
   device: DeviceType
-
 }
 
 @Module({ dynamic: true, store, name: 'app' })
@@ -19,6 +18,7 @@ class App extends VuexModule implements IAppState {
   public device = DeviceType.Desktop
   public pushNotificationEnabled: boolean = true;
   public newNotification: boolean = false;
+  public notificationSound: string = localStorage.getItem("notification-sound") || "";;
 
   @Mutation
   private TOGGLE_DEVICE(device: DeviceType) {
@@ -35,6 +35,12 @@ class App extends VuexModule implements IAppState {
     this.newNotification = value;
   }
 
+  @Mutation
+  private SET_NOTIFICATION_SOUND(path: string) {
+    this.notificationSound = path;
+    localStorage.setItem("notification-sound", path);
+  }
+
   @Action
   public ToggleDevice(device: DeviceType) {
     this.TOGGLE_DEVICE(device)
@@ -43,6 +49,15 @@ class App extends VuexModule implements IAppState {
   @Action
   public NewNotificationReceived(value: boolean) {
     this.SET_NEW_NOTIFICATION(value)
+    if(value && this.notificationSound){
+      var audio = new Audio(`${process.env.VUE_APP_BaseUrl}/audio/notifications/${this.notificationSound}`);
+      audio.play();
+    }
+  }
+
+  @Action
+  public ChangeNotificationSound(path: string) {
+    this.SET_NOTIFICATION_SOUND(path);
   }
 
   @Action

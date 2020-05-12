@@ -14,5 +14,5 @@ export default new Vuetify({
         accent: colors.indigo.base,
       },
     },
-  }
+  },
 });

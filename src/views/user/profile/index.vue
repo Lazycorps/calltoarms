@@ -7,7 +7,19 @@
 						<h3>{{ user.username }}</h3>
 					</v-card-title>
 					<v-card-text>
-						<v-switch value input-value="true" label="Notification"></v-switch>
+						<!-- <v-btn outlined @click="testNotification">Test notification</v-btn> -->
+						<span class="d-flex align-center">
+							<v-select :items="audiosNotification" 
+								item-value="path" 
+								item-text="libelle" 
+								v-model="audiosNotificationSelected" 
+								append-outer-icon="mdi-play-circle"
+								label="Notification sound"
+								@change="audioChange"
+								@click:append-outer="testAudio"
+							></v-select>
+							<v-btn icon class="ml-2" :href="fullPathDownload"><v-icon>mdi-download</v-icon></v-btn>
+						</span>
 					</v-card-text>
 					<v-card-text v-if="errorMessage != ''">
 						<v-alert type="warning">{{ errorMessage }}</v-alert>
@@ -56,6 +68,7 @@
 							hide-default-footer
 							class="ml-5 mr-5"
 							no-data-text="No friends found"
+							disable-pagination
 						>
 							<template v-slot:default="props">
 								<v-row v-for="user in props.items" :key="user.username" class="mt-3">
@@ -80,7 +93,7 @@
 						Games library
 					</v-card-title>
 					<v-card-text>
-						<v-data-iterator :items="user.games" hide-default-footer class="ml-5 mr-5" no-data-text="No friends found">
+						<v-data-iterator :items="user.games" hide-default-footer class="ml-5 mr-5" no-data-text="No friends found" disable-pagination>
 							<template v-slot:default="props">
 								<v-row v-for="game in props.items" :key="game.id" class="mt-3" @click="editGame(game)">
 									<v-col cols="10">
@@ -145,29 +158,41 @@ import { Utilisateur } from "../../../models/Login/utilisateur";
 import { UserApi } from "../../../api/UserApi";
 import { GamesLibraryApi } from "@/api/GamesLibraryApi";
 import { Game } from "@/models/Game/game";
+import { AppModule } from '../../../store/modules/app';
+import { NotificationApi } from '@/api/NotificationApi';
+import { Notification } from "@/models/Notification/notification";
 
 @Component({
 	name: "UserProfile",
 })
 export default class extends Vue {
-	private user: Utilisateur = new Utilisateur();
 	public username: string = "";
 	public loading: Boolean = false;
 	public errorMessage: string = "";
+	public audiosNotification: {libelle:string, path: string}[] = [];
+	public audiosNotificationSelected: string = "";
 
   private gameDialog = false;
   private gameEdited = new Game();
 
-	mounted() {
-		this.loadUserConnected();
+	get user(){
+		return UserModule.utilisateur;
 	}
 
-	private async loadUserConnected() {
-		try {
-			this.user = await UserApi.getConnected();
-		} catch (err) {
-			this.errorMessage = err;
-		}
+	get fullPathDownload(){
+		return `${process.env.VUE_APP_BaseUrl}/audio/notifications/${this.audiosNotificationSelected}`;
+	}
+
+	mounted() {
+		this.audiosNotification.push({libelle:"No sound", path:""});
+		this.audiosNotification.push({libelle:"Horn", path:"horn.mp3"});
+		this.audiosNotification.push({libelle:"Air raid", path:"air-siren.mp3"});
+		this.audiosNotification.push({libelle:"Wololo", path:"wololo.mp3"});
+		this.audiosNotificationSelected = AppModule.notificationSound;
+	}
+
+	private audioChange(){
+		AppModule.ChangeNotificationSound(this.audiosNotificationSelected);
 	}
 
 	private async deleteGame(game: Game) {
@@ -179,12 +204,27 @@ export default class extends Vue {
 			this.errorMessage = err;
 		}
   }
-  
+	
+	private testAudio(){
+		if(this.audiosNotificationSelected) {
+			var audio = new Audio(`${process.env.VUE_APP_BaseUrl}/audio/notifications/${this.audiosNotificationSelected}`);
+			audio.play();
+		}
+	}
+
+	private testNotification(){
+		let notif = new Notification();
+		notif.title = "It's a test";
+		notif.content = "Oh god, i send notification to myself";
+		notif.notification_type = "comrade_joining"
+		notif.user_ids = [UserModule.utilisateur.id];
+		NotificationApi.sendNotification(notif);
+	}
+
   private async editGame(game: Game) {
 		try {
       this.gameDialog = true;
       this.gameEdited = game;
-
 		} catch (err) {
 			this.errorMessage = err;
 		}

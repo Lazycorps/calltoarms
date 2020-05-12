@@ -13,7 +13,7 @@
 				:error-messages="errorMessage"
 			></v-text-field>
 		</v-row>
-		<v-data-iterator :items="friends" hide-default-footer class="ml-5 mr-5" no-data-text="No friends found">
+		<v-data-iterator :items="friends" hide-default-footer class="ml-5 mr-5" disable-pagination no-data-text="No friends found">
 			<template v-slot:default="props">
 				<v-row v-for="user in props.items" :key="user.username" class="mt-3">
 					<span>
@@ -34,34 +34,25 @@ import { Component, Vue } from "vue-property-decorator";
 import { Game } from "@/models/Game/game";
 import { Friend } from "@/models/Friend/friend";
 import { UserApi } from "@/api/UserApi";
+import { UserModule } from '../../../store/modules/user';
 
 @Component({
 	name: "Friends",
 })
 export default class extends Vue {
-	private friends: Friend[] = [];
 	private userToAdd: string = "";
 	private loading: boolean = false;
   private errorMessage: string = "";
 
-	mounted() {
-		UserApi.getConnected().then((userConnected) => {
-			this.friends = userConnected.friends;
-		}).catch((error) => {
-			if (error.response) 
-				this.errorMessage = `${error.response.data.error}`;
-		});
+	get friends(){
+		return UserModule.utilisateur.friends;
 	}
 
-	private addFriend() {
+	private async addFriend() {
 		this.errorMessage = "";
 		this.loading = true;
-		UserApi.addFriend(this.userToAdd.trim()).then((user) => {
-			this.friends = user.friends;
-		}).catch((error) => {
-			if (error.response) {
-				this.errorMessage = `${error.response.data.error}`;
-			}
+		UserModule.AddFriend(this.userToAdd.trim()).catch((err)=> {
+			this.errorMessage = err.error;
 		}).finally(() => {
 			this.userToAdd = "";
 			this.loading = false;

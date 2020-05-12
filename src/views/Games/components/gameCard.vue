@@ -25,7 +25,7 @@
           <v-card-title>
             {{game.title}}
             <span v-if="isLoggin">
-              <v-chip v-if="!game.is_favorited_by_user" class="ma-2" small @click="addToLibrary">
+              <v-chip v-if="!gameOnLibrary" class="ma-2" small @click="addToLibrary">
                 <v-icon left>mdi-plus</v-icon>
                 Library
               </v-chip>
@@ -72,10 +72,13 @@ export default class extends Vue {
   private dialog: boolean = false;
   private loading: boolean = false;
   private message: string = "I'm so noob, help me please !"
-  private gameOnLibrary: boolean = false;
 
   get isLoggin(){
     return !!UserModule.token;
+  }
+
+  get gameOnLibrary(): boolean{
+    return UserModule.utilisateur?.games.some(g => g.id == this.game.id);
   }
 
   private async notify(){
@@ -86,6 +89,7 @@ export default class extends Vue {
       notification.content = this.message;
       notification.notification_type = 'wanna_play';
       notification.game_id = this.game.id;
+      notification.validity = 20;
       await NotificationApi.sendNotification(notification);
       this.dialog = false;
     } catch (error) {
@@ -98,7 +102,7 @@ export default class extends Vue {
   private async addToLibrary(){
     try {
       this.loading = true;
-      await GamesLibraryApi.addGame(+this.game.id, UserModule.username);
+      await UserModule.AddGameLibrary(this.game);
       this.game.is_favorited_by_user = true;
     } catch (error) {
       console.log(error);

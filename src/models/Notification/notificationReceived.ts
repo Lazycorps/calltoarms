@@ -12,6 +12,8 @@ export class NotificationReceivedDTO {
   public sender_id= 0;
   public title= "";
   public updated_at= "";
+  public validity = 15;
+  public expired = false;
 }
 
 export class NotificationReceived extends NotificationReceivedDTO {

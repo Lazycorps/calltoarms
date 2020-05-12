@@ -92,6 +92,9 @@ const router = createRouter();
 
 router.beforeEach(async (to: Route, from: Route, next: any) => {
 	if (UserModule.token) {
+		if(!UserModule.utilisateur)
+			UserModule.LoadUtilisateur();
+			
     if (to.path === '/user/login') {
       // If is logged in, redirect to the home page
       next({ path: '/' })

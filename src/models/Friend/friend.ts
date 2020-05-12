@@ -1,7 +1,7 @@
 
 
  export class FriendDTO {
-   public id: string = '';
+   public id: number = 0;
    public email: string = '';
    public username: string = '';
  }

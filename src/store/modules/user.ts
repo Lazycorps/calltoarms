@@ -9,6 +9,10 @@ import { JsonObject, JsonProperty, JsonConvert } from "json2typescript";
 import jwtDecode from "jwt-decode";
 import router, { resetRouter, initDynamicRoutes } from '@/router/index'
 import { AppModule } from './app';
+import { Game } from '@/models/Game/game';
+import { Friend } from '@/models/Friend/friend';
+import { GamesLibraryApi } from '@/api/GamesLibraryApi';
+import { NotificationApi } from '@/api/NotificationApi';
 
 export interface IUserState {
   token: string,
@@ -65,6 +69,21 @@ class User extends VuexModule implements IUserState {
     this.token = "";
     this.username = "";
   };
+
+  @Mutation
+  private ADD_GAME_LIBRARY(game: Game){
+    this.utilisateur.games.push(game);
+  }
+
+  @Mutation
+  private ADD_FRIEND(friend: Friend){
+    this.utilisateur.friends.push(friend);
+  }
+
+  @Mutation
+  private RESET_USER(){
+    this.utilisateur = new Utilisateur();
+  }
 
   @Action({rawError: true})
   public async Login(userInfo: { login: string, password: string }): Promise<any> {
@@ -135,9 +154,43 @@ class User extends VuexModule implements IUserState {
   @Action
   public Logout() {
     this.RESET_TOKEN();
+    this.RESET_USER();
     this.SET_IS_ADMIN(false);
     this.SET_USERNAME("");
     resetRouter();
+  }
+
+  @Action
+  public async AddGameLibrary(game: Game): Promise<void> {
+    await GamesLibraryApi.addGame(game.id, this.utilisateur.username);
+    this.ADD_GAME_LIBRARY(game);
+  }
+
+  @Action({rawError: true})
+  public async AddFriend(friend: string): Promise<Friend> {
+    return new Promise<Friend>((resolve, reject) => {
+      UserApi.addFriend(friend.trim()).then((user) => {
+        const friends = user.friends;
+        const friendAdd = friends.find(f => f.username == friend || f.email == friend);
+        if(friendAdd){
+          this.ADD_FRIEND(friendAdd);
+          resolve(friendAdd);
+        }else throw "User not found";
+      }).catch((error) => {
+        reject(error.response.data);
+      });
+    });
+  }
+
+  @Action({rawError : true})
+  public async RemoveNotification(id: number){
+    NotificationApi.deleteNotification(id).then(()=> {
+      const notifToRemove = this.utilisateur.notifications_received.find(i => i.id == id);
+      if(notifToRemove){
+        const index = this.utilisateur.notifications_received.indexOf(notifToRemove);
+        if (index > -1) this.utilisateur.notifications_received.splice(index, 1);
+      }
+    });
   }
 }
  

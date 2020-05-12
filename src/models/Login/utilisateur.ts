@@ -3,7 +3,7 @@ import { Game } from '../Game/game';
 import { NotificationReceived } from '../Notification/notificationReceived';
 
 export class UtilisateurDTO {
-  public id: string = '';
+  public id: number = 0;
   public email: string = '';
   public username: string = '';
   public friends: Friend[]= [];
