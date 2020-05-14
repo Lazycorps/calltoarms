@@ -20,7 +20,7 @@
       </v-list>
 		</v-navigation-drawer>
 		<v-app-bar app color="primary" dark clipped-left>
-			<v-toolbar-title class="d-flex justify-start">
+			<v-toolbar-title class="d-flex justify-start align-center">
        	<v-btn icon to="/" x-large ><v-icon x-large>mdi-gamepad-variant</v-icon></v-btn>
         <h2>I Play <b>BITCH</b></h2>
 				</v-toolbar-title>

@@ -6,8 +6,9 @@
 				<v-card-text class="pa-2">
 					<v-row no-gutters justify-center>
 						<v-col cols="auto" dense class="mr-5">
-							<v-avatar :color="notificationExpired() ? 'grey' : 'green'">
+							<v-avatar :color="notificationColor()">
 								<img v-if="notification.icon" alt="Avatar" :src="notification.icon" />
+								<v-icon v-else-if="notificationIcon()">{{ notificationIcon() }}</v-icon>
 								<span v-else class="white--text headline text-uppercase">{{ notification.title.substring(0, 2) }}</span>
 							</v-avatar>
 						</v-col>
@@ -24,6 +25,7 @@
 						</v-col>
 						<v-col cols="auto">
 							<v-icon v-if="notification.response" right color="green" class="ml-2" large>mdi-check-circle</v-icon>
+							<v-icon v-else-if="notification.notification_type == 'friend_request' && alreadyFriend" right color="green" class="ml-2" large>mdi-check-circle</v-icon>
 							<v-btn v-else-if="notification.notification_type == 'friend_request' && !alreadyFriend" color="green" class="ml-2" outlined text rounded @click="addFriend">
 								<v-icon>mdi-plus</v-icon>
 								Friend
@@ -63,13 +65,40 @@ export default class extends Vue {
 		return UserModule.utilisateur.friends.some(f => f.id == this.notification.sender_id);
 	}
 
-	private notificationExpired(){
-		return this.notification.expired || !this.notification.validity || moment(this.notification.created_at).add(this.notification.validity, 'minutes') > moment();
+	private notificationExpired(): boolean{
+		return this.notification.expired || 
+				!this.notification.validity || 
+				moment(this.notification.created_at).add(this.notification.validity, 'minutes').isBefore(moment());
+	}
+
+	private notificationColor(): string{
+		if(this.notification.notification_type == 'wanna_play' || this.notification.notification_type == 'comrade_joining'){
+			if(this.notificationExpired())
+				return 'grey';
+			else return 'green';
+		}
+		else if(this.notification.notification_type == 'friend_request'){
+			return 'blue';
+		}
+		else return 'grey';
+	}
+
+	private notificationIcon(): string{
+		if(this.notification.notification_type == 'wanna_play'){
+			return 'mdi-bell-ring';
+		}
+		else if(this.notification.notification_type == 'comrade_joining'){
+			return 'mdi-sword-cross';
+		}
+		else if(this.notification.notification_type == 'friend_request'){
+			return 'mdi-account-plus';
+		}
+		else return '';
 	}
 
 	private getDate(date: Date): string {
 		return moment(date).format("DD/MM/YYYY HH:mm");
-  }
+ 	}
   
 	private sendResponse(notifReceived: NotificationReceived) {
 		let notif = new Notification();
