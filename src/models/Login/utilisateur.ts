@@ -1,6 +1,8 @@
 import { Friend } from '../Friend/friend';
 import { Game } from '../Game/game';
 import { NotificationReceived } from '../Notification/notificationReceived';
+import { Friendship } from '../Friend/friendship';
+
 
 export class UtilisateurDTO {
   public id: number = 0;
@@ -8,6 +10,8 @@ export class UtilisateurDTO {
   public username: string = '';
   public friends: Friend[]= [];
   public followers: Friend[]= [];
+  public friendships: Friendship[] = [];
+  public friendships_requests: Friendship[] = [];
   public games: Game[]= [];
   public notifications_received: NotificationReceived[]= [];
 }

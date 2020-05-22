@@ -22,23 +22,16 @@
 		<v-app-bar app color="primary" dark clipped-left>
 			<v-toolbar-title class="d-flex justify-start align-center">
        	<v-btn icon to="/" x-large ><v-icon x-large>mdi-gamepad-variant</v-icon></v-btn>
-        <h2>I Play <b>BITCH</b></h2>
+        <h2>Call To Arms</h2>
 				</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-btn text	color="white"	class="mr-2" v-if="!token" @click="logout">
 				<b>Sign-in</b>
 			</v-btn>
-			<!-- <router-link v-if="isLogin" to="/user/profile" v-slot="{ href, route, navigate, isActive }">
-				<NavLink :active="isActive" :href="href" @click="navigate">{{ username }}</NavLink>		
-			</router-link> -->
 			<b class="mr-2">{{ username }}</b>
 			<v-menu bottom offset-y v-if="token">
 				<template v-slot:activator="{ on }">
-					<v-btn
-						icon
-						color="white"
-						v-on="on"
-					>
+					<v-btn icon	color="white"	v-on="on">
 						<v-avatar color="grey darken-2" size="36" class="pa-0">
 							<v-icon size="36" color="grey lighten-1">mdi-account-circle</v-icon>
 						</v-avatar>
@@ -47,6 +40,9 @@
 				<v-list>
 					<v-list-item to="/user/profile">
 						<v-list-item-title><v-icon class="mr-2">mdi-account</v-icon> Profile</v-list-item-title>
+					</v-list-item>
+					<v-list-item to="/help">
+						<v-list-item-title><v-icon class="mr-2">mdi-help-circle</v-icon> Help</v-list-item-title>
 					</v-list-item>
 					<v-divider></v-divider>
 					<v-list-item @click="logout">
@@ -59,10 +55,10 @@
 			<v-container fluid>
 				<v-alert v-if="!pushEnabled" border="left" text outlined prominent type="warning">
 					<v-row align="center">
-						<v-col class="grow">Oh nooo, i play bitch can't work correctly without notifications enabled :'(, try a refresh ?</v-col>
-						<!-- <v-col class="shrink">
-							<v-btn>Enable notification</v-btn>
-						</v-col> -->
+						<v-col class="grow">Oh noo, i play bitch can't work correctly without notifications enabled <v-icon color="warning">mdi-emoticon-cry-outline</v-icon>, try a refresh ?</v-col>
+						<v-col class="shrink" >
+							<v-btn to="/help" color="primary"><v-icon left>mdi-help-circle</v-icon>Help</v-btn>
+						</v-col>
 					</v-row>
 				</v-alert>
 				<app-main />
@@ -79,7 +75,7 @@
 				<v-icon>mdi-gamepad-square</v-icon>
 			</v-btn>
 			<v-btn to="/user/friends">
-				<span>Friends</span>
+				<span>Comrades</span>
 				<v-icon>mdi-account-multiple</v-icon>
 			</v-btn>
 			<v-btn to="/user/notifications" @click="refreshUser">

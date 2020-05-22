@@ -28,4 +28,10 @@ export abstract class UserApi {
     let response = await this.axios.post(`${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships`, { username: username }, {headers: { Authorization: `Bearer ${UserModule.token}` }});
     return new Utilisateur(response.data);
   }
+
+  static async updateFriendship(id: number, statut: string, sub: boolean): Promise<Utilisateur>{
+    let friendResponse = { status: statut, subscribed: sub};
+    let response = await this.axios.put(`${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships/${id}`, friendResponse, {headers: { Authorization: `Bearer ${UserModule.token}` }});
+    return new Utilisateur(response.data);
+  }
 }

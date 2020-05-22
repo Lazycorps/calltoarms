@@ -167,15 +167,11 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({rawError: true})
-  public async AddFriend(friend: string): Promise<Friend> {
-    return new Promise<Friend>((resolve, reject) => {
+  public async AddFriend(friend: string): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       UserApi.addFriend(friend.trim()).then((user) => {
-        const friends = user.friends;
-        const friendAdd = friends.find(f => f.username == friend || f.email == friend);
-        if(friendAdd){
-          this.ADD_FRIEND(friendAdd);
-          resolve(friendAdd);
-        }else throw "User not found";
+        this.SET_UTILISATEUR(user);
+        resolve();
       }).catch((error) => {
         reject(error.response.data);
       });
@@ -191,6 +187,11 @@ class User extends VuexModule implements IUserState {
         if (index > -1) this.utilisateur.notifications_received.splice(index, 1);
       }
     });
+  }
+
+  @Action({rawError : true})
+  public async UpdateFriendship(firenship : { id: number, status: string, subscribed: boolean}){
+    UserApi.updateFriendship(firenship.id, firenship.status, firenship.subscribed);
   }
 }
  

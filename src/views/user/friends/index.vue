@@ -13,17 +13,19 @@
 				:error-messages="errorMessage"
 			></v-text-field>
 		</v-row>
-		<v-data-iterator :items="friends" hide-default-footer class="ml-5 mr-5" disable-pagination no-data-text="No friends found">
+		<v-data-iterator :items="friendships_send" hide-default-footer color="primary" disable-pagination no-data-text="">
 			<template v-slot:default="props">
-				<v-row v-for="user in props.items" :key="user.username" class="mt-3">
-					<span>
-						<v-avatar color="red" class="mr-2">
-							<img v-if="user.avatar" alt="Avatar" :src="user.avatar" />
-							<span v-else class="white--text headline text-uppercase">{{ user.username.substring(0, 2) }}</span>
-						</v-avatar>
-						{{ user.username }}
-					</span>
-				</v-row>
+				<Frienship v-for="fr in props.items" :key="fr.id" class="mt-3" :friendship="fr"/>
+			</template>
+		</v-data-iterator>
+		<v-data-iterator :items="friendships_requests" hide-default-footer color="primary" disable-pagination no-data-text="">
+			<template v-slot:default="props">
+				<Frienship v-for="friendship in props.items" :key="friendship.id" class="mt-3" :friendship="friendship"/>
+			</template>
+		</v-data-iterator>
+		<v-data-iterator :items="friendships" hide-default-footer disable-pagination no-data-text="">
+			<template v-slot:default="props">
+				<Frienship v-for="friendship in props.items" :key="friendship.id" class="mt-3" :friendship="friendship"/>
 			</template>
 		</v-data-iterator>
 	</div>
@@ -35,27 +37,43 @@ import { Game } from "@/models/Game/game";
 import { Friend } from "@/models/Friend/friend";
 import { UserApi } from "@/api/UserApi";
 import { UserModule } from '../../../store/modules/user';
+import { Friendship } from '../../../models/Friend/friendship';
+import Frienship from "./components/friendship.vue";
 
 @Component({
 	name: "Friends",
+	components: { Frienship }
 })
 export default class extends Vue {
 	private userToAdd: string = "";
 	private loading: boolean = false;
   private errorMessage: string = "";
 
-	get friends(){
-		return UserModule.utilisateur.friends;
+	get friendships_send(){
+		return UserModule.utilisateur.friendships.filter(f => f.status == "pending").sort((a,b) => b.id - a.id);
+	}
+
+	get friendships(){
+		return UserModule.utilisateur.friendships.filter(f => f.status != "pending").sort((a,b) => b.id - a.id);
+	}
+
+	get friendships_requests(){
+		return UserModule.utilisateur.friendships_requests.filter(f => f.status == "pending").sort((a,b) => b.id - a.id);
 	}
 
 	private async addFriend() {
 		this.errorMessage = "";
 		this.loading = true;
-		UserModule.AddFriend(this.userToAdd.trim()).catch((err)=> {
+		UserModule.AddFriend(this.userToAdd.trim())
+		.then(()=> {
+			this.loading = false;
+			this.userToAdd = "";
+		})
+		.catch((err)=> {
 			this.errorMessage = err.error;
 		}).finally(() => {
-			this.userToAdd = "";
 			this.loading = false;
+			this.userToAdd = "";
 		});
 	}
 }

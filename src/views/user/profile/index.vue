@@ -31,71 +31,12 @@
 			<v-col cols="12" sm="12" md="6" lg="4">
 				<v-card>
 					<v-card-title>
-						Friends
-					</v-card-title>
-					<v-card-text>
-						<v-data-iterator
-							:items="user.friends"
-							hide-default-footer
-							class="ml-5 mr-5"
-							no-data-text="No friends found"
-						>
-							<template v-slot:default="props">
-								<v-row v-for="user in props.items" :key="user.username" class="mt-3">
-									<span>
-										<v-avatar color="red" class="mr-2">
-											<img v-if="user.avatar" alt="Avatar" :src="user.avatar" />
-											<span v-else class="white--text headline text-uppercase">{{
-												user.username.substring(0, 2)
-											}}</span>
-										</v-avatar>
-										{{ user.username }}
-									</span>
-								</v-row>
-							</template>
-						</v-data-iterator>
-					</v-card-text>
-				</v-card>
-			</v-col>
-			<v-col cols="12" sm="12" md="6" lg="4">
-				<v-card>
-					<v-card-title>
-						Followers
-					</v-card-title>
-					<v-card-text>
-						<v-data-iterator
-							:items="user.followers"
-							hide-default-footer
-							class="ml-5 mr-5"
-							no-data-text="No friends found"
-							disable-pagination
-						>
-							<template v-slot:default="props">
-								<v-row v-for="user in props.items" :key="user.username" class="mt-3">
-									<span>
-										<v-avatar color="green" class="mr-2">
-											<img v-if="user.avatar" alt="Avatar" :src="user.avatar" />
-											<span v-else class="white--text headline text-uppercase">{{
-												user.username.substring(0, 2)
-											}}</span>
-										</v-avatar>
-										{{ user.username }}
-									</span>
-								</v-row>
-							</template>
-						</v-data-iterator>
-					</v-card-text>
-				</v-card>
-			</v-col>
-			<v-col cols="12" sm="12" md="6" lg="4">
-				<v-card>
-					<v-card-title>
 						Games library
 					</v-card-title>
 					<v-card-text>
-						<v-data-iterator :items="user.games" hide-default-footer class="ml-5 mr-5" no-data-text="No friends found" disable-pagination>
+						<v-data-iterator :items="user.games" hide-default-footer no-data-text="No friends found" disable-pagination>
 							<template v-slot:default="props">
-								<v-row v-for="game in props.items" :key="game.id" class="mt-3" @click="editGame(game)">
+								<v-row v-for="game in props.items" :key="game.id" class="ma-0 mt-5" no-gutters @click="editGame(game)">
 									<v-col cols="10">
 										<v-avatar color="blue" class="mr-2">
 											<img v-if="game.avatar" alt="Avatar" :src="game.title" />
@@ -154,11 +95,11 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { UserModule } from "@/store/modules/user";
-import { Utilisateur } from "../../../models/Login/utilisateur";
-import { UserApi } from "../../../api/UserApi";
+import { Utilisateur } from "@/models/Login/utilisateur";
+import { UserApi } from "@/api/UserApi";
 import { GamesLibraryApi } from "@/api/GamesLibraryApi";
 import { Game } from "@/models/Game/game";
-import { AppModule } from '../../../store/modules/app';
+import { AppModule } from '@/store/modules/app';
 import { NotificationApi } from '@/api/NotificationApi';
 import { Notification } from "@/models/Notification/notification";
 

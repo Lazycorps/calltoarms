@@ -49,6 +49,7 @@ class App extends VuexModule implements IAppState {
   @Action
   public NewNotificationReceived(value: boolean) {
     this.SET_NEW_NOTIFICATION(value)
+    UserModule.LoadUtilisateur();
     if(value && this.notificationSound){
       var audio = new Audio(`${process.env.VUE_APP_BaseUrl}/audio/notifications/${this.notificationSound}`);
       audio.play();
@@ -63,43 +64,6 @@ class App extends VuexModule implements IAppState {
   @Action
   public async InitPushNotification(value: boolean) {
     this.SET_NOTIFICATION_STATUS(value);
-    // try {
-    //   if(UserModule.token){
-    //     var config = {
-    //       apiKey: "AIzaSyB2_byyXGkLlP7Icn2ckInxHm62IEHeZ9E",
-    //       authDomain: "iplaybitch.firebaseapp.com",
-    //       databaseURL: "https://iplaybitch.firebaseio.com/",
-    //       projectId: "iplaybitch",
-    //       storageBucket: "iplaybitch.appspot.com",
-    //       messagingSenderId: "1031582684001",
-    //       appId: "1:1031582684001:web:94d0df1ade779e85dd2b20",
-    //       measurementId: "G-BVYJKFCT1R"
-    //     }; // 4. Get Firebase Configuration
-    //     firebase.initializeApp(config);
-    
-    //     const messaging = firebase.messaging();
-    
-    //     messaging.usePublicVapidKey("BHz_yN7iQlV2j4oDBV6c432Eqw6wmQmj_YKR0xzRWlpK_RawaJ4MJzh_9IeqDjnAyCQT4OyUBMWev89uQ6gSvbQ"); // 1. Generate a new key pair
-    
-    //     // Request Permission of Notifications
-    //     await messaging.requestPermission();
-    //     console.log('Notification permission granted.');
-    //     let token = await messaging.getToken();
-    //     console.log("token");
-    //     await UserApi.updateFirebaseToken(token);
-    //     this.SET_NOTIFICATION_STATUS(true);
-    //     console.log("token updated");
-
-    //     messaging.onMessage(payload => {
-    //       console.log("Message received. ", payload);
-    //       const { title, ...options } = payload.notification;
-    //     });
-        
-    //   }
-    // } catch (error) {
-    //   this.SET_NOTIFICATION_STATUS(false);
-    //   console.log('Unable to get permission to notify.', error);
-    // }
   }
 }
 

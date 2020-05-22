@@ -21,6 +21,20 @@ export const constantRoutes: RouteConfig[] = [
 			},
 		],
 	},
+	{
+		path: "/",
+		name: "help",
+		component: Layout,
+		redirect: "/help",
+		children: [
+			{
+				path: "help",
+				name: "Help",
+				component: () => import(/* webpackChunkName: "games" */ "@/views/help/help.vue"),
+				meta: { icon: "mdi-help-circle", title: "Help", affix: true },
+			},
+		],
+	},
   {
 		path: "/user",
 		name: "user",
@@ -95,7 +109,7 @@ router.beforeEach(async (to: Route, from: Route, next: any) => {
 		if(!UserModule.utilisateur)
 			UserModule.LoadUtilisateur();
 			
-    if (to.path === '/user/login') {
+    if (to.path === '/user/login' || to.path === '/user/register' ) {
       // If is logged in, redirect to the home page
       next({ path: '/' })
 		}else	next();
