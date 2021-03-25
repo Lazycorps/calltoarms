@@ -1,14 +1,12 @@
-
-
 export class FriendshipDTO {
   public id = 0;
   public user_id = 0;
-  public user_username = "";
+  public user_username = '';
   public friend_id = 0;
-  public friend_username = "";
+  public friend_username = '';
   public status = '';
   public subscribed = false;
-  public username = "";
+  public username = '';
 }
 
 export class Friendship extends FriendshipDTO {

@@ -1,19 +1,17 @@
-import { Friend } from '../Friend/friend';
 import { Game } from '../Game/game';
 import { NotificationReceived } from '../Notification/notificationReceived';
 import { Friendship } from '../Friend/friendship';
 
-
 export class UtilisateurDTO {
-  public id: number = 0;
-  public email: string = '';
-  public username: string = '';
-  public friends: Friend[]= [];
-  public followers: Friend[]= [];
+  public id = 0;
+  public email = '';
+  public username = '';
+  // public friends: Friend[]= [];
+  // public followers: Friend[]= [];
   public friendships: Friendship[] = [];
   public friendships_requests: Friendship[] = [];
-  public games: Game[]= [];
-  public notifications_received: NotificationReceived[]= [];
+  public games: Game[] = [];
+  public notifications_received: NotificationReceived[] = [];
 }
 
 export class Utilisateur extends UtilisateurDTO {

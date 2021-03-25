@@ -1,28 +1,28 @@
-import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
-import store from '@/store'
+import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators';
+import store from '@/store';
 import firebase from 'firebase';
 import { UserModule } from './user';
 import { UserApi } from '@/api/UserApi';
 
 export enum DeviceType {
   Mobile,
-  Desktop,
+  Desktop
 }
 
 export interface IAppState {
-  device: DeviceType
+  device: DeviceType;
 }
 
 @Module({ dynamic: true, store, name: 'app' })
 class App extends VuexModule implements IAppState {
-  public device = DeviceType.Desktop
-  public pushNotificationEnabled: boolean = true;
-  public newNotification: boolean = false;
-  public notificationSound: string = localStorage.getItem("notification-sound") || "";;
+  public device = DeviceType.Desktop;
+  public pushNotificationEnabled = true;
+  public newNotification = false;
+  public notificationSound: string = localStorage.getItem('notification-sound') || '';
 
   @Mutation
   private TOGGLE_DEVICE(device: DeviceType) {
-    this.device = device
+    this.device = device;
   }
 
   @Mutation
@@ -38,20 +38,20 @@ class App extends VuexModule implements IAppState {
   @Mutation
   private SET_NOTIFICATION_SOUND(path: string) {
     this.notificationSound = path;
-    localStorage.setItem("notification-sound", path);
+    localStorage.setItem('notification-sound', path);
   }
 
   @Action
   public ToggleDevice(device: DeviceType) {
-    this.TOGGLE_DEVICE(device)
+    this.TOGGLE_DEVICE(device);
   }
 
   @Action
   public NewNotificationReceived(value: boolean) {
-    this.SET_NEW_NOTIFICATION(value)
+    this.SET_NEW_NOTIFICATION(value);
     UserModule.LoadUtilisateur();
-    if(value && this.notificationSound){
-      var audio = new Audio(`${process.env.VUE_APP_BaseUrl}/audio/notifications/${this.notificationSound}`);
+    if (value && this.notificationSound) {
+      const audio = new Audio(`${process.env.BASE_URL}/audio/notifications/${this.notificationSound}`);
       audio.play();
     }
   }
@@ -61,10 +61,54 @@ class App extends VuexModule implements IAppState {
     this.SET_NOTIFICATION_SOUND(path);
   }
 
-  @Action
-  public async InitPushNotification(value: boolean) {
-    this.SET_NOTIFICATION_STATUS(value);
+  @Action({ rawError: true })
+  public async InitPushNotification() {
+    if (UserModule.token) {
+      const config = {
+        apiKey: 'AIzaSyB2_byyXGkLlP7Icn2ckInxHm62IEHeZ9E',
+        authDomain: 'iplaybitch.firebaseapp.com',
+        databaseURL: 'https://iplaybitch.firebaseio.com/',
+        projectId: 'iplaybitch',
+        storageBucket: 'iplaybitch.appspot.com',
+        messagingSenderId: '1031582684001',
+        appId: '1:1031582684001:web:94d0df1ade779e85dd2b20',
+        measurementId: 'G-BVYJKFCT1R'
+      }; // 4. Get Firebase Configuration
+      firebase.initializeApp(config);
+
+      const messaging = firebase.messaging();
+
+      messaging.usePublicVapidKey(
+        'BHz_yN7iQlV2j4oDBV6c432Eqw6wmQmj_YKR0xzRWlpK_RawaJ4MJzh_9IeqDjnAyCQT4OyUBMWev89uQ6gSvbQ'
+      ); // 1. Generate a new key pair
+
+      // Request Permission of Notifications
+      messaging
+        .requestPermission()
+        .then(() => {
+          console.log('Notification permission granted.');
+          messaging
+            .getToken()
+            .then((token) => {
+              UserApi.updateFirebaseToken(token);
+              this.SET_NOTIFICATION_STATUS(true);
+              messaging.onMessage((payload) => {
+                console.log('Message received. ', payload);
+                this.SET_NEW_NOTIFICATION(true);
+                //const { title, ...options } = payload.notification;
+              });
+            })
+            .catch((error) => {
+              this.SET_NOTIFICATION_STATUS(false);
+              console.log('1 - Unable to get permission to notify.', error);
+            });
+        })
+        .catch((error) => {
+          this.SET_NOTIFICATION_STATUS(false);
+          console.log('2 - Unable to get permission to notify.', error);
+        });
+    }
   }
 }
-
-export const AppModule = getModule(App)
+//const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+export const AppModule = getModule(App);

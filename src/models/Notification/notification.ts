@@ -1,11 +1,11 @@
 export class NotificationDTO {
-  public title: string = '';
-  public content: string = '';
-  public icon: string = '';
-  public action: string = '';
-  public notification_type: string = '';
-  public game_id: number = 0;
-  public validity: number = 20;
+  public title = '';
+  public content = '';
+  public icon = '';
+  public action = '';
+  public notification_type = '';
+  public game_id = 0;
+  public validity = 20;
   public usernames!: string[];
   public user_ids!: number[];
 }

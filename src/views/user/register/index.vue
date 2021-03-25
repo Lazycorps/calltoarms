@@ -4,7 +4,11 @@
       <v-row align="center" justify="center">
         <v-col cols="12" sm="8" md="4">
           <v-card>
-            <v-card-title class="red--text">
+            <v-toolbar color="primary" dark flat>
+              <v-btn icon to="/" class="mr-0 pa-0"> <v-icon>mdi-sword-cross</v-icon></v-btn>
+              <v-card-title class="ml-0 pa-0">Call To arms</v-card-title>
+            </v-toolbar>
+            <v-card-title>
               <h3>New account</h3>
             </v-card-title>
             <v-card-text>
@@ -19,6 +23,7 @@
                   :rules="usernameRules"
                   validate-on-blur
                   color="blue"
+                  autofocus
                 ></v-text-field>
                 <v-text-field
                   label="Email"
@@ -37,7 +42,7 @@
                   prepend-icon="mdi-lock"
                   v-model="password"
                   :rules="passwordRules"
-                  :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye' "
+                  :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                   @click:append="showPassword = !showPassword"
                   :type="showPassword ? 'text' : 'password'"
                   validate-on-blur
@@ -49,9 +54,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn tile color="primary" :loading="loading" @click="Register"
-                >Register</v-btn
-              >
+              <v-btn tile color="primary" :loading="loading" @click="Register">Register</v-btn>
             </v-card-actions>
             <v-card-text v-if="errorMessage">
               <v-alert type="warning">{{ errorMessage }}</v-alert>
@@ -64,48 +67,56 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { UserModule } from "@/store/modules/user";
-import { UserRegister } from "@/models/User/UserRegister";
+import { Component, Vue } from 'vue-property-decorator';
+import { UserModule } from '@/store/modules/user';
+import { UserRegister } from '@/models/User/UserRegister';
 
 @Component({
-  name: "Register"
+  name: 'Register'
 })
 export default class extends Vue {
-  private username: string = "";
-  private usernameRules: any = [(v: string) =>  !!v || "Username is required", 
-                               (v: string) => v.length >= 3 || "Three chars min"];
+  private username = '';
+  private usernameRules: any = [
+    (v: string) => !!v || 'Username is required',
+    (v: string) => v.length >= 3 || 'Three chars min'
+  ];
 
-  private email: string = "";
-  private emailRules: any = [(v: string) =>  !!v || "Email is required", 
-                             (v: string) => /.+@.+\..+/.test(v) || 'E-mail must be valid'];
-  
-  private showPassword:boolean = false;
-  private password: string = "";
-  private passwordRules: any = [(v: string) =>  !!v || "Required Field", 
-                                (v: string) => this.passwordValidation(v)];
+  private email = '';
+  private emailRules: any = [
+    (v: string) => !!v || 'Email is required',
+    (v: string) => /.+@.+\..+/.test(v) || 'E-mail must be valid'
+  ];
 
-  private agreeShit: boolean = false;
-  public loading: Boolean = false;
-  public errorMessage: string = "";
+  private showPassword = false;
+  private password = '';
+  private passwordRules: any = [(v: string) => !!v || 'Required Field', (v: string) => this.passwordValidation(v)];
 
-  private passwordValidation(password: string): boolean | string{
+  private agreeShit = false;
+  public loading = false;
+  public errorMessage = '';
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private passwordValidation(password: string): boolean | string {
     return true;
-    
-    const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-    return (
-      pattern.test(password) ||
-      "Min. 8 characters with at least one capital letter, a number and a special character."
-    );
+
+    // const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+    // return (
+    //   pattern.test(password) || 'Min. 8 characters with at least one capital letter, a number and a special character.'
+    // );
   }
 
   public async Register() {
-    try{
-      let userRegister = new UserRegister({username:this.username, email: this.email, password: this.password, password_confirmation: this.password});
+    try {
+      const userRegister = new UserRegister({
+        username: this.username,
+        email: this.email,
+        password: this.password,
+        password_confirmation: this.password
+      });
       await UserModule.Register(userRegister);
-      await UserModule.Login({ login: this.email, password: this.password});
+      await UserModule.Login({ login: this.email, password: this.password });
       this.$router.push('/');
-    }catch(err){
+    } catch (err) {
       this.errorMessage = err;
     }
   }
@@ -113,7 +124,7 @@ export default class extends Vue {
 </script>
 <style>
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,

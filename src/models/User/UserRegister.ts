@@ -1,14 +1,14 @@
+export class UserRegisterDTO {
+  public username = '';
+  public email = '';
+  public password = '';
+  // eslint-disable-next-line camelcase
+  public password_confirmation = '';
+}
 
- export class UserRegisterDTO {
-   public username: string = '';
-   public email: string = '';
-   public password: string = '';
-   public password_confirmation: string = '';
- }
- 
- export class UserRegister extends UserRegisterDTO{
-   constructor(data?: UserRegisterDTO){
-     super();
-     Object.assign(this, data || new UserRegisterDTO());
-   }
- }
+export class UserRegister extends UserRegisterDTO {
+  constructor(data?: UserRegisterDTO) {
+    super();
+    Object.assign(this, data || new UserRegisterDTO());
+  }
+}
