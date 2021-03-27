@@ -4,12 +4,7 @@ module.exports = {
   env: {
     node: true
   },
-  extends: [
-    'plugin:vue/essential',
-    'eslint:recommended',
-    '@vue/typescript/recommended',
-    '@vue/prettier'
-  ],
+  extends: ['plugin:vue/essential', 'eslint:recommended', '@vue/typescript/recommended', '@vue/prettier'],
   parserOptions: {
     ecmaVersion: 2020
   },
@@ -18,6 +13,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/camelcase': 'off',
     'no-duplicate-imports': 'warn',
     'no-new-object': 'warn',
     'object-shorthand': 'warn',
@@ -33,8 +29,7 @@ module.exports = {
     'prefer-rest-params': 'warn',
     'dot-notation': 'warn',
     'no-multi-assign': 'warn',
-    "camelcase": "off",
-    "@typescript-eslint/camelcase": ["never"],
+    camelcase: 'off',
     'new-cap': [
       'warn',
       {
