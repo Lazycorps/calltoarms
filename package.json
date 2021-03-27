@@ -8,17 +8,9 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@capacitor/android": "^2.4.7",
-    "@capacitor/cli": "^2.4.7",
-    "@capacitor/core": "^2.4.7",
     "@types/google.analytics": "0.0.40",
     "@types/swiper": "^5.4.0",
     "axios": "^0.19.2",
-=======
-    "@types/swiper": "^5.3.1",
-    "axios": "^0.21.1",
->>>>>>> 613eec847dc9476aee7d0d077029dcd1861251cb
     "core-js": "^3.6.4",
     "firebase": "^8.2.1",
     "json2typescript": "^1.4.1",
