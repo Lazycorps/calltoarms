@@ -7,7 +7,7 @@
           For the proper functioning of the application it is recommended to use google chrome.
         </p>
         <p class="mb-2">
-          1 - Launch Chrome and go to https://iplaybitch.web.app
+          1 - Launch Chrome and go to https://calltoarms.be/
         </p>
         <p class="mb-2">2 - Click on Add to Homescreen</p>
         <p class="mb-2">3 - It's done</p>
@@ -19,7 +19,7 @@
                 Currently i play bitch cannot receive push notifications on iphone but you can use the app to send
                 notifications to your friends.
               </p>
-              <p>1 - Launch safari and go to https://iplaybitch.web.app</p>
+              <p>1 - Launch safari and go to https://calltoarms.be/</p>
               <p>2 - Click on <b>Add to Homescreen </b></p>
               <p>3 - It's done</p>
             </v-expansion-panel-content>
@@ -63,7 +63,7 @@
       <v-expansion-panel-content>
         <p class="mb-4">
           You can download awesome sound notification on your
-          <a href="https://iplaybitch.web.app/#/user/profile"> profile page </a>
+          <a href="https://calltoarms.be/#/user/profile"> profile page </a>
         </p>
         <p class="mb-2">1 - After installing the application</p>
         <p class="mb-2">2 - Push long time on the app icon</p>
@@ -100,13 +100,13 @@
               <p class="mb-2">2 - Click on uninstall</p>
               <p class="mb-2">
                 2 - Go to
-                <a href="https://iplaybitch.web.app"> IPlayBitch website</a>
+                <a href="https://calltoarms.be/"> Call to arms website</a>
               </p>
               <p class="mb-4">3 - Click on add to homescreen</p>
               <b>Or</b>
               <p class="mb-2 mt-4">
                 1 - Go to
-                <a href="https://iplaybitch.web.app"> IPlayBitch website</a>
+                <a href="https://calltoarms.be/"> Call to arms website</a>
                 with chrome
               </p>
               <p class="mb-2">2 - Click on the lock near app adress</p>
