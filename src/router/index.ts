@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Router, { Route, RouteConfig } from 'vue-router';
 import Layout from '@/layout/index.vue';
 import { UserModule } from '@/store/modules/user';
-import Games from '@/views/Games/index.vue';
 import Login from '@/views/user/login/index.vue';
 import Register from '@/views/user/register/index.vue';
 import Notifications from '@/views/notifications/index.vue';
@@ -13,15 +12,14 @@ Vue.use(Router);
 export const constantRoutes: RouteConfig[] = [
   {
     path: '/',
-    name: 'home',
+    name: 'Home',
     component: Layout,
-    redirect: '/games',
     children: [
       {
-        path: 'games',
-        name: 'Games',
-        component: Games,
-        meta: { icon: 'mdi-gamepad-square', title: 'Games', affix: true }
+        path: '/',
+        name: 'Home',
+        component: () => import(/* webpackChunkName: "home" */ '@/views/home/index.vue'),
+        meta: { icon: 'mdi-gamepad-square', title: 'Home', affix: true }
       }
     ]
   },

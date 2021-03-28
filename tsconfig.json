@@ -14,8 +14,7 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "vuetify",
-      "pdfjs-dist"
+      "vuetify"
     ],
     "paths": {
       "@/*": [

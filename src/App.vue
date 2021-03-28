@@ -12,7 +12,7 @@ import { AppModule } from './store/modules/app';
 import ServiceWorkerUpdatePopup from '@/components/ServiceWorkerUpdatePopup.vue';
 
 @Component({
-  name: 'Home',
+  name: 'App',
   components: { ServiceWorkerUpdatePopup }
 })
 export default class extends Vue {
