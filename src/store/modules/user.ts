@@ -27,6 +27,10 @@ class User extends VuexModule implements IUserState {
   public username: string = localStorage.getItem('username') || '';
   public isAdmin = false;
 
+  get isAuthenticate(): boolean {
+    return !!this.token;
+  }
+
   @Mutation
   private SET_TOKEN(token: string): void {
     localStorage.setItem('user-token', token);

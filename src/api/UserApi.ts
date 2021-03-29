@@ -2,6 +2,7 @@ import Axios from 'axios';
 import { UserModule } from '@/store/modules/user';
 import { UserRegister } from '@/models/User/UserRegister';
 import { Utilisateur } from '@/models/Login/utilisateur';
+import api from '@/api/BaseApi';
 
 export abstract class UserApi {
   private static axios = Axios.create();
@@ -12,7 +13,7 @@ export abstract class UserApi {
   }
 
   static async register(userInfo: UserRegister): Promise<any> {
-    await this.axios.post(`${process.env.VUE_APP_ApiUrl}/api/v1/users/sign_up`, userInfo);
+    await api.CallToArmsApi.post(`Users`, userInfo);
   }
 
   static async getConnected(): Promise<Utilisateur> {
@@ -34,7 +35,7 @@ export abstract class UserApi {
   static async addFriend(username: string): Promise<Utilisateur> {
     const response = await this.axios.post(
       `${process.env.VUE_APP_ApiUrl}/api/v1/user/friendships`,
-      { username: username },
+      { username },
       { headers: { Authorization: `Bearer ${UserModule.token}` } }
     );
     return new Utilisateur(response.data);

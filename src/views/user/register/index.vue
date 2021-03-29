@@ -110,8 +110,7 @@ export default class extends Vue {
       const userRegister = new UserRegister({
         username: this.username,
         email: this.email,
-        password: this.password,
-        password_confirmation: this.password
+        password: this.password
       });
       await UserModule.Register(userRegister);
       await UserModule.Login({ login: this.email, password: this.password });
