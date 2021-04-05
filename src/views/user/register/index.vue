@@ -113,7 +113,7 @@ export default class extends Vue {
         password: this.password
       });
       await UserModule.Register(userRegister);
-      await UserModule.Login({ login: this.email, password: this.password });
+      await UserModule.login({ login: this.email, password: this.password });
       this.$router.push('/');
     } catch (err) {
       this.errorMessage = err;

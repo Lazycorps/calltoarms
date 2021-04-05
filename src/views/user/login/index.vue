@@ -71,7 +71,7 @@ export default class extends Vue {
       this.loading = true;
       this.errorMessage = '';
       const { username, password } = this;
-      await UserModule.Login({ login: username, password });
+      await UserModule.login({ login: username, password });
 
       this.username = '';
       this.password = '';
