@@ -32,12 +32,12 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_TOKEN(token: string): void {
+  private setToken(token: string): void {
     localStorage.setItem('user-token', token);
     this.token = token;
     this.status = 'success';
-
     const tokenDecode = jwtDecode(this.token);
+
     const jsonConvert: JsonConvert = new JsonConvert();
     const tokenValue = jsonConvert.deserializeObject(tokenDecode, TokenDTO);
     localStorage.setItem('username', tokenValue.username);
@@ -45,27 +45,27 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private LOGIN_FAIL(): void {
+  private loginFail(): void {
     this.status = 'error';
   }
 
   @Mutation
-  private SET_UTILISATEUR(user: Utilisateur): void {
+  private setUser(user: Utilisateur): void {
     this.utilisateur = user;
   }
 
   @Mutation
-  private SET_USERNAME(username: string): void {
+  private setUsername(username: string): void {
     this.status = username;
   }
 
   @Mutation
-  private SET_IS_ADMIN(isAdmin: boolean): void {
+  private setIsAdmin(isAdmin: boolean): void {
     this.isAdmin = isAdmin;
   }
 
   @Mutation
-  private RESET_TOKEN(): void {
+  private resetToken(): void {
     localStorage.removeItem('user-token');
     localStorage.removeItem('username');
     this.token = '';
@@ -73,20 +73,20 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private ADD_GAME_LIBRARY(game: Game) {
+  private addGameLibrary(game: Game) {
     this.utilisateur.games.push(game);
   }
 
   @Mutation
-  private RESET_USER() {
+  private resetUser() {
     this.utilisateur = new Utilisateur();
   }
 
   @Action({ rawError: true })
-  public async Login(userInfo: { login: string; password: string }): Promise<any> {
+  public async login(userInfo: { login: string; password: string }): Promise<any> {
     try {
       const token = await UserApi.login(userInfo);
-      this.SET_TOKEN(token);
+      this.setToken(token);
       initDynamicRoutes();
       AppModule.InitPushNotification();
     } catch (err) {
@@ -103,10 +103,10 @@ class User extends VuexModule implements IUserState {
   public async LoadUtilisateur(): Promise<any> {
     try {
       const user = await UserApi.getConnected();
-      this.SET_UTILISATEUR(user);
+      this.setUser(user);
       initDynamicRoutes();
     } catch (err) {
-      this.LOGIN_FAIL();
+      this.loginFail();
       let errorMessage = err;
       if (err.response) {
         errorMessage = `${err.response.data.status} : ${err.response.data.error}`;
@@ -122,8 +122,8 @@ class User extends VuexModule implements IUserState {
         const tokenDecode = jwtDecode(this.token);
         const jsonConvert: JsonConvert = new JsonConvert();
         const tokenValue = jsonConvert.deserializeObject(tokenDecode, TokenDTO);
-        this.SET_USERNAME(tokenValue?.username);
-        this.SET_IS_ADMIN(tokenValue?.is_admin);
+        this.setUsername(tokenValue?.username);
+        this.setIsAdmin(tokenValue?.is_admin);
         initDynamicRoutes();
       }
     } catch (err) {
@@ -150,17 +150,17 @@ class User extends VuexModule implements IUserState {
 
   @Action
   public Logout() {
-    this.RESET_TOKEN();
-    this.RESET_USER();
-    this.SET_IS_ADMIN(false);
-    this.SET_USERNAME('');
+    this.resetToken();
+    this.resetUser();
+    this.setIsAdmin(false);
+    this.setUsername('');
     resetRouter();
   }
 
   @Action
   public async AddGameLibrary(game: Game): Promise<void> {
     await GamesLibraryApi.addGame(game.id, this.utilisateur.username);
-    this.ADD_GAME_LIBRARY(game);
+    this.addGameLibrary(game);
   }
 
   @Action({ rawError: true })
@@ -168,8 +168,8 @@ class User extends VuexModule implements IUserState {
     return new Promise<any>((resolve, reject) => {
       UserApi.addFriend(friend.trim())
         .then((user) => {
-          this.SET_UTILISATEUR(user);
-          resolve();
+          this.setUser(user);
+          resolve(true);
         })
         .catch((error) => {
           reject(error.response.data);

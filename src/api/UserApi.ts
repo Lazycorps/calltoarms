@@ -8,12 +8,13 @@ export abstract class UserApi {
   private static axios = Axios.create();
 
   static async login(userInfo: { login: string; password: string }): Promise<string> {
-    const response = await this.axios.post(`${process.env.VUE_APP_ApiUrl}/api/v1/users/sign_in`, userInfo);
+    const response = await api.CallToArmsApi.post(`users/login`, userInfo);
+    console.log(response);
     return response.headers['access-token'];
   }
 
   static async register(userInfo: UserRegister): Promise<any> {
-    await api.CallToArmsApi.post(`Users`, userInfo);
+    await api.CallToArmsApi.post(`users`, userInfo);
   }
 
   static async getConnected(): Promise<Utilisateur> {
