@@ -90,7 +90,7 @@ class User extends VuexModule implements IUserState {
       initDynamicRoutes();
       AppModule.InitPushNotification();
     } catch (err) {
-      this.LOGIN_FAIL();
+      this.loginFail();
       let errorMessage = err;
       if (err.response) {
         errorMessage = `${err.response.data.status} : ${err.response.data.error}`;
