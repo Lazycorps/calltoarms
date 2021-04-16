@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { UserModule } from '@/store/modules/user';
-
 export default class BaseApi {
   static get axiosBase() {
     if (UserModule.isAuthenticate) {

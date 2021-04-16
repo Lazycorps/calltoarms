@@ -2,20 +2,13 @@ import Axios from 'axios';
 import { UserModule } from '@/store/modules/user';
 import { GameCrud } from '@/models/Game/gameCrud';
 import { Game } from '@/models/Game/game';
-
+import api from '@/api/BaseApi';
 export abstract class GamesApi {
   private static axios = Axios.create();
 
   static async fetchGames(): Promise<Game[]> {
-    if (UserModule.token) {
-      const response = await this.axios.get<Game[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`, {
-        headers: { Authorization: `Bearer ${UserModule.token}` }
-      });
-      return response.data.map((d) => new Game(d));
-    } else {
-      const response = await this.axios.get<Game[]>(`${process.env.VUE_APP_ApiUrl}/api/v1/games`);
-      return response.data.map((d) => new Game(d));
-    }
+    const response = await api.CallToArmsApi.get<Game[]>(`/api/games`);
+    return response.data.map((d) => new Game(d));
   }
 
   static async fetchGamesCrud(): Promise<GameCrud[]> {
