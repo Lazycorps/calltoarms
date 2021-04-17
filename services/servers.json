@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CallToArms",
+      "Group": "Servers",
+      "Host": "postgres_container",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "cta_admin",
+      "Password": "tototatatiti1234",
+      "SSLMode": "prefer"
+    }
+  }
+}
