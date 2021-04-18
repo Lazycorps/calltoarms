@@ -29,6 +29,17 @@ services:
       - ./servers.json:/pgadmin4/servers.json
     restart: unless-stopped
 
+  calltoarms:
+    image: ${DOCKER_REGISTRY-}calltoarms
+    build:
+      context: .
+      dockerfile: CallToArms.API/Dockerfile
+    ports: 
+        - "5560:80"
+        - "40560:443"
+    depends_on:
+      - postgres
+
   games.api:
     image: ${DOCKER_REGISTRY-}gamesapi
     build:
@@ -39,6 +50,7 @@ services:
       - "40561:443"
     depends_on:
       - postgres
+
 volumes:
   database-data:
   pgadmin:
