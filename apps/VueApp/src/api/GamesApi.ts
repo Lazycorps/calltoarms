@@ -3,6 +3,10 @@ import { UserModule } from '@/store/modules/user';
 import { GameCrud } from '@/models/Game/gameCrud';
 import { Game } from '@/models/Game/game';
 import api from '@/api/BaseApi';
+import { components } from './generated/games-api';
+import { operations } from './generated/games-api';
+
+type getAllGames = operations["Games_GET"];
 export abstract class GamesApi {
   private static axios = Axios.create();
 

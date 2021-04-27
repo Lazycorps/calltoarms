@@ -1,4 +1,5 @@
 using Games.API.Database;
+using Games.API.Helpers;
 using Games.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -74,13 +75,12 @@ namespace Games.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
+                
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Games.API v1"));
             }
 
-            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("MyPolicy");
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
