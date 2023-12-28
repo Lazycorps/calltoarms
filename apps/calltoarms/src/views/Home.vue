@@ -1,20 +1,35 @@
 <template>
-  <v-row class="ma-2">
+  <v-text-field v-model="search" label="Search" :loading="searchLoading">
+    <template #append-inner>
+      <v-progress-circular
+        v-if="searchLoading"
+        indeterminate
+        color="grey"
+      ></v-progress-circular>
+    </template>
+  </v-text-field>
+  <v-progress-circular
+    v-if="loading"
+    indeterminate
+    color="grey"
+  ></v-progress-circular>
+  <v-row>
     <v-col
       v-for="game in games"
       :key="game.id"
       class="gameCard d-flex child-flex"
-      md="3"
       sm="6"
-      lg="1"
-      cols="3"
+      md="3"
+      lg="2"
+      xl="1"
+      xxl="1"
+      cols="6"
     >
       <v-img
-        :src="`https:${game.coverUrl}`"
+        :src="`https:${game.cover.url}`"
+        lazy-src="https://picsum.photos/id/11/100/60"
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-        height="352px"
-        aspect-ratio="1"
         cover
       >
       </v-img>
@@ -25,18 +40,43 @@
 <script lang="ts" setup>
 import { GamesApi } from "@/api/GamesApi";
 import { GameDTO } from "@/models/GameDTO";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
 
 const games = ref<GameDTO[]>([]);
+const search = ref("");
+const loading = ref(false);
+const searchLoading = ref(false);
 
 onMounted(() => {
   fetchGames();
 });
 
 async function fetchGames() {
-  const result = await GamesApi.getGames();
-  games.value = result;
+  try {
+    loading.value = true;
+    const result = await GamesApi.getGames("");
+    games.value = result;
+  } finally {
+    loading.value = false;
+  }
 }
+
+watch(search, () => {
+  searchLoading.value = true;
+});
+watchDebounced(
+  search,
+  async () => {
+    try {
+      const result = await GamesApi.getGames(search.value);
+      if (result) games.value = result;
+    } finally {
+      searchLoading.value = false;
+    }
+  },
+  { debounce: 500, maxWait: 1000 }
+);
 </script>
 
 <style scoped>
