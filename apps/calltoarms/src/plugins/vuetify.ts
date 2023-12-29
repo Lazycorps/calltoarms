@@ -21,5 +21,6 @@ export default createVuetify({
       ripple: false,
     },
     VTextField: { variant: "outlined" },
+    VTextarea: { variant: "outlined" },
   },
 });

@@ -1,27 +1,36 @@
 <template>
   <v-app-bar flat>
-    <v-app-bar-title>
-      <v-icon size="40" icon="mdi-sword-cross" />
-      Call to arms
-    </v-app-bar-title>
-    <v-spacer></v-spacer>
-    <div class="mr-3" style="font-size: 25px">
-      {{ auth.currentUser?.displayName }}
-    </div>
-    <v-menu location="bottom">
-      <template v-slot:activator="{ props }">
-        <v-btn class="text-none" stacked v-bind="props">
-          <v-avatar>
-            <v-icon size="40">mdi-account</v-icon>
-          </v-avatar>
-        </v-btn>
-      </template>
-      <v-list>
-        <v-list-item @click="logout">
-          <v-list-item-title class="text-red">Logout</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <template v-slot:prepend>
+      <v-app-bar-nav-icon icon="mdi-sword-cross"></v-app-bar-nav-icon>
+    </template>
+    <v-app-bar-title> Call to arms </v-app-bar-title>
+    <template v-slot:append>
+      <v-menu location="bottom" width="200px">
+        <template v-slot:activator="{ props }">
+          <v-btn class="text-none" stacked v-bind="props">
+            <v-avatar>
+              <v-icon size="40">mdi-account-circle</v-icon>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
+            <template #prepend>
+              <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
+              {{ auth.currentUser?.displayName ?? "" }}
+            </template>
+          </v-list-item>
+          <v-divider class="mt-2"></v-divider>
+          <v-list-item
+            @click="logout"
+            prepend-icon="mdi-logout"
+            class="text-red"
+            title="Logout"
+          >
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </template>
   </v-app-bar>
 </template>
 

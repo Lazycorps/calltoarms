@@ -20,6 +20,7 @@
     }
   ],
   "hosting": {
+    "predeploy": ["npm --prefix ./apps/callToArms run build:production"],
     "public": "apps/calltoarms/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [

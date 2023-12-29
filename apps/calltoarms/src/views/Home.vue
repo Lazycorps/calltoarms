@@ -31,10 +31,14 @@
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         cover
+        @click="showGame(game)"
       >
       </v-img>
     </v-col>
   </v-row>
+  <v-dialog v-model="dialog" width="600px" scrim="black">
+    <game-vue :game="selectedGame"></game-vue>
+  </v-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -42,11 +46,14 @@ import { GamesApi } from "@/api/GamesApi";
 import { GameDTO } from "@/models/GameDTO";
 import { onMounted, ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
+import GameVue from "./games/Game.vue";
 
 const games = ref<GameDTO[]>([]);
 const search = ref("");
 const loading = ref(false);
 const searchLoading = ref(false);
+const dialog = ref(false);
+const selectedGame = ref<GameDTO>(new GameDTO());
 
 onMounted(() => {
   fetchGames();
@@ -60,6 +67,11 @@ async function fetchGames() {
   } finally {
     loading.value = false;
   }
+}
+
+function showGame(game: GameDTO) {
+  dialog.value = true;
+  selectedGame.value = game;
 }
 
 watch(search, () => {
