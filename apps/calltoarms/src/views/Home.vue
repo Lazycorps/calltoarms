@@ -29,7 +29,6 @@
         :src="`https:${game.cover.url}`"
         lazy-src="https://picsum.photos/id/11/100/60"
         class="white--text align-end"
-        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         cover
         @click="showGame(game)"
       >
@@ -98,6 +97,6 @@ watchDebounced(
 }
 
 .gameCard:hover {
-  filter: brightness(130%);
+  transform: scale(1.03);
 }
 </style>

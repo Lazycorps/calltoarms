@@ -32,6 +32,7 @@ import { MessageDTO } from "@/models/MessageDTO";
 import { getAuth } from "firebase/auth";
 import { defineProps, ref } from "vue";
 import { MessageApi } from "@/api/MessageApi";
+import { Message, notificationDB } from "@/fireStore/NotificationDB";
 const auth = getAuth();
 
 const props = defineProps<{
@@ -43,13 +44,26 @@ const loading = ref(false);
 
 async function sendNotification() {
   try {
+    if (!auth.currentUser?.uid) return;
+
     loading.value = true;
-    const mess: MessageDTO = {
+    const notif: MessageDTO = {
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-      users: ["Q40wjR1LNSYcw5WD33rWNsaz4j43", "ZuG66XXHzrYvTjeLsPErzUCJlvq1"],
+      users: [],
     };
-    await MessageApi.sendNotification(mess);
+
+    const mess: Message = {
+      senderId: auth.currentUser?.uid,
+      body: message.value,
+      title: `${auth.currentUser?.displayName} play ${props.game.name}`,
+      receiverId: [],
+      gamesCover: props.game.cover.url ?? "",
+      gamesId: props.game.cover.url ?? "",
+      date: new Date(),
+    };
+    await notificationDB.addMessage(mess);
+    //await MessageApi.sendNotification(notif);
   } finally {
     loading.value = false;
   }

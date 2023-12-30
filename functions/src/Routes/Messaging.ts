@@ -8,10 +8,15 @@ export const messagingRoutes = express.Router();
 messagingRoutes.post("/send", async (req, res) => {
   const message = Object.assign(new MessageDTO(), req.body);
 
-  const snap = await getFirestore()
-    .collection("messagingTokens")
-    .where("userId", "in", message.users)
-    .get();
+  let snap;
+  if (!message.body) {
+    snap = await getFirestore()
+      .collection("messagingTokens")
+      .where("userId", "in", message.users)
+      .get();
+  } else {
+    snap = await getFirestore().collection("messagingTokens").get();
+  }
 
   const registrationTokens: string[] = [];
   snap.forEach((res) => {
