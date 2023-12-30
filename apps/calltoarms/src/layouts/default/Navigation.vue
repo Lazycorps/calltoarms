@@ -5,13 +5,13 @@
         prepend-icon="mdi-account-multiple"
         title="Friends"
         value="test"
-        @click="selectedItem = FriendsView"
+        @click="selectComponent('Friends')"
       ></v-list-item>
       <v-list-item
         prepend-icon="mdi-bell"
         title="Notifications"
         value="Notifications"
-        @click="selectedItem = NotificationsView"
+        @click="selectComponent('Notifications')"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -28,11 +28,24 @@
 <script setup lang="ts">
 import NotificationsView from "@/views/notifications/Notifications.vue";
 import FriendsView from "@/views/friends/Friends.vue";
-import { computed, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 
 const drawer = computed(() => {
   return selectedItem.value != null;
 });
 
 const selectedItem = shallowRef();
+const selectedItemTitle = ref("");
+
+function selectComponent(componentToSelect: string) {
+  if (selectedItemTitle.value == componentToSelect) {
+    selectedItem.value = null;
+    selectedItemTitle.value = "";
+  } else if (componentToSelect == "Notifications") {
+    selectedItem.value = NotificationsView;
+  } else if (componentToSelect == "Friends") {
+    selectedItem.value = FriendsView;
+  }
+  selectedItemTitle.value = componentToSelect;
+}
 </script>
