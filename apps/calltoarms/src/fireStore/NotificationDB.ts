@@ -1,13 +1,11 @@
 import { getAuth } from "firebase/auth";
 import {
-  DocumentData,
-  Query,
   addDoc,
   collection,
   getFirestore,
   query,
   where,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "notifications";
@@ -34,12 +32,26 @@ class NotificationsDb {
     }
   }
 
-  async getSend(): Promise<Message[]> {
+  async getSent(): Promise<Message[]> {
     const auth = getAuth();
     const db = getFirestore();
-    const q = query(collection(db, COLLECTION_NAME), where("senderId", "==", auth.currentUser?.uid));
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where("senderId", "==", auth.currentUser?.uid)
+    );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(d => d.data() as Message);
+    return querySnapshot.docs.map((d) => d.data() as Message);
+  }
+
+  async getReceived(): Promise<Message[]> {
+    const auth = getAuth();
+    const db = getFirestore();
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where("receiverIds", "array-contains", auth.currentUser?.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => d.data() as Message);
   }
 }
 

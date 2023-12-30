@@ -58,10 +58,10 @@ async function sendNotification() {
       receiverIds: [],
       gameCover: props.game.cover.url ?? "",
       gameId: props.game.id ?? 0,
-      date: new Date().toJSON()
+      date: new Date().toJSON(),
     };
     await notificationDB.addMessage(mess);
-    //await MessageApi.sendNotification(notif);
+    await MessageApi.sendNotification(notif);
   } finally {
     loading.value = false;
   }
