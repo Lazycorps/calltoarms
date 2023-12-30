@@ -13,27 +13,21 @@
     indeterminate
     color="grey"
   ></v-progress-circular>
-  <v-row>
-    <v-col
-      v-for="game in games"
-      :key="game.id"
-      class="gameCard d-flex child-flex"
-      sm="6"
-      md="3"
-      lg="2"
-      xl="1"
-      xxl="1"
-      cols="6"
-    >
+
+  <div class="d-flex flex-wrap">
+    <template v-for="game in games" :key="game.id">
       <v-img
         :src="`https:${game.cover.url}`"
         lazy-src="https://picsum.photos/id/11/100/60"
-        cover
         @click="showGame(game)"
+        cover
+        min-width="170px"
+        max-width="200px"
+        class="gameCard ma-2"
       >
       </v-img>
-    </v-col>
-  </v-row>
+    </template>
+  </div>
   <v-dialog v-model="dialog" width="600px" scrim="black">
     <game-vue :game="selectedGame"></game-vue>
   </v-dialog>
@@ -41,7 +35,7 @@
 
 <script lang="ts" setup>
 import { GamesApi } from "@/api/GamesApi";
-import { GameDTO } from "@/models/GameDTO";
+import { GameDTO } from "@/models/dto/GameDTO";
 import { onMounted, ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import GameVue from "./games/Game.vue";

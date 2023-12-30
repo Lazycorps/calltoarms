@@ -10,6 +10,27 @@
         </v-img>
       </v-col>
       <v-col>
+        <v-select
+          v-model="selectedUsers"
+          :items="usersStore.friends"
+          item-title="name"
+          item-value="id"
+          label="Select friends to notify"
+          variant="outlined"
+          multiple
+        >
+          <template v-slot:selection="{ item, index }">
+            <v-chip v-if="index < 3">
+              <span>{{ item.raw.name }}</span>
+            </v-chip>
+            <span
+              v-if="index === 3"
+              class="text-grey text-caption align-self-center"
+            >
+              (+{{ selectedUsers.length - 3 }} others)
+            </span>
+          </template>
+        </v-select>
         <v-textarea v-model="message" label="Message" />
         <v-btn
           block
@@ -25,20 +46,29 @@
 </template>
 
 <script lang="ts" setup>
-import { GameDTO } from "@/models/GameDTO";
-import { MessageDTO } from "@/models/MessageDTO";
+import { GameDTO } from "@/models/dto/GameDTO";
+import { MessageDTO } from "@/models/dto/MessageDTO";
 import { getAuth } from "firebase/auth";
 import { defineProps, ref } from "vue";
 import { MessageApi } from "@/api/MessageApi";
 import { Message, notificationDB } from "@/fireStore/NotificationDB";
-const auth = getAuth();
+import { useUsersStore } from "@/store/users";
+import { onMounted } from "vue";
 
+const auth = getAuth();
+const usersStore = useUsersStore();
 const props = defineProps<{
   game: GameDTO;
 }>();
 
 const message = ref("Hey noob, wanna play ?");
 const loading = ref(false);
+
+const selectedUsers = ref<string[]>([]);
+
+onMounted(() => {
+  usersStore.loadFriends();
+});
 
 async function sendNotification() {
   try {
@@ -48,14 +78,14 @@ async function sendNotification() {
     const notif: MessageDTO = {
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-      users: [],
+      users: selectedUsers.value,
     };
 
     const mess: Message = {
       senderId: auth.currentUser?.uid,
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-      receiverIds: [],
+      receiverIds: selectedUsers.value,
       gameCover: props.game.cover.url ?? "",
       gameId: props.game.id ?? 0,
       date: new Date().toJSON(),

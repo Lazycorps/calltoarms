@@ -37,6 +37,7 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { useRouter } from "vue-router";
+import { usersDB } from "@/fireStore/UsersDB";
 const router = useRouter();
 
 const passwordType = ref<"password" | "text">("password");
@@ -55,11 +56,11 @@ async function register() {
       password.value
     );
     if (!auth.currentUser) return;
-
     await sendEmailVerification(userCredential.user);
     await updateProfile(userCredential.user, {
       displayName: username.value,
     });
+    await usersDB.addCurrentUser();
     router.push("RegisterValidation");
   } catch (err: any) {
     if (err.code === "auth/invalid-email")

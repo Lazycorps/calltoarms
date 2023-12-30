@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer rail floating permanent return-object>
+  <v-navigation-drawer v-if="!mobile" rail floating permanent>
     <v-list density="compact" nav>
       <v-list-item
         prepend-icon="mdi-account-multiple"
@@ -25,12 +25,25 @@
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
+  <v-bottom-navigation :active="mobile" grow absolute>
+    <v-btn @click="selectComponent('Friends')">
+      <v-icon>mdi-account-multiple</v-icon>
+      <span>Friends</span>
+    </v-btn>
+
+    <v-btn @click="selectComponent('Notifications')">
+      <v-icon>mdi-bell</v-icon>
+      <span>Notifications</span>
+    </v-btn>
+  </v-bottom-navigation>
   <v-navigation-drawer
-    permanent
     width="300"
     color="#171717"
     v-model="drawer"
     class="pa-2"
+    :temporary="mobile"
+    :permanent="!mobile"
+    :location="mobile ? 'right' : 'left'"
   >
     <component :is="selectedItem"></component>
   </v-navigation-drawer>
@@ -40,8 +53,10 @@ import NotificationsView from "@/views/notifications/Notifications.vue";
 import FriendsView from "@/views/friends/Friends.vue";
 import { computed, ref, shallowRef } from "vue";
 import { useNotificationsStore } from "@/store/notifications";
+import { useDisplay } from "vuetify";
 
 const notificationsStore = useNotificationsStore();
+const { mobile } = useDisplay();
 
 const drawer = computed(() => {
   return selectedItem.value != null;
@@ -57,9 +72,10 @@ function selectComponent(componentToSelect: string) {
   } else if (componentToSelect == "Notifications") {
     notificationsStore.count = 0;
     selectedItem.value = NotificationsView;
+    selectedItemTitle.value = componentToSelect;
   } else if (componentToSelect == "Friends") {
     selectedItem.value = FriendsView;
+    selectedItemTitle.value = componentToSelect;
   }
-  selectedItemTitle.value = componentToSelect;
 }
 </script>

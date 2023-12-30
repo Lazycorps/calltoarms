@@ -60,7 +60,7 @@ import {
   applyActionCode,
 } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import { addCurrentUser } from "@/fireStore/Users";
+import { usersDB } from "@/fireStore/UsersDB";
 
 const passwordType = ref<"password" | "text">("password");
 const email = ref("");
@@ -82,7 +82,6 @@ console.log(auth.currentUser);
 async function signIn() {
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value);
-    await addCurrentUser();
     if (!auth.currentUser?.emailVerified) {
       errorValidationEmail.value = true;
     } else router.push("/");

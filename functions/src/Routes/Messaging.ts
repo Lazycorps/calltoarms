@@ -6,10 +6,10 @@ import { MessageDTO } from "../models/MessageDTO";
 export const messagingRoutes = express.Router();
 
 messagingRoutes.post("/send", async (req, res) => {
-  const message = Object.assign(new MessageDTO(), req.body);
+  const message = Object.assign(new MessageDTO(), req.body) as MessageDTO;
 
   let snap;
-  if (!message.body) {
+  if (message.users.length) {
     snap = await getFirestore()
       .collection("messagingTokens")
       .where("userId", "in", message.users)
@@ -23,11 +23,11 @@ messagingRoutes.post("/send", async (req, res) => {
     const token = res.data().token;
     if (token) registrationTokens.push(...res.data().token);
   });
-
+  if (!registrationTokens.length) res.status(200);
   const notification = {
     notification: {
       title: message.title,
-      body: message.message,
+      body: message.body,
     },
     tokens: registrationTokens,
   };
