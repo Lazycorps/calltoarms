@@ -4,8 +4,14 @@
       <v-list-item
         prepend-icon="mdi-account-multiple"
         title="Friends"
-        value="test"
+        value="Friends"
         @click="selectComponent('Friends')"
+      ></v-list-item>
+      <v-list-item
+        prepend-icon="mdi-account-group"
+        title="Communities"
+        value="Communities"
+        @click="selectComponent('Communities')"
       ></v-list-item>
       <v-list-item
         prepend-icon="mdi-bell"
@@ -38,6 +44,7 @@
 <script setup lang="ts">
 import NotificationsView from "@/views/notifications/Notifications.vue";
 import FriendsView from "@/views/friends/Friends.vue";
+import CommunitiesView from "@/views/communities/Communities.vue";
 import { computed, ref, shallowRef } from "vue";
 import { useNotificationsStore } from "@/store/notifications";
 
@@ -59,6 +66,8 @@ function selectComponent(componentToSelect: string) {
     selectedItem.value = NotificationsView;
   } else if (componentToSelect == "Friends") {
     selectedItem.value = FriendsView;
+  } else if (componentToSelect == "Communities") {
+    selectedItem.value = CommunitiesView;
   }
   selectedItemTitle.value = componentToSelect;
 }
