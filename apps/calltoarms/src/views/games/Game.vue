@@ -57,10 +57,10 @@ async function sendNotification() {
       senderId: auth.currentUser?.uid,
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-      receiverId: [],
-      gamesCover: props.game.cover.url ?? "",
-      gamesId: props.game.cover.url ?? "",
-      date: new Date(),
+      receiverIds: [],
+      gameCover: props.game.cover.url ?? "",
+      gameId: props.game.id ?? 0,
+      date: new Date().toJSON()
     };
     await notificationDB.addMessage(mess);
     //await MessageApi.sendNotification(notif);

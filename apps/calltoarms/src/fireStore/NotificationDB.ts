@@ -2,21 +2,19 @@ import { getAuth } from "firebase/auth";
 import {
   addDoc,
   collection,
-  doc,
   getFirestore,
-  setDoc,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "notifications";
 
 export class Message {
   senderId = "";
-  receiverId = [];
-  gamesId = "";
-  gamesCover = "";
+  receiverIds = [];
+  gameId = 0;
+  gameCover = "";
   title = "";
   body = "";
-  date = new Date();
+  date = new Date().toUTCString();
 }
 
 class NotificationsDb {

@@ -4,6 +4,7 @@ import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import ViteFonts from "unplugin-fonts/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import mkcert from "vite-plugin-mkcert";
+import VueDevTools from "vite-plugin-vue-devtools";
 
 // Utilities
 import { defineConfig } from "vite";
@@ -13,6 +14,7 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
   envDir: "env",
   plugins: [
+    // VueDevTools(),
     mkcert(),
     vue({
       template: { transformAssetUrls },
