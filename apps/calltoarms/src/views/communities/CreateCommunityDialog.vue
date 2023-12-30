@@ -9,7 +9,10 @@
         <v-card-text>
           <v-form>
             <v-text-field label="Name" v-model="newCommunity.name" />
-            <v-text-field label="Description" v-model="newCommunity.description" />
+            <v-text-field
+              label="Description"
+              v-model="newCommunity.description"
+            />
           </v-form>
         </v-card-text>
 
@@ -19,7 +22,8 @@
           <v-btn
             color="success"
             text="Create"
-            @click="isActive.value = false"
+            @click="createCommunity"
+            :loading="loading"
           ></v-btn>
         </v-card-actions>
       </v-card>
@@ -30,9 +34,30 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { CommunityDTO } from "@/models/CommunityDTO";
+import { Community, communitiesDB } from "@/fireStore/CommunitiesDB";
+import { getAuth } from "firebase/auth";
 
+const auth = getAuth();
 const dialog = ref(false);
 const newCommunity = reactive(new CommunityDTO());
+const loading = ref(false);
+
+async function createCommunity() {
+  try {
+    if (!auth.currentUser?.uid) return;
+
+    loading.value = true;
+    const communityToCreate: Community = {
+      creatorId: auth.currentUser?.uid,
+      name: newCommunity.name,
+      description: newCommunity.description,
+    };
+    await communitiesDB.addCommunity(communityToCreate);
+    closeDialog();
+  } finally {
+    loading.value = false;
+  }
+}
 
 function closeDialog() {
   dialog.value = false;
