@@ -28,7 +28,6 @@
       <v-img
         :src="`https:${game.cover.url}`"
         lazy-src="https://picsum.photos/id/11/100/60"
-        class="white--text align-end"
         cover
         @click="showGame(game)"
       >

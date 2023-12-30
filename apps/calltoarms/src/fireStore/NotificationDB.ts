@@ -1,8 +1,13 @@
 import { getAuth } from "firebase/auth";
 import {
+  DocumentData,
+  Query,
   addDoc,
   collection,
   getFirestore,
+  query,
+  where,
+  getDocs
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "notifications";
@@ -27,6 +32,14 @@ class NotificationsDb {
     } catch (err: any) {
       console.log(err);
     }
+  }
+
+  async getSend(): Promise<Message[]> {
+    const auth = getAuth();
+    const db = getFirestore();
+    const q = query(collection(db, COLLECTION_NAME), where("senderId", "==", auth.currentUser?.uid));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(d => d.data() as Message);
   }
 }
 

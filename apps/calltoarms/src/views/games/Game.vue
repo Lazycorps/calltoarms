@@ -5,8 +5,6 @@
         <v-img
           :src="`https:${game.cover.url}`"
           lazy-src="https://picsum.photos/id/11/100/60"
-          class="white--text align-end"
-          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
           cover
         >
         </v-img>
