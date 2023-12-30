@@ -12,7 +12,17 @@
         title="Notifications"
         value="Notifications"
         @click="selectComponent('Notifications')"
-      ></v-list-item>
+      >
+        <template #prepend>
+          <v-badge
+            v-model="notificationsStore.newNotification"
+            :content="notificationsStore.count"
+            color="error"
+          >
+            <v-icon>mdi-bell</v-icon>
+          </v-badge>
+        </template>
+      </v-list-item>
     </v-list>
   </v-navigation-drawer>
   <v-navigation-drawer
@@ -29,6 +39,9 @@
 import NotificationsView from "@/views/notifications/Notifications.vue";
 import FriendsView from "@/views/friends/Friends.vue";
 import { computed, ref, shallowRef } from "vue";
+import { useNotificationsStore } from "@/store/notifications";
+
+const notificationsStore = useNotificationsStore();
 
 const drawer = computed(() => {
   return selectedItem.value != null;
@@ -42,6 +55,7 @@ function selectComponent(componentToSelect: string) {
     selectedItem.value = null;
     selectedItemTitle.value = "";
   } else if (componentToSelect == "Notifications") {
+    notificationsStore.count = 0;
     selectedItem.value = NotificationsView;
   } else if (componentToSelect == "Friends") {
     selectedItem.value = FriendsView;

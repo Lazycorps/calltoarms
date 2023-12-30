@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { messagingTokensDB } from "@/fireStore/MessagingTokensDB";
+import { useNotificationsStore } from "@/store/notifications";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBQ-2r3HN2_Vf60dnwNQcxBikwi4s7XknQ",
@@ -15,6 +16,9 @@ export const firebaseApp = initializeApp(firebaseConfig);
 
 const messaging = getMessaging(firebaseApp);
 onMessage(messaging, (payload) => {
+  const notificationsStore = useNotificationsStore();
+  console.log(notificationsStore);
+  notificationsStore.increment();
   console.log("Message received. ", payload);
 });
 
