@@ -22,5 +22,6 @@ export default createVuetify({
     },
     VTextField: { variant: "outlined" },
     VTextarea: { variant: "outlined" },
+    VDialog: { scrim: "black" },
   },
 });
