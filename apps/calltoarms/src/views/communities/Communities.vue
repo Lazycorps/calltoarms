@@ -1,26 +1,26 @@
 <template>
   <p>Your communities</p>
-  <ul>
-    <li v-for="community in userCommunities" :key="community.name">
-      {{ community.name }}
-    </li>
-  </ul>
-
+  <CommunityTile
+    :community="community"
+    v-for="community in userCommunities"
+    :key="community.name"
+  />
   <CreateCommunityDialog />
   <v-text-field
     label="Search.."
     v-model="searchTerm"
     @input="searchCommunities"
   />
-  <ul>
-    <li v-for="community in matchingCommunities" :key="community.name">
-      {{ community.name }}
-    </li>
-  </ul>
+  <CommunityTile
+    :community="community"
+    v-for="community in matchingCommunities"
+    :key="community.name"
+  />
 </template>
 
 <script lang="ts" setup>
 import CreateCommunityDialog from "@/views/communities/CreateCommunityDialog.vue";
+import CommunityTile from "./CommunityTile.vue";
 
 import { Community, communitiesDB } from "@/fireStore/CommunitiesDB";
 import { ref } from "vue";
