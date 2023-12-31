@@ -5,7 +5,18 @@
       {{ community.name }}
     </li>
   </ul>
+
   <CreateCommunityDialog />
+  <v-text-field
+    label="Search.."
+    v-model="searchTerm"
+    @input="searchCommunities"
+  />
+  <ul>
+    <li v-for="community in matchingCommunities" :key="community.name">
+      {{ community.name }}
+    </li>
+  </ul>
 </template>
 
 <script lang="ts" setup>
@@ -16,6 +27,8 @@ import { ref } from "vue";
 import { onMounted } from "vue";
 
 const userCommunities = ref<Community[]>([]);
+const searchTerm = ref("");
+const matchingCommunities = ref<Community[]>([]);
 
 onMounted(() => {
   loadUserCommunities();
@@ -24,5 +37,11 @@ onMounted(() => {
 async function loadUserCommunities() {
   const communities = await communitiesDB.getUserCommunities();
   if (communities) userCommunities.value = communities;
+}
+
+async function searchCommunities() {
+  const communities = await communitiesDB.searchCommunities(searchTerm.value);
+  if (communities) matchingCommunities.value = communities;
+  else matchingCommunities.value = [];
 }
 </script>

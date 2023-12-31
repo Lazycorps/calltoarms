@@ -50,6 +50,7 @@ async function createCommunity() {
     const communityToCreate: Community = {
       creatorId: auth.currentUser?.uid,
       name: newCommunity.name,
+      name_insensitive: newCommunity.name.toLowerCase(),
       description: newCommunity.description,
       membersIds: [auth.currentUser?.uid]
     };
