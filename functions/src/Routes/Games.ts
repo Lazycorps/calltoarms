@@ -59,7 +59,7 @@ async function GetGames(search: any, twitchToken: string) {
   requestHeaders.set("Client-ID", `${clientId?.toString()}`);
   requestHeaders.set("Authorization", `Bearer ${twitchToken}`);
 
-  let gameQuery = `fields id,name,slug,cover.url,total_rating_count; limit 50; where version_parent = null; where total_rating_count > 20;`;
+  let gameQuery = `fields id,name,slug,cover.url,total_rating_count; limit 60; where version_parent = null; where total_rating_count > 20;`;
   if (search) gameQuery = `${gameQuery} search "${search}";`;
   else gameQuery = `${gameQuery} sort total_rating_count desc;`;
 
