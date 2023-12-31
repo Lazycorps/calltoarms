@@ -8,7 +8,7 @@
     </template>
     <template v-slot:append>
       <v-btn v-if="notificationPermission != 'granted'" color="orange">
-        <v-icon size="40">mdi-alert-outline</v-icon>
+        <v-icon size="35">mdi-alert-outline</v-icon>
         <v-dialog activator="parent" width="auto">
           <v-card>
             <v-card-text class="ma-0">

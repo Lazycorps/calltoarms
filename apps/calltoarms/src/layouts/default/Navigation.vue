@@ -41,7 +41,13 @@
     </v-btn>
 
     <v-btn @click="selectComponent('Notifications')">
-      <v-icon>mdi-bell</v-icon>
+      <v-badge
+        v-model="notificationsStore.newNotification"
+        :content="notificationsStore.count"
+        color="error"
+      >
+        <v-icon>mdi-bell</v-icon>
+      </v-badge>
       <span>Notifications</span>
     </v-btn>
   </v-bottom-navigation>
