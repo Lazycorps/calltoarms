@@ -17,24 +17,24 @@ export const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 onMessage(messaging, (payload) => {
   const notificationsStore = useNotificationsStore();
-  console.log(notificationsStore);
   notificationsStore.increment();
   console.log("Message received. ", payload);
 });
 
-getToken(messaging, {
-  vapidKey:
-    "BB8nRs86IjldHGzatHr_QDd0It22crgz42z5d-e5BVCDYJQUahn704LxrFPra3tTGPtOaIZqPRuIoMaLiOsM3-U",
-})
-  .then(async (currentToken) => {
-    if (currentToken) {
-      await messagingTokensDB.addMessagingToken(currentToken);
-    } else {
-      console.log(
-        "No registration token available. Request permission to generate one."
-      );
-    }
+export const enableWebNotification = () =>
+  getToken(messaging, {
+    vapidKey:
+      "BB8nRs86IjldHGzatHr_QDd0It22crgz42z5d-e5BVCDYJQUahn704LxrFPra3tTGPtOaIZqPRuIoMaLiOsM3-U",
   })
-  .catch((err) => {
-    console.log("An error occurred while retrieving token. ", err);
-  });
+    .then(async (currentToken) => {
+      if (currentToken) {
+        await messagingTokensDB.addMessagingToken(currentToken);
+      } else {
+        console.log(
+          "No registration token available. Request permission to generate one."
+        );
+      }
+    })
+    .catch((err) => {
+      console.log("An error occurred while retrieving token. ", err);
+    });

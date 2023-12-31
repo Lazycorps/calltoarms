@@ -27,7 +27,7 @@
               v-if="notificationPermission != 'denied'"
             >
               <v-btn color="primary" @click="enablePermission()"
-                >Try enable</v-btn
+                >Enable notifications</v-btn
               >
             </v-card-text>
           </v-card>
@@ -69,11 +69,12 @@ import { useDisplay } from "vuetify";
 const auth = getAuth();
 const { mobile } = useDisplay();
 import { usePermission } from "@vueuse/core";
+import { enableWebNotification } from "@/plugins/firebase";
 
 const notificationPermission = usePermission("notifications");
 
 async function enablePermission() {
-  Notification.requestPermission();
+  await enableWebNotification();
 }
 
 function logout() {

@@ -63,7 +63,6 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
   const auth = getAuth();
   await auth.authStateReady();
-  console.log(auth.currentUser);
   if (!auth.currentUser?.emailVerified && to.name !== "SignIn") {
     if (to.name?.toString().startsWith("Register")) return true;
     else return { name: "SignIn" };
