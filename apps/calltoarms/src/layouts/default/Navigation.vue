@@ -2,6 +2,15 @@
   <v-navigation-drawer v-if="!mobile" rail floating permanent>
     <v-list density="compact" nav>
       <v-list-item
+        width="50px"
+        height="50px"
+        prepend-icon="mdi-sword-cross"
+        title="Friends"
+        rounded
+        color="white"
+      ></v-list-item>
+      <v-divider class="my-1"></v-divider>
+      <v-list-item
         prepend-icon="mdi-account-multiple"
         title="Friends"
         value="test"
@@ -37,6 +46,7 @@
     </v-btn>
   </v-bottom-navigation>
   <v-navigation-drawer
+    order="2"
     width="300"
     color="#171717"
     v-model="drawer"

@@ -1,9 +1,11 @@
 <template>
-  <v-app-bar flat>
+  <v-app-bar flat title="Call to arms" order="1">
     <template v-slot:prepend>
-      <v-app-bar-nav-icon icon="mdi-sword-cross"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        v-if="mobile"
+        icon="mdi-sword-cross"
+      ></v-app-bar-nav-icon>
     </template>
-    <v-app-bar-title> Call to arms </v-app-bar-title>
     <template v-slot:append>
       <v-menu location="bottom" width="200px">
         <template v-slot:activator="{ props }">
@@ -37,8 +39,9 @@
 <script lang="ts" setup>
 import router from "@/router";
 import { getAuth } from "firebase/auth";
-
+import { useDisplay } from "vuetify";
 const auth = getAuth();
+const { mobile } = useDisplay();
 
 function logout() {
   auth.signOut();

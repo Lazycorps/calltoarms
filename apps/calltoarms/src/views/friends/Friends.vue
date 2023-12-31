@@ -12,7 +12,7 @@
         indeterminate
         color="grey"
       ></v-progress-circular>
-      <v-icon v-else icon="mdi-plus"></v-icon>
+      <v-icon v-else icon="mdi-plus" @click="addUser()"></v-icon>
     </template>
   </v-text-field>
   <v-list class="ma-1">
