@@ -51,6 +51,7 @@ async function createCommunity() {
       creatorId: auth.currentUser?.uid,
       name: newCommunity.name,
       description: newCommunity.description,
+      membersIds: [auth.currentUser?.uid]
     };
     await communitiesDB.addCommunity(communityToCreate);
     closeDialog();

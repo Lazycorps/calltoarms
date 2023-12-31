@@ -14,6 +14,7 @@ export class Community {
   creatorId = "";
   name = "";
   description = "";
+  membersIds: string[] = [];
 }
 
 class CommunitiesDB {
@@ -27,6 +28,17 @@ class CommunitiesDB {
     } catch (err: any) {
       console.log(err);
     }
+  }
+
+  async getUserCommunities(): Promise<Community[]> {
+    const auth = getAuth();
+    const db = getFirestore();
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where("membersIds", "array-contains", auth.currentUser?.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => d.data() as Community);
   }
 }
 
