@@ -1,5 +1,11 @@
 <template>
-  <v-text-field v-model="search" label="Search" :loading="searchLoading">
+  <v-text-field
+    v-model="search"
+    label="Search"
+    :loading="searchLoading"
+    hide-details
+    class="mb-1"
+  >
     <template #append-inner>
       <v-progress-circular
         v-if="searchLoading"
@@ -18,7 +24,6 @@
     <template v-for="game in games" :key="game.id">
       <v-img
         :src="`https:${game.cover.url}`"
-        lazy-src="https://picsum.photos/id/11/100/60"
         @click="showGame(game)"
         cover
         min-width="170px"
@@ -29,7 +34,7 @@
     </template>
   </div>
   <v-dialog v-model="dialog" width="600px" scrim="black">
-    <game-vue :game="selectedGame"></game-vue>
+    <game-vue :game="selectedGame" @send="dialog = false"></game-vue>
   </v-dialog>
 </template>
 

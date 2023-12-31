@@ -1,15 +1,16 @@
 <template>
   <v-card class="pa-5">
     <v-row>
-      <v-col>
+      <v-col sm="6" cols="12">
         <v-img
           :src="`https:${game.cover.url}`"
           lazy-src="https://picsum.photos/id/11/100/60"
+          :max-height="mobile ? 250 : 500"
           cover
         >
         </v-img>
       </v-col>
-      <v-col>
+      <v-col sm="6" cols="12">
         <v-select
           v-model="selectedUsers"
           :items="usersStore.friends"
@@ -54,12 +55,15 @@ import { MessageApi } from "@/api/MessageApi";
 import { Message, notificationDB } from "@/fireStore/NotificationDB";
 import { useUsersStore } from "@/store/users";
 import { onMounted } from "vue";
+import { useDisplay } from "vuetify/lib/framework.mjs";
 
 const auth = getAuth();
+const { mobile } = useDisplay();
 const usersStore = useUsersStore();
 const props = defineProps<{
   game: GameDTO;
 }>();
+const emits = defineEmits(["send"]);
 
 const message = ref("Hey noob, wanna play ?");
 const loading = ref(false);
@@ -92,6 +96,7 @@ async function sendNotification() {
     };
     await notificationDB.addMessage(mess);
     await MessageApi.sendNotification(notif);
+    emits("send");
   } finally {
     loading.value = false;
   }
