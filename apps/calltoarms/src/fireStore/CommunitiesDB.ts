@@ -7,11 +7,16 @@ import {
   where,
   getDocs,
   and,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "communities";
 
 export class Community {
+  id = "";
   creatorId = "";
   name = "";
   name_insensitive = ""; // used for case insensitive query
@@ -40,7 +45,13 @@ class CommunitiesDB {
       where("membersIds", "array-contains", auth.currentUser?.uid)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((d) => d.data() as Community);
+    const communities: Community[] = [];
+    querySnapshot.forEach((doc) => {
+      const community = doc.data() as Community;
+      community.id = doc.id;
+      communities.push(community);
+    });
+    return communities;
   }
 
   async searchCommunities(search: string): Promise<Community[]> {
@@ -51,11 +62,48 @@ class CommunitiesDB {
         where("name_insensitive", ">=", search.toLowerCase()),
         where("name_insensitive", "<=", search.toLowerCase() + "\uf8ff")
       )
-      // where("name", "==", search)
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((d) => d.data() as Community);
+    const communities: Community[] = [];
+    querySnapshot.forEach((doc) => {
+      const community = doc.data() as Community;
+      community.id = doc.id;
+      communities.push(community);
+    });
+    return communities;
+  }
+
+  async joinCommunity(communityId: string): Promise<void> {
+    const db = getFirestore();
+    const auth = getAuth();
+
+    try {
+      if (!auth.currentUser?.uid) return;
+      const communityRef = doc(db, COLLECTION_NAME, communityId);
+      if (!communityRef) return;
+      await updateDoc(communityRef, {
+        membersIds: arrayUnion(auth.currentUser?.uid),
+      });
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  async leaveCommunity(communityId: string): Promise<void> {
+    const db = getFirestore();
+    const auth = getAuth();
+
+    try {
+      if (!auth.currentUser?.uid) return;
+      const communityRef = doc(db, COLLECTION_NAME, communityId);
+      if (!communityRef) return;
+      await updateDoc(communityRef, {
+        membersIds: arrayRemove(auth.currentUser?.uid),
+      });
+    } catch (err: any) {
+      console.log(err);
+    }
   }
 }
 

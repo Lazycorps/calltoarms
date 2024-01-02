@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" text="Create"> </v-btn>
+      <v-btn class="mt-4" v-bind="props" text="Create"> </v-btn>
     </template>
 
     <template v-slot:default="{ isActive }">

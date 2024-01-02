@@ -1,12 +1,14 @@
 <template>
-  <p>Your communities</p>
+  <h2>Your communities</h2>
   <CommunityTile
     :community="community"
     v-for="community in userCommunities"
-    :key="community.name"
+    :key="community.id"
   />
+  <v-divider class="mt-2" />
   <CreateCommunityDialog />
   <v-text-field
+  class="mt-6"
     label="Search.."
     v-model="searchTerm"
     @input="searchCommunities"
@@ -14,7 +16,7 @@
   <CommunityTile
     :community="community"
     v-for="community in matchingCommunities"
-    :key="community.name"
+    :key="community.id"
   />
 </template>
 
