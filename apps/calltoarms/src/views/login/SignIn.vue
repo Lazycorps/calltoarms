@@ -81,8 +81,8 @@ onMounted(() => {
 async function signIn() {
   try {
     const auth = getAuth();
-    await signInWithEmailAndPassword(auth, email.value, password.value);
     await setPersistence(auth, browserLocalPersistence);
+    await signInWithEmailAndPassword(auth, email.value, password.value);
     if (!auth.currentUser?.emailVerified) {
       errorValidationEmail.value = true;
     } else router.push("/");
