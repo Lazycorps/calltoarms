@@ -58,9 +58,10 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
   applyActionCode,
+  browserLocalPersistence,
+  setPersistence,
 } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import { addCurrentUser } from "@/fireStore/Users";
 
 const passwordType = ref<"password" | "text">("password");
 const email = ref("");
@@ -77,12 +78,11 @@ onMounted(() => {
   if (mode == "verifyEmail") handleVerifyEmail(route.query.oobCode.toString());
 });
 
-const auth = getAuth();
-console.log(auth.currentUser);
 async function signIn() {
   try {
+    const auth = getAuth();
+    await setPersistence(auth, browserLocalPersistence);
     await signInWithEmailAndPassword(auth, email.value, password.value);
-    await addCurrentUser();
     if (!auth.currentUser?.emailVerified) {
       errorValidationEmail.value = true;
     } else router.push("/");
@@ -92,11 +92,13 @@ async function signIn() {
 }
 
 async function sendValidation() {
+  const auth = getAuth();
   if (auth.currentUser) await sendEmailVerification(auth.currentUser);
 }
 
 async function handleVerifyEmail(actionCode: string) {
   try {
+    const auth = getAuth();
     await applyActionCode(auth, actionCode);
     successMessage.value = "Email address has been verified.";
   } catch (err: any) {

@@ -12,7 +12,7 @@ const COLLECTION_NAME = "notifications";
 
 export class Message {
   senderId = "";
-  receiverIds = [];
+  receiverIds: string[] = [];
   gameId = 0;
   gameCover = "";
   title = "";

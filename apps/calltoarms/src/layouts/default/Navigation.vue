@@ -1,6 +1,15 @@
 <template>
-  <v-navigation-drawer rail floating permanent return-object>
+  <v-navigation-drawer v-if="!mobile" rail floating permanent>
     <v-list density="compact" nav>
+      <v-list-item
+        width="50px"
+        height="50px"
+        prepend-icon="mdi-sword-cross"
+        title="Friends"
+        rounded
+        color="white"
+      ></v-list-item>
+      <v-divider class="my-1"></v-divider>
       <v-list-item
         prepend-icon="mdi-account-multiple"
         title="Friends"
@@ -31,12 +40,32 @@
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
+  <v-bottom-navigation :active="mobile" grow absolute>
+    <v-btn @click="selectComponent('Friends')">
+      <v-icon>mdi-account-multiple</v-icon>
+      <span>Friends</span>
+    </v-btn>
+
+    <v-btn @click="selectComponent('Notifications')">
+      <v-badge
+        v-model="notificationsStore.newNotification"
+        :content="notificationsStore.count"
+        color="error"
+      >
+        <v-icon>mdi-bell</v-icon>
+      </v-badge>
+      <span>Notifications</span>
+    </v-btn>
+  </v-bottom-navigation>
   <v-navigation-drawer
-    permanent
+    order="2"
     width="300"
     color="#171717"
     v-model="drawer"
     class="pa-2"
+    :temporary="mobile"
+    :permanent="!mobile"
+    :location="mobile ? 'right' : 'left'"
   >
     <component :is="selectedItem"></component>
   </v-navigation-drawer>
@@ -47,8 +76,10 @@ import FriendsView from "@/views/friends/Friends.vue";
 import CommunitiesView from "@/views/communities/Communities.vue";
 import { computed, ref, shallowRef } from "vue";
 import { useNotificationsStore } from "@/store/notifications";
+import { useDisplay } from "vuetify";
 
 const notificationsStore = useNotificationsStore();
+const { mobile } = useDisplay();
 
 const drawer = computed(() => {
   return selectedItem.value != null;
@@ -64,11 +95,13 @@ function selectComponent(componentToSelect: string) {
   } else if (componentToSelect == "Notifications") {
     notificationsStore.count = 0;
     selectedItem.value = NotificationsView;
+    selectedItemTitle.value = componentToSelect;
   } else if (componentToSelect == "Friends") {
     selectedItem.value = FriendsView;
+    selectedItemTitle.value = componentToSelect;
   } else if (componentToSelect == "Communities") {
     selectedItem.value = CommunitiesView;
-  }
-  selectedItemTitle.value = componentToSelect;
+    selectedItemTitle.value = componentToSelect;
+  } 
 }
 </script>

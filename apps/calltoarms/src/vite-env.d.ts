@@ -8,5 +8,5 @@ declare module "*.vue" {
 
 interface ImportMetaEnv {
   readonly VITE_CallToArmsApi: string;
-  // more env variables...
+  readonly VITE_AuthDomain: string;
 }

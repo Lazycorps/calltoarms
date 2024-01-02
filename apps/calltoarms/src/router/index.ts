@@ -1,9 +1,5 @@
 // Composables
-import {
-  browserLocalPersistence,
-  getAuth,
-  setPersistence,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
@@ -66,8 +62,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const auth = getAuth();
-  await setPersistence(auth, browserLocalPersistence);
-  console.log(auth.currentUser);
+  await auth.authStateReady();
   if (!auth.currentUser?.emailVerified && to.name !== "SignIn") {
     if (to.name?.toString().startsWith("Register")) return true;
     else return { name: "SignIn" };

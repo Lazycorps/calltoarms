@@ -1,4 +1,4 @@
-import { GameDTO } from "@/models/GameDTO";
+import { GameDTO } from "@/models/dto/GameDTO";
 import { api } from "./Axios";
 
 export abstract class GamesApi {

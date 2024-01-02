@@ -19,13 +19,16 @@
   </div>
   <v-list>
     <template v-for="notification in notifications" :key="notification.date">
-      <v-list-item
-        rounded
-        :title="notification.title"
-        :subtitle="notification.body"
-        :value="notification"
-        prepend-icon="mdi-bell"
-      >
+      <v-list-item rounded :value="notification">
+        <div class="d-flex align-center">
+          <v-icon icon="mdi-bell" size="30" class="mr-4"></v-icon>
+          <div>
+            <h4 class="text-truncate" style="max-width: 210px">
+              {{ notification.title }}
+            </h4>
+            {{ notification.body }}
+          </div>
+        </div>
       </v-list-item>
     </template>
   </v-list>

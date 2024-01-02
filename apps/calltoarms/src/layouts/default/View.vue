@@ -1,6 +1,8 @@
 <template>
-  <v-main class="ma-5">
-    <router-view />
+  <v-main scrollable>
+    <div class="pa-3">
+      <router-view />
+    </div>
   </v-main>
 </template>
 

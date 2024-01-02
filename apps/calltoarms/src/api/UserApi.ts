@@ -1,4 +1,4 @@
-import { MessageDTO } from "@/models/MessageDTO";
+import { MessageDTO } from "@/models/dto/MessageDTO";
 import { api } from "./Axios";
 
 // export abstract class MessageApi {
