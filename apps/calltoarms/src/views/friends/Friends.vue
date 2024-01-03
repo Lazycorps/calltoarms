@@ -17,12 +17,22 @@
   </v-text-field>
   <v-list class="ma-1">
     <template v-for="friend in friends" :key="friend.name">
-      <v-list-item :value="friend.name">
-        <div class="d-flex align-center">
-          <v-icon icon="mdi-account-circle" size="30" class="mr-4"></v-icon>
-          {{ friend.name }}
-        </div>
-      </v-list-item>
+      <v-hover v-slot="{ isHovering, props }" open-delay="100">
+        <v-list-item :value="friend.name" v-bind="props">
+          <div class="d-flex align-center">
+            <v-icon icon="mdi-account-circle" size="30" class="mr-4"></v-icon>
+            {{ friend.name }}
+          </div>
+          <template #append>
+            <v-btn
+              icon="mdi-close"
+              v-if="isHovering"
+              variant="text"
+              size="30"
+            ></v-btn>
+          </template>
+        </v-list-item>
+      </v-hover>
     </template>
   </v-list>
 </template>
