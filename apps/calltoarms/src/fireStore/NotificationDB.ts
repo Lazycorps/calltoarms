@@ -6,6 +6,10 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
+  limit,
+  serverTimestamp,
+  Timestamp,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "notifications";
@@ -17,7 +21,7 @@ export class Message {
   gameCover = "";
   title = "";
   body = "";
-  date = new Date().toUTCString();
+  date: Timestamp | null = null;
 }
 
 class NotificationsDb {
@@ -26,7 +30,10 @@ class NotificationsDb {
     const db = getFirestore();
     try {
       if (auth.currentUser?.uid)
-        await addDoc(collection(db, COLLECTION_NAME), message);
+        await addDoc(collection(db, COLLECTION_NAME), {
+          ...message,
+          date: serverTimestamp(),
+        });
     } catch (err: any) {
       console.log(err);
     }
@@ -37,7 +44,9 @@ class NotificationsDb {
     const db = getFirestore();
     const q = query(
       collection(db, COLLECTION_NAME),
-      where("senderId", "==", auth.currentUser?.uid)
+      where("senderId", "==", auth.currentUser?.uid),
+      orderBy("date", "desc"),
+      limit(50)
     );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((d) => d.data() as Message);
@@ -48,7 +57,9 @@ class NotificationsDb {
     const db = getFirestore();
     const q = query(
       collection(db, COLLECTION_NAME),
-      where("receiverIds", "array-contains", auth.currentUser?.uid)
+      where("receiverIds", "array-contains", auth.currentUser?.uid),
+      orderBy("date", "desc"),
+      limit(50)
     );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((d) => d.data() as Message);

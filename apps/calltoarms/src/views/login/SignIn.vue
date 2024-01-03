@@ -81,7 +81,7 @@ onMounted(() => {
 async function signIn() {
   try {
     const auth = getAuth();
-    await setPersistence(auth, browserLocalPersistence);
+    //await setPersistence(auth, browserLocalPersistence);
     await signInWithEmailAndPassword(auth, email.value, password.value);
     if (!auth.currentUser?.emailVerified) {
       errorValidationEmail.value = true;

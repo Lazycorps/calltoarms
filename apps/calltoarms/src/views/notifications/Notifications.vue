@@ -21,12 +21,15 @@
     <template v-for="notification in notifications" :key="notification.date">
       <v-list-item rounded :value="notification">
         <div class="d-flex align-center">
-          <v-icon icon="mdi-bell" size="30" class="mr-4"></v-icon>
-          <div>
-            <h4 class="text-truncate" style="max-width: 210px">
+          <v-icon icon="mdi-bell" size="26" class="mr-2"></v-icon>
+          <div class="message">
+            <div class="title">
               {{ notification.title }}
-            </h4>
-            {{ notification.body }}
+            </div>
+            <div class="body">{{ notification.body }}</div>
+            <div class="date">
+              {{ notification.date?.toDate().toLocaleString() }}
+            </div>
           </div>
         </div>
       </v-list-item>
@@ -57,3 +60,23 @@ async function getNotification(type: "Sent" | "Received") {
   }
 }
 </script>
+<style scoped>
+.message {
+  max-width: 220px;
+  white-space: nowrap;
+  .date {
+    font-size: 12px;
+    color: gray;
+  }
+  .body {
+    font-size: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .title {
+    font-size: 16px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+</style>
