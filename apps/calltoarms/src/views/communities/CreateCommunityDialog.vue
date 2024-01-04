@@ -33,13 +33,13 @@
 
 <script setup lang="ts">
 import { ref, reactive } from "vue";
-import { CommunityDTO } from "@/models/CommunityDTO";
-import { Community, communitiesDB } from "@/fireStore/CommunitiesDB";
+import { Community } from "@/models/Community";
+import { FirestoreCommunity, communitiesDB } from "@/fireStore/CommunitiesDB";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();
 const dialog = ref(false);
-const newCommunity = reactive(new CommunityDTO());
+const newCommunity = reactive(new Community());
 const loading = ref(false);
 
 async function createCommunity() {
@@ -47,8 +47,7 @@ async function createCommunity() {
     if (!auth.currentUser?.uid) return;
 
     loading.value = true;
-    const communityToCreate: Community = {
-      id: "",
+    const communityToCreate: FirestoreCommunity = {
       creatorId: auth.currentUser?.uid,
       name: newCommunity.name,
       name_insensitive: newCommunity.name.toLowerCase(),
@@ -63,6 +62,7 @@ async function createCommunity() {
 
 function closeDialog() {
   dialog.value = false;
-  newCommunity.value = new CommunityDTO();
+  newCommunity.value = new Community();
 }
 </script>
+

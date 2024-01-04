@@ -27,7 +27,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Community, communitiesDB } from "@/fireStore/CommunitiesDB";
+import { communitiesDB } from "@/fireStore/CommunitiesDB";
+import { Community } from "@/models/Community";
 
 const dialog = ref(false);
 const loading = ref(false);

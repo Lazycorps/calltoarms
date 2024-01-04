@@ -1,3 +1,4 @@
+import { Community } from "@/models/Community";
 import { getAuth } from "firebase/auth";
 import {
   addDoc,
@@ -14,12 +15,15 @@ import {
 
 const COLLECTION_NAME = "communities";
 
-export class Community {
-  id = "";
+export class FirestoreCommunity {  
   creatorId = "";
   name = "";
   name_insensitive = ""; // used for case insensitive query
   description = "";
+
+  constructor(model: Community){
+    Object.assign(this, model);
+  }
 }
 
 class CommunitiesDB {
@@ -27,7 +31,7 @@ class CommunitiesDB {
   db = getFirestore();
   communitiesCollection = collection(this.db, COLLECTION_NAME);
 
-  async addCommunity(community: Community) {
+  async addCommunity(community: FirestoreCommunity) {
     try {
       if (this.auth.currentUser?.uid) {
         const newCommRef = await addDoc(this.communitiesCollection, community);
