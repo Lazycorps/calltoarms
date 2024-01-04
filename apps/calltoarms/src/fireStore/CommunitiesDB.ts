@@ -1,5 +1,4 @@
 import { getAuth } from "firebase/auth";
-import { remove } from "firebase/database";
 import {
   addDoc,
   collection,
@@ -9,9 +8,6 @@ import {
   getDocs,
   and,
   doc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
   serverTimestamp,
   deleteDoc,
 } from "firebase/firestore";
@@ -24,7 +20,6 @@ export class Community {
   name = "";
   name_insensitive = ""; // used for case insensitive query
   description = "";
-  membersIds: string[] = [];
 }
 
 class CommunitiesDB {
@@ -43,6 +38,16 @@ class CommunitiesDB {
             joinDate: serverTimestamp(),
           }
         );
+
+        await addDoc(
+          collection(
+            this.db,
+            "users",
+            this.auth.currentUser?.uid,
+            "communities"
+          ),
+          { communityId: newCommRef.id, joinDate: serverTimestamp() }
+        );
       }
     } catch (err: any) {
       console.log(err);
@@ -50,15 +55,25 @@ class CommunitiesDB {
   }
 
   async getUserCommunities(): Promise<Community[]> {
-    const auth = getAuth();
-    const db = getFirestore();
     const q = query(
-      collection(db, COLLECTION_NAME),
-      where("membersIds", "array-contains", auth.currentUser?.uid)
+      collection(
+        this.db,
+        "users",
+        this.auth.currentUser?.uid ?? "",
+        "communities"
+      )
     );
     const querySnapshot = await getDocs(q);
+    const communitiesIds: string[] = [];
     const communities: Community[] = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach((doc) => communitiesIds.push(doc.data().communityId));
+
+    const communitiesQuery = query(
+      this.communitiesCollection,
+      where("__name__", "in", communitiesIds)
+    );
+    const queryCommSnapshot = await getDocs(communitiesQuery);
+    queryCommSnapshot.forEach((doc) => {
       const community = doc.data() as Community;
       community.id = doc.id;
       communities.push(community);
@@ -103,11 +118,16 @@ class CommunitiesDB {
       );
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) return;
-
+      // Ajout au niveau de la community
       await addDoc(communityMembersCollection, {
         userId: this.auth.currentUser?.uid,
         joinDate: serverTimestamp(),
       });
+      // Ajout au niveau du user
+      await addDoc(
+        collection(this.db, "users", this.auth.currentUser?.uid, "communities"),
+        { communityId, joinDate: serverTimestamp() }
+      );
     } catch (err: any) {
       console.log(err);
     }
@@ -118,7 +138,7 @@ class CommunitiesDB {
       if (!this.auth.currentUser?.uid) return;
       const communityRef = doc(this.db, COLLECTION_NAME, communityId);
       if (!communityRef) return;
-
+      // Delete dans communities
       const q = query(
         collection(this.db, COLLECTION_NAME, communityRef.id, "members"),
         where("userId", "==", this.auth.currentUser?.uid)
@@ -134,6 +154,23 @@ class CommunitiesDB {
           data.id
         );
         deleteDoc(docToDelete);
+      });
+      // Delete dans users
+      const q2 = query(
+        collection(this.db, "users", this.auth.currentUser?.uid, "communities"),
+        where("communityId", "==", communityRef.id)
+      );
+      const querySnapshot2 = await getDocs(q2);
+      if (querySnapshot2.empty) return;
+      querySnapshot2.forEach((data) => {
+        const docUserToDelete = doc(
+          this.db,
+          "users",
+          this.auth.currentUser?.uid ?? "",
+          "communities",
+          data.id
+        );
+        deleteDoc(docUserToDelete);
       });
     } catch (err: any) {
       console.log(err);

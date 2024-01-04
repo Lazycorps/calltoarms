@@ -48,11 +48,11 @@ async function createCommunity() {
 
     loading.value = true;
     const communityToCreate: Community = {
+      id: "",
       creatorId: auth.currentUser?.uid,
       name: newCommunity.name,
       name_insensitive: newCommunity.name.toLowerCase(),
       description: newCommunity.description,
-      membersIds: [auth.currentUser?.uid]
     };
     await communitiesDB.addCommunity(communityToCreate);
     closeDialog();
