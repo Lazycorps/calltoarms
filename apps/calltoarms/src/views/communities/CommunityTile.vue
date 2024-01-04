@@ -5,8 +5,8 @@
       <!-- <p class="text-end">{{ community.membersIds.length }} members</p> -->
     </v-col>
     <v-col cols="12">
-      <v-btn @click="leaveCommunity">Leave</v-btn>
-      <v-btn @click="joinCommunity">Join</v-btn>
+      <v-btn v-if="communitiesStore.userCommunitiesIds.includes(community.id)" @click="leaveCommunity">Leave</v-btn>
+      <v-btn v-else @click="joinCommunity">Join</v-btn>
     </v-col>
   </v-row>
   <v-dialog v-model="dialog">
@@ -18,8 +18,8 @@
 
       <v-card-actions>
         <v-btn color="error" text="Close" @click="closeDialog"></v-btn>
-        <v-btn @click="leaveCommunity" :loading="loading">Leave</v-btn>
-        <v-btn @click="joinCommunity" :loading="loading">Join</v-btn>
+        <v-btn v-if="communitiesStore.userCommunitiesIds.includes(community.id)" @click="leaveCommunity" :loading="loading">Leave</v-btn>
+        <v-btn v-else @click="joinCommunity" :loading="loading">Join</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { communitiesDB } from "@/fireStore/CommunitiesDB";
 import { Community } from "@/models/Community";
+import { useCommunitiesStore } from "@/store/communities";
 
 const dialog = ref(false);
 const loading = ref(false);
@@ -36,6 +36,8 @@ const loading = ref(false);
 const props = defineProps<{
   community: Community;
 }>();
+
+const communitiesStore = useCommunitiesStore();
 
 function openDialog() {
   dialog.value = true;
@@ -48,7 +50,7 @@ function closeDialog() {
 async function joinCommunity() {
   loading.value = true;
   try {
-    await communitiesDB.joinCommunity(props.community.id);
+    await communitiesStore.joinCommunity(props.community.id);
   } catch (error) {
     console.log("error", error);
   } finally {
@@ -58,7 +60,7 @@ async function joinCommunity() {
 async function leaveCommunity() {
   loading.value = true;
   try {
-    await communitiesDB.leaveCommunity(props.community.id);
+    await communitiesStore.leaveCommunity(props.community.id);
   } catch (error) {
     console.log("error", error);
   } finally {
