@@ -79,7 +79,6 @@ class UsersDB {
       querySnap.forEach((doc) => {
         friendsIds.push(doc.data().id);
       });
-      console.log(friendsIds);
       return await this.getUsers(friendsIds);
     } catch (err: any) {
       console.log(err);

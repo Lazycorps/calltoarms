@@ -14,7 +14,7 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
   envDir: "env",
   plugins: [
-    //VueDevTools(),
+    VueDevTools(),
     mkcert(),
     vue({
       template: { transformAssetUrls },
