@@ -80,7 +80,6 @@ export default defineConfig({
     extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
   },
   server: {
-    https: true,
     port: 3000,
   },
 });
