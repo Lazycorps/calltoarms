@@ -1,4 +1,5 @@
 import { getAuth } from "firebase/auth";
+import { remove } from "firebase/database";
 import {
   addDoc,
   collection,
@@ -12,6 +13,7 @@ import {
   arrayUnion,
   arrayRemove,
   serverTimestamp,
+  deleteDoc,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "communities";
@@ -85,15 +87,26 @@ class CommunitiesDB {
   }
 
   async joinCommunity(communityId: string): Promise<void> {
-    const db = getFirestore();
-    const auth = getAuth();
-
     try {
-      if (!auth.currentUser?.uid) return;
-      const communityRef = doc(db, COLLECTION_NAME, communityId);
+      if (!this.auth.currentUser?.uid) return;
+      const communityRef = doc(this.db, COLLECTION_NAME, communityId);
       if (!communityRef) return;
-      await updateDoc(communityRef, {
-        membersIds: arrayUnion(auth.currentUser?.uid),
+      const communityMembersCollection = collection(
+        this.db,
+        COLLECTION_NAME,
+        communityRef.id,
+        "members"
+      );
+      const q = query(
+        communityMembersCollection,
+        where("userId", "==", this.auth.currentUser?.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) return;
+
+      await addDoc(communityMembersCollection, {
+        userId: this.auth.currentUser?.uid,
+        joinDate: serverTimestamp(),
       });
     } catch (err: any) {
       console.log(err);
@@ -101,15 +114,26 @@ class CommunitiesDB {
   }
 
   async leaveCommunity(communityId: string): Promise<void> {
-    const db = getFirestore();
-    const auth = getAuth();
-
     try {
-      if (!auth.currentUser?.uid) return;
-      const communityRef = doc(db, COLLECTION_NAME, communityId);
+      if (!this.auth.currentUser?.uid) return;
+      const communityRef = doc(this.db, COLLECTION_NAME, communityId);
       if (!communityRef) return;
-      await updateDoc(communityRef, {
-        membersIds: arrayRemove(auth.currentUser?.uid),
+
+      const q = query(
+        collection(this.db, COLLECTION_NAME, communityRef.id, "members"),
+        where("userId", "==", this.auth.currentUser?.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) return;
+      querySnapshot.forEach((data) => {
+        const docToDelete = doc(
+          this.db,
+          COLLECTION_NAME,
+          communityRef.id,
+          "members",
+          data.id
+        );
+        deleteDoc(docToDelete);
       });
     } catch (err: any) {
       console.log(err);
