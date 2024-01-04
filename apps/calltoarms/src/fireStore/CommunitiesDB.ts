@@ -11,6 +11,7 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
+  serverTimestamp,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "communities";
@@ -25,13 +26,22 @@ export class Community {
 }
 
 class CommunitiesDB {
-  async addCommunity(community: Community) {
-    const auth = getAuth();
-    const db = getFirestore();
+  auth = getAuth();
+  db = getFirestore();
+  communitiesCollection = collection(this.db, COLLECTION_NAME);
 
+  async addCommunity(community: Community) {
     try {
-      if (auth.currentUser?.uid)
-        await addDoc(collection(db, COLLECTION_NAME), community);
+      if (this.auth.currentUser?.uid) {
+        const newCommRef = await addDoc(this.communitiesCollection, community);
+        await addDoc(
+          collection(this.db, COLLECTION_NAME, newCommRef.id, "members"),
+          {
+            userId: this.auth.currentUser?.uid,
+            joinDate: serverTimestamp(),
+          }
+        );
+      }
     } catch (err: any) {
       console.log(err);
     }
