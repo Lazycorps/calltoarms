@@ -8,10 +8,14 @@
 import vuetify from "./vuetify";
 import pinia from "../store";
 import router from "../router";
-import { VueFire, VueFireAuth } from "vuefire";
+import { VueFire, VueFireAuthWithDependencies } from "vuefire";
 import { firebaseApp } from "./firebase";
 // Types
 import type { App } from "vue";
+import {
+  browserLocalPersistence,
+  indexedDBLocalPersistence,
+} from "firebase/auth";
 
 export function registerPlugins(app: App) {
   app
@@ -22,7 +26,11 @@ export function registerPlugins(app: App) {
       firebaseApp,
       modules: [
         // ... other modules
-        VueFireAuth(),
+        VueFireAuthWithDependencies({
+          dependencies: {
+            persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+          },
+        }),
       ],
     });
 }

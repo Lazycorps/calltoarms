@@ -61,9 +61,10 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { usersDB } from "@/fireStore/UsersDB";
+import { useUsersDB } from "@/fireStore/UsersDB";
 import { VForm } from "vuetify/lib/components/index.mjs";
 const router = useRouter();
+const userDb = useUsersDB();
 
 const formComponent = ref<VForm>();
 const passwordType = ref<"password" | "text">("password");
@@ -101,7 +102,7 @@ async function register() {
     await updateProfile(userCredential.user, {
       displayName: username.value,
     });
-    await usersDB.addCurrentUser();
+    await userDb.addCurrentUser();
     router.push("register/validation");
   } catch (err: any) {
     if (err.code === "auth/invalid-email")

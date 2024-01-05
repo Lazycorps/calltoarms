@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { messagingTokensDB } from "@/fireStore/MessagingTokensDB";
 import { useNotificationsStore } from "@/store/notifications";
+import { useMessagingTokensDB } from "@/composables/MessagingTokensDB";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBQ-2r3HN2_Vf60dnwNQcxBikwi4s7XknQ",
@@ -28,7 +28,8 @@ export const enableWebNotification = () =>
   })
     .then(async (currentToken) => {
       if (currentToken) {
-        await messagingTokensDB.addMessagingToken(currentToken);
+        const messaginTokenDB = useMessagingTokensDB();
+        await messaginTokenDB.addMessagingToken(currentToken);
       } else {
         console.log(
           "No registration token available. Request permission to generate one."

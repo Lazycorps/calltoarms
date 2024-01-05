@@ -39,11 +39,13 @@
 </template>
 
 <script lang="ts" setup>
-import { GamesApi } from "@/api/GamesApi";
+import { useGamesApi } from "@/api/GamesApi";
 import { GameDTO } from "@/models/dto/GameDTO";
 import { onMounted, ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import GameVue from "./games/Game.vue";
+
+const gamesApi = useGamesApi();
 
 const games = ref<GameDTO[]>([]);
 const search = ref("");
@@ -59,7 +61,7 @@ onMounted(() => {
 async function fetchGames() {
   try {
     loading.value = true;
-    const result = await GamesApi.getGames("");
+    const result = await gamesApi.getGames("");
     games.value = result;
   } finally {
     loading.value = false;
@@ -78,7 +80,7 @@ watchDebounced(
   search,
   async () => {
     try {
-      const result = await GamesApi.getGames(search.value);
+      const result = await gamesApi.getGames(search.value);
       if (result) games.value = result;
     } finally {
       searchLoading.value = false;

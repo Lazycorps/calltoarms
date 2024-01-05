@@ -38,10 +38,12 @@
 </template>
 
 <script setup lang="ts">
-import { usersDB } from "@/fireStore/UsersDB";
+import { useUserFriendsDB } from "@/composables/UserFriendsDB";
 import { User } from "@/models/User";
 import { onMounted } from "vue";
 import { ref } from "vue";
+
+const usersDb = useUserFriendsDB();
 
 const friendsToAdd = ref("");
 const loading = ref(false);
@@ -54,7 +56,7 @@ onMounted(() => {
 async function addUser() {
   try {
     loading.value = true;
-    await usersDB.addFriends(friendsToAdd.value);
+    await usersDb.addFriends(friendsToAdd.value);
     await loadUser();
   } finally {
     friendsToAdd.value = "";
@@ -63,7 +65,7 @@ async function addUser() {
 }
 
 async function loadUser() {
-  const users = await usersDB.getMyFriends();
+  const users = await usersDb.getMyFriends();
   if (users) friends.value = users;
 }
 </script>

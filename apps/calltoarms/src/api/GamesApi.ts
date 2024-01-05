@@ -1,11 +1,15 @@
 import { GameDTO } from "@/models/dto/GameDTO";
-import { api } from "./Axios";
+import { useApi } from "./Axios";
 
-export abstract class GamesApi {
-  static async getGames(name: string): Promise<any> {
+export function useGamesApi() {
+  const { api } = useApi();
+
+  async function getGames(name: string): Promise<any> {
     const response = await api.get<GameDTO[]>("games/search", {
       params: { name },
     });
     return response.data;
   }
+
+  return { getGames };
 }

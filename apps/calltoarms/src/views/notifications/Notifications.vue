@@ -2,14 +2,14 @@
   <div class="d-flex align-stretch flex-column">
     <v-btn-toggle v-model="notificationsDisplay" divided>
       <v-btn
-        @click="getNotification('Received')"
+        @click="notificationsDisplay = 'Received'"
         class="flex-1-0"
         variant="flat"
         value="Received"
         >Received</v-btn
       >
       <v-btn
-        @click="getNotification('Sent')"
+        @click="notificationsDisplay = 'Sent'"
         class="flex-1-0"
         variant="flat"
         value="Sent"
@@ -38,28 +38,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { Message, notificationDB } from "../../fireStore/NotificationDB";
+import { ref } from "vue";
+import { useNotificationsDb } from "@/composables/NotificationDB";
+import { computed } from "vue";
 
-const notifications = ref<Message[]>();
+const { notificationsReceived, notificationsSend } = useNotificationsDb();
+
 const notificationsDisplay = ref("Received");
-const loading = ref(false);
 
-onMounted(async () => {
-  getNotification("Received");
+const notifications = computed(() => {
+  if (notificationsDisplay.value == "Received")
+    return notificationsReceived.value;
+  else return notificationsSend.value;
 });
-
-async function getNotification(type: "Sent" | "Received") {
-  try {
-    loading.value = true;
-    if (type == "Received")
-      notifications.value = await notificationDB.getReceived();
-    else notifications.value = await notificationDB.getSent();
-  } finally {
-    loading.value = false;
-  }
-}
 </script>
+
 <style scoped>
 .message {
   max-width: 220px;

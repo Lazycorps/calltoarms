@@ -50,16 +50,19 @@
 import { GameDTO } from "@/models/dto/GameDTO";
 import { MessageDTO } from "@/models/dto/MessageDTO";
 import { getAuth } from "firebase/auth";
-import { defineProps, ref } from "vue";
-import { MessageApi } from "@/api/MessageApi";
-import { Message, notificationDB } from "@/fireStore/NotificationDB";
-import { useUsersStore } from "@/store/users";
-import { onMounted } from "vue";
+import { ref } from "vue";
+import { useNotificationsApi } from "@/api/NotificationsApi";
+import { Message, useNotificationsDb } from "@/composables/NotificationDB";
+import { useUserStore } from "@/store/user";
 import { useDisplay } from "vuetify/lib/framework.mjs";
+import { Timestamp } from "firebase/firestore";
 
 const auth = getAuth();
+const notificationApi = useNotificationsApi();
+const notificationDb = useNotificationsDb();
+const usersStore = useUserStore();
+
 const { mobile } = useDisplay();
-const usersStore = useUsersStore();
 const props = defineProps<{
   game: GameDTO;
 }>();
@@ -69,10 +72,6 @@ const message = ref("Hey noob, wanna play ?");
 const loading = ref(false);
 
 const selectedUsers = ref<string[]>([]);
-
-onMounted(() => {
-  usersStore.loadFriends();
-});
 
 async function sendNotification() {
   try {
@@ -92,10 +91,11 @@ async function sendNotification() {
       receiverIds: selectedUsers.value,
       gameCover: props.game.cover.url ?? "",
       gameId: props.game.id ?? 0,
-      date: new Date().toJSON(),
+      date: Timestamp.fromDate(new Date()),
     };
-    await notificationDB.addMessage(mess);
-    await MessageApi.sendNotification(notif);
+
+    await notificationDb.addMessage(mess);
+    await notificationApi.sendNotification(notif);
     emits("send");
   } finally {
     loading.value = false;

@@ -58,8 +58,6 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
   applyActionCode,
-  browserLocalPersistence,
-  setPersistence,
 } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 

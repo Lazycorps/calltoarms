@@ -1,6 +1,7 @@
 // Composables
 import { getAuth } from "firebase/auth";
 import { createRouter, createWebHistory } from "vue-router";
+import { getCurrentUser } from "vuefire";
 
 const routes = [
   {
@@ -61,13 +62,12 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const auth = getAuth();
-  await auth.authStateReady();
-  if (!auth.currentUser?.emailVerified && to.name !== "SignIn") {
+  const currentUser = await getCurrentUser();
+  if (!currentUser?.emailVerified && to.name !== "SignIn") {
     if (to.name?.toString().startsWith("Register")) return true;
     else return { name: "SignIn" };
   } else if (
-    auth.currentUser?.emailVerified &&
+    currentUser?.emailVerified &&
     (to.name === "SignIn" || to.name?.toString().startsWith("Register"))
   ) {
     return { name: "Home" };
