@@ -29,6 +29,7 @@
               v-if="isHovering"
               variant="text"
               size="30"
+              @click="deletedFriend(friend.id)"
             ></v-btn>
           </template>
         </v-list-item>
@@ -43,7 +44,7 @@ import { User } from "@/models/User";
 import { onMounted } from "vue";
 import { ref } from "vue";
 
-const usersDb = useUserFriendsDB();
+const userFriendsDb = useUserFriendsDB();
 
 const friendsToAdd = ref("");
 const loading = ref(false);
@@ -56,7 +57,18 @@ onMounted(() => {
 async function addUser() {
   try {
     loading.value = true;
-    await usersDb.addFriends(friendsToAdd.value);
+    await userFriendsDb.addFriend(friendsToAdd.value);
+    await loadUser();
+  } finally {
+    friendsToAdd.value = "";
+    loading.value = false;
+  }
+}
+
+async function deletedFriend(id: string) {
+  try {
+    loading.value = true;
+    await userFriendsDb.deleteFriend(id);
     await loadUser();
   } finally {
     friendsToAdd.value = "";
@@ -65,7 +77,7 @@ async function addUser() {
 }
 
 async function loadUser() {
-  const users = await usersDb.getMyFriends();
+  const users = await userFriendsDb.getMyFriends();
   if (users) friends.value = users;
 }
 </script>

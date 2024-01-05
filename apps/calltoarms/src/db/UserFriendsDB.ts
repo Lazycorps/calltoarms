@@ -1,12 +1,19 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   getFirestore,
+  query,
   serverTimestamp,
+  setDoc,
+  where,
 } from "firebase/firestore";
-import { useCurrentUser, useFirestore } from "vuefire";
+import { useCollection, useCurrentUser, useFirestore } from "vuefire";
 import { useUserDB } from "./UserDB";
+import { computed } from "vue";
+import { User } from "@/models/User";
 
 export function useUserFriendsDB() {
   const db = useFirestore();
@@ -17,15 +24,30 @@ export function useUserFriendsDB() {
     currentUser.value?.uid &&
     collection(db, "users", currentUser.value?.uid, "friends");
 
-  async function addFriends(friendName: string) {
+  async function addFriend(friendName: string) {
     try {
       if (!currentUser.value) return;
       const friend = await usersDb.getUserByName(friendName);
       if (!friend) return;
-      await addDoc(collection(db, "users", currentUser.value?.uid, "friends"), {
-        id: friend.id,
-        creationDate: serverTimestamp(),
-      });
+
+      await setDoc(
+        doc(db, "users", currentUser.value?.uid, "friends", friend.id),
+        {
+          id: friend.id,
+          creationDate: serverTimestamp(),
+        }
+      );
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  async function deleteFriend(friendId: string) {
+    try {
+      if (!currentUser.value || !friendId) return;
+      await deleteDoc(
+        doc(db, "users", currentUser.value?.uid, "friends", friendId)
+      );
     } catch (err: any) {
       console.log(err);
     }
@@ -39,6 +61,7 @@ export function useUserFriendsDB() {
       querySnap.forEach((doc) => {
         friendsIds.push(doc.data().id);
       });
+      if (!friendsIds.length) return [];
       return await usersDb.getUsers(friendsIds);
     } catch (err: any) {
       console.log(err);
@@ -46,7 +69,8 @@ export function useUserFriendsDB() {
   }
 
   return {
-    addFriends,
+    addFriend,
+    deleteFriend,
     getMyFriends,
   };
 }
