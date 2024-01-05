@@ -1,5 +1,5 @@
 // Utilities
-import { useUserFriendsDB } from "@/composables/UserFriendsDB";
+import { useUserFriendsDB } from "@/db/UserFriendsDB";
 import { User } from "@/models/User";
 import { defineStore } from "pinia";
 import { onMounted, ref } from "vue";

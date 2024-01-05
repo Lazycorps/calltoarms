@@ -1,5 +1,5 @@
 import { MessageDTO } from "@/models/dto/MessageDTO";
-import { useApi } from "./Axios";
+import { useApi } from "./AxiosApi";
 
 export function useNotificationsApi() {
   const { api } = useApi();

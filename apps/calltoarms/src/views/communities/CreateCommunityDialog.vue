@@ -32,14 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { Community } from "@/models/Community";
 import { FirestoreCommunity, communitiesDB } from "@/fireStore/CommunitiesDB";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();
 const dialog = ref(false);
-const newCommunity = reactive(new Community());
+const newCommunity = ref(new Community());
 const loading = ref(false);
 
 async function createCommunity() {
@@ -49,9 +49,9 @@ async function createCommunity() {
     loading.value = true;
     const communityToCreate: FirestoreCommunity = {
       creatorId: auth.currentUser?.uid,
-      name: newCommunity.name,
-      name_insensitive: newCommunity.name.toLowerCase(),
-      description: newCommunity.description,
+      name: newCommunity.value.name,
+      name_insensitive: newCommunity.value.name.toLowerCase(),
+      description: newCommunity.value.description,
     };
     await communitiesDB.addCommunity(communityToCreate);
     closeDialog();
@@ -65,4 +65,3 @@ function closeDialog() {
   newCommunity.value = new Community();
 }
 </script>
-

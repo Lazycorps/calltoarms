@@ -61,10 +61,10 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { useUsersDB } from "@/fireStore/UsersDB";
+import { useUserDB } from "@/db/UserDB";
 import { VForm } from "vuetify/lib/components/index.mjs";
 const router = useRouter();
-const userDb = useUsersDB();
+const userDb = useUserDB();
 
 const formComponent = ref<VForm>();
 const passwordType = ref<"password" | "text">("password");

@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { useNotificationsStore } from "@/store/notifications";
-import { useMessagingTokensDB } from "@/composables/MessagingTokensDB";
+import { useMessagingTokensDB } from "@/db/MessagingTokensDB";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBQ-2r3HN2_Vf60dnwNQcxBikwi4s7XknQ",

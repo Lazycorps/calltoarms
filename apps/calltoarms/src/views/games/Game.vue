@@ -52,7 +52,7 @@ import { MessageDTO } from "@/models/dto/MessageDTO";
 import { getAuth } from "firebase/auth";
 import { ref } from "vue";
 import { useNotificationsApi } from "@/api/NotificationsApi";
-import { Message, useNotificationsDb } from "@/composables/NotificationDB";
+import { Message, useNotificationsDb } from "@/db/NotificationDB";
 import { useUserStore } from "@/store/user";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { Timestamp } from "firebase/firestore";

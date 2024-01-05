@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useNotificationsDb } from "@/composables/NotificationDB";
+import { useNotificationsDb } from "@/db/NotificationDB";
 import { computed } from "vue";
 
 const { notificationsReceived, notificationsSend } = useNotificationsDb();

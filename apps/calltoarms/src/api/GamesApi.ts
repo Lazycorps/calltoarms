@@ -1,5 +1,5 @@
 import { GameDTO } from "@/models/dto/GameDTO";
-import { useApi } from "./Axios";
+import { useApi } from "./AxiosApi";
 
 export function useGamesApi() {
   const { api } = useApi();

@@ -8,8 +8,7 @@
     "build": "vite build",
     "build:production": "vite build --mode production",
     "preview": "vite preview",
-    "lint": "eslint . --fix --ignore-path .gitignore",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "@mdi/font": "7.4.47",

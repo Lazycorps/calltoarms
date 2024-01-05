@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserFriendsDB } from "@/composables/UserFriendsDB";
+import { useUserFriendsDB } from "@/db/UserFriendsDB";
 import { User } from "@/models/User";
 import { onMounted } from "vue";
 import { ref } from "vue";
