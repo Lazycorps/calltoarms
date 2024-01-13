@@ -15,13 +15,13 @@ import {
 
 const COLLECTION_NAME = "communities";
 
-export class FirestoreCommunity {  
+export class FirestoreCommunity {
   creatorId = "";
   name = "";
   name_insensitive = ""; // used for case insensitive query
   description = "";
 
-  constructor(model: Community){
+  constructor(model: Community) {
     Object.assign(this, model);
   }
 }
@@ -126,6 +126,7 @@ class CommunitiesDB {
       await addDoc(communityMembersCollection, {
         userId: this.auth.currentUser?.uid,
         joinDate: serverTimestamp(),
+        communityId,
       });
       // Ajout au niveau du user
       await addDoc(

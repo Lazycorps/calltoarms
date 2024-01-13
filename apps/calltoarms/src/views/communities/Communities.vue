@@ -26,22 +26,13 @@ import CommunityTile from "./CommunityTile.vue";
 
 import { communitiesDB } from "@/fireStore/CommunitiesDB";
 import { ref } from "vue";
-import { onMounted } from "vue";
 import { Community } from "@/models/Community";
 import { useCommunitiesStore } from "@/store/communities";
 
 const searchTerm = ref("");
 const matchingCommunities = ref<Community[]>([]);
 
-onMounted(() => {
-  loadUserCommunities();
-});
-
 const communitiesStore = useCommunitiesStore();
-
-async function loadUserCommunities() {
-  await communitiesStore.getUserCommunities();
-}
 
 async function searchCommunities() {
   const communities = await communitiesDB.searchCommunities(searchTerm.value);

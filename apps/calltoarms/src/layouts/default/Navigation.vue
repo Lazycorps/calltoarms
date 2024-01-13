@@ -38,6 +38,26 @@
           </v-badge>
         </template>
       </v-list-item>
+      <v-divider />
+      <template
+        v-for="community in communitiesStore.userCommunities"
+        :key="community.id"
+      >
+        <v-list-item
+          :title="community.name"
+          :value="community.id"
+          @click="selectComponent('Community')"
+          class="pa-0 mt-2"
+        >
+          <template #prepend>
+            <v-avatar color="red" size="40">
+              <span class="text-h6">{{
+                community.name.substring(0, 2).toUpperCase()
+              }}</span>
+            </v-avatar>
+          </template>
+        </v-list-item>
+      </template>
     </v-list>
   </v-navigation-drawer>
   <v-bottom-navigation :active="mobile" grow absolute>
@@ -77,8 +97,10 @@ import CommunitiesView from "@/views/communities/Communities.vue";
 import { computed, ref, shallowRef } from "vue";
 import { useNotificationsStore } from "@/store/notifications";
 import { useDisplay } from "vuetify";
+import { useCommunitiesStore } from "@/store/communities";
 
 const notificationsStore = useNotificationsStore();
+const communitiesStore = useCommunitiesStore();
 const { mobile } = useDisplay();
 
 const drawer = computed(() => {
@@ -102,6 +124,6 @@ function selectComponent(componentToSelect: string) {
   } else if (componentToSelect == "Communities") {
     selectedItem.value = CommunitiesView;
     selectedItemTitle.value = componentToSelect;
-  } 
+  }
 }
 </script>
