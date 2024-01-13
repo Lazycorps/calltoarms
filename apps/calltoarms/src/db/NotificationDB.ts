@@ -13,6 +13,7 @@ import { useCollection, useCurrentUser, useFirestore } from "vuefire";
 export class Message {
   senderId = "";
   receiverIds: string[] = [];
+  receiverCommunitiesIds: string[] = [];
   gameId = 0;
   gameCover = "";
   title = "";

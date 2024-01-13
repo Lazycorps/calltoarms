@@ -11,7 +11,11 @@ admin.initializeApp({
   credential: admin.credential.applicationDefault(),
 });
 
-const validateFirebaseIdToken = async (req: any, res: any, next: any) => {
+const validateFirebaseIdToken = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   if (
     (!req.headers.authorization ||
       !req.headers.authorization.startsWith("Bearer ")) &&
@@ -35,8 +39,9 @@ const validateFirebaseIdToken = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedIdToken;
+    await admin.auth().verifyIdToken(idToken);
+    //const decodedIdToken = await admin.auth().verifyIdToken(idToken);
+    //req.user = decodedIdToken;
     next();
     return;
   } catch (error) {

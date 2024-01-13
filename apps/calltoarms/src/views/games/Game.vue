@@ -12,6 +12,27 @@
       </v-col>
       <v-col sm="6" cols="12">
         <v-select
+          v-model="selectedCommunities"
+          :items="communiesStore.userCommunities"
+          item-title="name"
+          item-value="id"
+          label="Select communities to notify"
+          variant="outlined"
+          multiple
+        >
+          <template v-slot:selection="{ item, index }">
+            <v-chip v-if="index < 3">
+              <span>{{ item.raw.name }}</span>
+            </v-chip>
+            <span
+              v-if="index === 3"
+              class="text-grey text-caption align-self-center"
+            >
+              (+{{ selectedUsers.length - 3 }} others)
+            </span>
+          </template>
+        </v-select>
+        <v-select
           v-model="selectedUsers"
           :items="usersStore.friends"
           item-title="name"
@@ -56,11 +77,13 @@ import { Message, useNotificationsDb } from "@/db/NotificationDB";
 import { useUserStore } from "@/store/user";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import { Timestamp } from "firebase/firestore";
+import { useCommunitiesStore } from "@/store/communities";
 
 const auth = getAuth();
 const notificationApi = useNotificationsApi();
 const notificationDb = useNotificationsDb();
 const usersStore = useUserStore();
+const communiesStore = useCommunitiesStore();
 
 const { mobile } = useDisplay();
 const props = defineProps<{
@@ -72,6 +95,7 @@ const message = ref("Hey noob, wanna play ?");
 const loading = ref(false);
 
 const selectedUsers = ref<string[]>([]);
+const selectedCommunities = ref<string[]>([]);
 
 async function sendNotification() {
   try {
@@ -82,6 +106,7 @@ async function sendNotification() {
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
       users: selectedUsers.value,
+      communities: selectedCommunities.value,
     };
 
     const mess: Message = {
@@ -89,6 +114,7 @@ async function sendNotification() {
       body: message.value,
       title: `${auth.currentUser?.displayName} play ${props.game.name}`,
       receiverIds: selectedUsers.value,
+      receiverCommunitiesIds: selectedCommunities.value,
       gameCover: props.game.cover.url ?? "",
       gameId: props.game.id ?? 0,
       date: Timestamp.fromDate(new Date()),

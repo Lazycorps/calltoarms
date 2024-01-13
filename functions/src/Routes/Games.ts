@@ -6,10 +6,10 @@ export const gamesRoutes = express.Router();
 const clientIdEnv = defineString("TWITCH_CLIENT_ID");
 
 gamesRoutes.get("/search", async (request, response) => {
-  const search = request.query.name;
+  const search = request.query.name as string;
 
   let twitchToken = await GetToken();
-  let gameResponse = await GetGames(search, twitchToken);
+  let gameResponse = await GetGames(search.toString(), twitchToken);
   if (gameResponse.status == 401) {
     twitchToken = await GetToken(true);
     gameResponse = await GetGames(search, twitchToken);
@@ -52,7 +52,7 @@ async function GetToken(getNew = false) {
   }
 }
 
-async function GetGames(search: any, twitchToken: string) {
+async function GetGames(search: string, twitchToken: string) {
   const clientId = clientIdEnv.value();
 
   const requestHeaders: HeadersInit = new Headers();

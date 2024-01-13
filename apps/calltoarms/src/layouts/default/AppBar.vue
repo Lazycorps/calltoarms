@@ -66,15 +66,16 @@
 import router from "@/router";
 import { getAuth } from "firebase/auth";
 import { useDisplay } from "vuetify";
+import { usePermission } from "@vueuse/core";
+import { useWebNotification } from "@/plugins/firebase";
+
 const auth = getAuth();
 const { mobile } = useDisplay();
-import { usePermission } from "@vueuse/core";
-import { enableWebNotification } from "@/plugins/firebase";
-
 const notificationPermission = usePermission("notifications");
+const webNotification = useWebNotification();
 
 async function enablePermission() {
-  await enableWebNotification();
+  await webNotification.enableWebNotification();
 }
 
 function logout() {

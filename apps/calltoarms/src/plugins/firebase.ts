@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { useNotificationsStore } from "@/store/notifications";
 import { useMessagingTokensDB } from "@/db/MessagingTokensDB";
+import { useFirebaseApp } from "vuefire";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBQ-2r3HN2_Vf60dnwNQcxBikwi4s7XknQ",
@@ -14,19 +15,21 @@ export const firebaseConfig = {
 
 export const firebaseApp = initializeApp(firebaseConfig);
 
-const messaging = getMessaging(firebaseApp);
+export const messaging = getMessaging(firebaseApp);
 onMessage(messaging, (payload) => {
   const notificationsStore = useNotificationsStore();
   notificationsStore.increment();
   console.log("Message received. ", payload);
 });
 
-export const enableWebNotification = () =>
-  getToken(messaging, {
-    vapidKey:
-      "BB8nRs86IjldHGzatHr_QDd0It22crgz42z5d-e5BVCDYJQUahn704LxrFPra3tTGPtOaIZqPRuIoMaLiOsM3-U",
-  })
-    .then(async (currentToken) => {
+export function useWebNotification() {
+  const messaging = getMessaging(useFirebaseApp());
+  async function enableWebNotification() {
+    try {
+      const currentToken = await getToken(messaging, {
+        vapidKey:
+          "BB8nRs86IjldHGzatHr_QDd0It22crgz42z5d-e5BVCDYJQUahn704LxrFPra3tTGPtOaIZqPRuIoMaLiOsM3-U",
+      });
       if (currentToken) {
         const messaginTokenDB = useMessagingTokensDB();
         await messaginTokenDB.addMessagingToken(currentToken);
@@ -35,7 +38,10 @@ export const enableWebNotification = () =>
           "No registration token available. Request permission to generate one."
         );
       }
-    })
-    .catch((err) => {
+    } catch (err: any) {
       console.log("An error occurred while retrieving token. ", err);
-    });
+    }
+  }
+
+  return { messaging, enableWebNotification };
+}

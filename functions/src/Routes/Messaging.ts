@@ -7,12 +7,27 @@ export const messagingRoutes = express.Router();
 
 messagingRoutes.post("/send", async (req, res) => {
   const message = Object.assign(new MessageDTO(), req.body) as MessageDTO;
+  console.log("Start function");
+
+  let usersIds = [...message.users];
+  let communitiesUsersSnap;
+  if (message.communities.length) {
+    communitiesUsersSnap = await getFirestore()
+      .collectionGroup("members")
+      .where("communityId", "in", message.communities)
+      .get();
+    communitiesUsersSnap.forEach((doc) => {
+      usersIds.push(doc.data().userId);
+    });
+  }
+
+  usersIds = [...new Set(usersIds)];
 
   let snap;
-  if (message.users.length) {
+  if (usersIds.length) {
     snap = await getFirestore()
       .collection("messagingTokens")
-      .where("userId", "in", message.users)
+      .where("userId", "in", usersIds)
       .get();
   } else {
     snap = await getFirestore().collection("messagingTokens").get();
