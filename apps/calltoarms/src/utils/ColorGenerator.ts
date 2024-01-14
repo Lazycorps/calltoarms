@@ -12,7 +12,6 @@ export function useColorGenerator() {
     const h = Math.floor((hash % (hRange[0] - hRange[1])) + hRange[0]);
     const s = Math.floor((hash % (sRange[0] - sRange[1])) + sRange[0]);
     const l = Math.floor((hash % (lRange[0] - lRange[1])) + lRange[0]);
-    console.log(`hsl(${h}, ${s}%, ${l}%)`);
     return `hsl(${h}, ${s}%, ${l}%)`;
   };
 
