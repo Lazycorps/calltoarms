@@ -17,12 +17,6 @@
         @click="selectComponent('Friends')"
       ></v-list-item>
       <v-list-item
-        prepend-icon="mdi-account-group"
-        title="Communities"
-        value="Communities"
-        @click="selectComponent('Communities')"
-      ></v-list-item>
-      <v-list-item
         prepend-icon="mdi-bell"
         title="Notifications"
         value="Notifications"
@@ -39,6 +33,13 @@
         </template>
       </v-list-item>
       <v-divider />
+      <v-list-item
+        prepend-icon="mdi-account-multiple-plus"
+        title="Communities"
+        value="Communities"
+        @click="selectComponent('Communities')"
+        class="mt-2"
+      ></v-list-item>
       <template
         v-for="community in communitiesStore.userCommunities"
         :key="community.id"
@@ -50,7 +51,7 @@
           class="pa-0 mt-2"
         >
           <template #prepend>
-            <v-avatar color="red" size="40">
+            <v-avatar :color="generateColor(community.name)" size="40">
               <span class="text-h6">{{
                 community.name.substring(0, 2).toUpperCase()
               }}</span>
@@ -98,10 +99,12 @@ import { computed, ref, shallowRef } from "vue";
 import { useNotificationsStore } from "@/store/notifications";
 import { useDisplay } from "vuetify";
 import { useCommunitiesStore } from "@/store/communities";
+import { useColorGenerator } from "@/utils/ColorGenerator";
 
 const notificationsStore = useNotificationsStore();
 const communitiesStore = useCommunitiesStore();
 const { mobile } = useDisplay();
+const { generateColor } = useColorGenerator();
 
 const drawer = computed(() => {
   return selectedItem.value != null;

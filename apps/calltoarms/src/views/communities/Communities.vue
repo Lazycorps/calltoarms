@@ -1,17 +1,11 @@
 <template>
-  <h2>Your communities</h2>
-  <CommunityTile
-    :community="community"
-    v-for="community in communitiesStore.userCommunities"
-    :key="community.id"
-  />
-  <v-divider class="mt-2" />
   <CreateCommunityDialog />
   <v-text-field
-    class="mt-6"
-    label="Search.."
+    label="Search communities"
     v-model="searchTerm"
     @input="searchCommunities"
+    class="mt-2"
+    hide-details
   />
   <CommunityTile
     :community="community"
@@ -27,12 +21,14 @@ import CommunityTile from "./CommunityTile.vue";
 import { communitiesDB } from "@/fireStore/CommunitiesDB";
 import { ref } from "vue";
 import { Community } from "@/models/Community";
-import { useCommunitiesStore } from "@/store/communities";
+import { onMounted } from "vue";
 
 const searchTerm = ref("");
 const matchingCommunities = ref<Community[]>([]);
 
-const communitiesStore = useCommunitiesStore();
+onMounted(() => {
+  searchCommunities();
+});
 
 async function searchCommunities() {
   const communities = await communitiesDB.searchCommunities(searchTerm.value);
