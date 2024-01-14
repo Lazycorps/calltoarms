@@ -1,6 +1,3 @@
-// Composables
-import { getAuth } from "firebase/auth";
-import { nextTick } from "process";
 import { createRouter, createWebHistory } from "vue-router";
 import { getCurrentUser } from "vuefire";
 
@@ -12,9 +9,6 @@ const routes = [
       {
         path: "",
         name: "Home",
-        // route level code-splitting
-        // this generates a separate chunk (Home-[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () => import("@/views/Home.vue"),
       },
     ],
@@ -26,9 +20,6 @@ const routes = [
       {
         path: "",
         name: "SignIn",
-        // route level code-splitting
-        // this generates a separate chunk (Home-[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () => import("@/views/login/SignIn.vue"),
       },
     ],
@@ -40,17 +31,11 @@ const routes = [
       {
         path: "",
         name: "Register",
-        // route level code-splitting
-        // this generates a separate chunk (Home-[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () => import("@/views/login/Register.vue"),
       },
       {
         path: "/register/validation",
         name: "RegisterValidation",
-        // route level code-splitting
-        // this generates a separate chunk (Home-[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () => import("@/views/login/RegisterValidation.vue"),
       },
     ],

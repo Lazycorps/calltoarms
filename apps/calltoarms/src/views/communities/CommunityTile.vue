@@ -13,23 +13,6 @@
       </v-avatar>
       {{ community.name }}
     </div>
-    <template #append>
-      <!-- <v-btn
-        v-if="communitiesStore.userCommunitiesIds.includes(community.id)"
-        text="join"
-        variant="text"
-        size="30"
-        @click="leaveCommunity"
-      ></v-btn>
-      <v-btn
-        v-else
-        icon="mdi-logout"
-        color="red"
-        variant="text"
-        size="30"
-        @click="joinCommunity"
-      ></v-btn> -->
-    </template>
   </v-list-item>
   <v-dialog v-model="dialog" width="500px">
     <v-card :title="community.name">
@@ -97,8 +80,4 @@ async function leaveCommunity() {
     loading.value = false;
   }
 }
-
-const normalizeHash = (hash: number, min: number, max: number) => {
-  return Math.floor((hash % (max - min)) + min);
-};
 </script>

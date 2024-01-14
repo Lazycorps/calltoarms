@@ -7,7 +7,6 @@ export const messagingRoutes = express.Router();
 
 messagingRoutes.post("/send", async (req, res) => {
   const message = Object.assign(new MessageDTO(), req.body) as MessageDTO;
-  console.log("Start function");
 
   let usersIds = [...message.users];
   let communitiesUsersSnap;

@@ -60,7 +60,9 @@ import {
   applyActionCode,
 } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
+import { useFirebaseAuth } from "vuefire";
 
+const auth = useFirebaseAuth();
 const passwordType = ref<"password" | "text">("password");
 const email = ref("");
 const password = ref("");
@@ -78,7 +80,8 @@ onMounted(() => {
 
 async function signIn() {
   try {
-    const auth = getAuth();
+    if (!auth) return;
+
     await signInWithEmailAndPassword(auth, email.value, password.value);
     if (!auth.currentUser?.emailVerified) {
       errorValidationEmail.value = true;
@@ -95,8 +98,7 @@ async function sendValidation() {
 
 async function handleVerifyEmail(actionCode: string) {
   try {
-    const auth = getAuth();
-    await applyActionCode(auth, actionCode);
+    const auth = getAuth().currentUser;
     successMessage.value = "Email address has been verified.";
   } catch (err: any) {
     error.value = err.code;

@@ -34,31 +34,40 @@
       </v-list-item>
       <v-divider />
       <v-list-item
-        prepend-icon="mdi-account-multiple-plus"
+        v-for="community in communitiesStore.userCommunities"
+        :key="community.id"
+        :title="community.name"
+        :value="community.id"
+        @click="selectComponent('Community')"
+        class="pa-0 mt-2"
+      >
+        <template #prepend>
+          <v-avatar
+            :color="generateColor(community.name)"
+            size="40"
+            class="lazy-badge"
+          >
+            <span class="text-h6">{{
+              community.name.substring(0, 2).toUpperCase()
+            }}</span>
+          </v-avatar>
+        </template>
+      </v-list-item>
+      <v-list-item
         title="Communities"
         value="Communities"
         @click="selectComponent('Communities')"
-        class="mt-2"
-      ></v-list-item>
-      <template
-        v-for="community in communitiesStore.userCommunities"
-        :key="community.id"
+        class="pa-0 mt-2"
       >
-        <v-list-item
-          :title="community.name"
-          :value="community.id"
-          @click="selectComponent('Community')"
-          class="pa-0 mt-2"
-        >
-          <template #prepend>
-            <v-avatar :color="generateColor(community.name)" size="40">
-              <span class="text-h6">{{
-                community.name.substring(0, 2).toUpperCase()
-              }}</span>
-            </v-avatar>
-          </template>
-        </v-list-item>
-      </template>
+        <template #prepend>
+          <v-avatar
+            icon="mdi-plus"
+            size="40"
+            class="lazy-badge"
+            color="primary"
+          ></v-avatar>
+        </template>
+      </v-list-item>
     </v-list>
   </v-navigation-drawer>
   <v-bottom-navigation :active="mobile" grow absolute>
@@ -135,3 +144,14 @@ function selectComponent(componentToSelect: string) {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.lazy-badge {
+  border-radius: 50%;
+
+  transition: all 0.2s;
+  &:hover {
+    border-radius: 20%;
+  }
+}
+</style>

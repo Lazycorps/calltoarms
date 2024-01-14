@@ -45,7 +45,7 @@
           <v-list-item>
             <template #prepend>
               <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
-              {{ auth.currentUser?.displayName ?? "" }}
+              {{ auth?.displayName ?? "" }}
             </template>
           </v-list-item>
           <v-divider class="mt-2"></v-divider>
@@ -68,8 +68,9 @@ import { getAuth } from "firebase/auth";
 import { useDisplay } from "vuetify";
 import { usePermission } from "@vueuse/core";
 import { useWebNotification } from "@/plugins/firebase";
+import { useCurrentUser } from "vuefire";
 
-const auth = getAuth();
+const auth = useCurrentUser();
 const { mobile } = useDisplay();
 const notificationPermission = usePermission("notifications");
 const webNotification = useWebNotification();
@@ -79,7 +80,8 @@ async function enablePermission() {
 }
 
 function logout() {
+  const auth = getAuth();
   auth.signOut();
-  router.push("SignIn");
+  router.push("signin");
 }
 </script>
