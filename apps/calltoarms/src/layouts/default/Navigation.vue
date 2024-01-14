@@ -77,6 +77,11 @@
       </v-badge>
       <span>Notifications</span>
     </v-btn>
+
+    <v-btn @click="selectComponent('Communities')">
+      <v-icon>mdi-account-group</v-icon>
+      <span>Communities</span>
+    </v-btn>
   </v-bottom-navigation>
   <v-navigation-drawer
     order="2"
