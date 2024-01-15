@@ -14,6 +14,17 @@ const routes = [
     ],
   },
   {
+    path: "/community/:id",
+    component: () => import("@/layouts/default/Default.vue"),
+    children: [
+      {
+        path: "",
+        name: "Community",
+        component: () => import("@/views/communities/Community.vue"),
+      },
+    ],
+  },
+  {
     path: "/signin",
     component: () => import("@/layouts/default/Empty.vue"),
     children: [

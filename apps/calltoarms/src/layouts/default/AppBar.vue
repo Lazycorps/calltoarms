@@ -4,6 +4,7 @@
       <v-app-bar-nav-icon
         v-if="mobile"
         icon="mdi-sword-cross"
+        @click="router.push({ name: 'Home' })"
       ></v-app-bar-nav-icon>
     </template>
     <template v-slot:append>
@@ -63,13 +64,14 @@
 </template>
 
 <script lang="ts" setup>
-import router from "@/router";
 import { getAuth } from "firebase/auth";
 import { useDisplay } from "vuetify";
 import { usePermission } from "@vueuse/core";
 import { useWebNotification } from "@/plugins/firebase";
 import { useCurrentUser } from "vuefire";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const auth = useCurrentUser();
 const { mobile } = useDisplay();
 const notificationPermission = usePermission("notifications");

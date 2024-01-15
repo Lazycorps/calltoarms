@@ -18,7 +18,7 @@
   <v-list class="ma-1">
     <template v-for="friend in friends" :key="friend.name">
       <v-hover v-slot="{ isHovering, props }" open-delay="100">
-        <v-list-item :value="friend.name" v-bind="props">
+        <v-list-item :value="friend.name" v-bind="props" class="pa-2">
           <div class="d-flex align-center">
             <v-icon icon="mdi-account-circle" size="30" class="mr-4"></v-icon>
             {{ friend.name }}

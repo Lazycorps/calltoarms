@@ -11,6 +11,7 @@ import {
   doc,
   serverTimestamp,
   deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 
 const COLLECTION_NAME = "communities";
@@ -103,6 +104,21 @@ class CommunitiesDB {
       communities.push(community);
     });
     return communities;
+  }
+
+  async getCommunity(communityId: string): Promise<any> {
+    const commu = await getDoc(doc(this.db, COLLECTION_NAME, communityId));
+    return commu.exists() ? commu.data() : null;
+  }
+
+  async getCommunityMembers(communityId: string): Promise<any> {
+    const db = getFirestore();
+    const members = await getDocs(
+      collection(this.db, COLLECTION_NAME, communityId, "members")
+    );
+    console.log(members);
+    if (members.empty) return null;
+    else return members.docs.map((d) => d.data().userId);
   }
 
   async joinCommunity(communityId: string): Promise<void> {

@@ -8,6 +8,7 @@
         title="Friends"
         rounded
         color="white"
+        @click="router.push({ name: 'Home' })"
       ></v-list-item>
       <v-divider class="my-1"></v-divider>
       <v-list-item
@@ -38,7 +39,9 @@
         :key="community.id"
         :title="community.name"
         :value="community.id"
-        @click="selectComponent('Community')"
+        @click="
+          router.push({ name: 'Community', params: { id: community.id } })
+        "
         class="pa-0 mt-2"
       >
         <template #prepend>
@@ -114,9 +117,12 @@ import { useNotificationsStore } from "@/store/notifications";
 import { useDisplay } from "vuetify";
 import { useCommunitiesStore } from "@/store/communities";
 import { useColorGenerator } from "@/utils/ColorGenerator";
+import { useRouter } from "vue-router";
 
 const notificationsStore = useNotificationsStore();
 const communitiesStore = useCommunitiesStore();
+const router = useRouter();
+
 const { mobile } = useDisplay();
 const { generateColor } = useColorGenerator();
 

@@ -4,6 +4,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   query,
@@ -50,11 +51,14 @@ export function useUserDB() {
   async function getUsers(ids: string[]) {
     try {
       if (!currentUser.value) return;
-      const q = query(usersCollection, where("id", "in", ids));
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty)
-        return querySnapshot.docs.map((d) => d.data() as User);
-      else return null;
+      const users: User[] = [];
+      for (let id of ids) {
+        console.log(id);
+        const document = await getDoc(doc(db, "users", id));
+        console.log(document.data());
+        if (document.exists()) users.push(document.data() as User);
+      }
+      return users;
     } catch (err: any) {
       console.log(err);
     }
