@@ -82,8 +82,9 @@ const rules = {
   max: (v: string) => v.length <= 12 || "Min 12 characters",
   email: (v: string) => /.+@.+\..+/.test(v) || "Must be a valid email",
   passwordComplexity: (v: string) =>
-    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(v) ||
-    "Minimum eight characters, at least one letter and one number:",
+    /^(?=.*[A-ZÀ-ÖØ-Þ])(?=.*\d)[A-Za-zÀ-öø-ÿ\d~`!@#$%^&*()-_+={}|;:'",.<>?\\]{8,}$/.test(
+      v
+    ) || "Minimum eight characters, at least uppercase letter and one number:",
 };
 
 const auth = getAuth();

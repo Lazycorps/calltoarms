@@ -87,6 +87,7 @@ async function signIn() {
       errorValidationEmail.value = true;
     } else router.push("/");
   } catch (err: any) {
+    console.log(err);
     error.value = "Invalid email or password.";
   }
 }
@@ -98,7 +99,8 @@ async function sendValidation() {
 
 async function handleVerifyEmail(actionCode: string) {
   try {
-    const auth = getAuth().currentUser;
+    const auth = getAuth();
+    await applyActionCode(auth, actionCode);
     successMessage.value = "Email address has been verified.";
   } catch (err: any) {
     error.value = err.code;
