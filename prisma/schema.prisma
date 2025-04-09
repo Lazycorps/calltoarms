@@ -1,0 +1,29 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+    //shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "rhel-openssl-1.0.x", "debian-openssl-3.0.x"]
+}
+
+model User {
+    id         String   @id
+    name       String
+    slug       String
+    createDate DateTime @default(now())
+    updateDate DateTime @default(now())
+    admin      Boolean  @default(false)
+}
+
+model Game {
+    id          Int       @id @default(autoincrement())
+    title       String
+    description String?
+    releaseDate DateTime?
+    imageUrl    String?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
