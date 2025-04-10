@@ -16,7 +16,7 @@
           prepend-icon="mdi-account-multiple"
           title="Friends"
           value="Friends"
-          @click="selectComponent('Friends')"
+          @click="router.push('/friends')"
         />
         <v-list-item
           prepend-icon="mdi-bell"
@@ -75,7 +75,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-bottom-navigation :active="mobile" grow absolute>
-      <v-btn @click="selectComponent('Friends')">
+      <v-btn @click="router.push('/friends')">
         <v-icon>mdi-account-multiple</v-icon>
         <span>Friends</span>
       </v-btn>
@@ -112,7 +112,6 @@
 </template>
 <script setup lang="ts">
 // import NotificationsView from "@/views/notifications/Notifications.vue";
-// import FriendsView from "@/views/friends/Friends.vue";
 // import CommunitiesView from "@/views/communities/Communities.vue";
 import { computed, shallowRef } from "vue";
 import { useDisplay } from "vuetify";
@@ -134,21 +133,9 @@ const drawer = computed(() => {
 const selectedItem = shallowRef();
 // const selectedItemTitle = ref("");
 
-function selectComponent(componentToSelect: string) {
-  // if (selectedItemTitle.value == componentToSelect) {
-  //   selectedItem.value = null;
-  //   selectedItemTitle.value = "";
-  // } else if (componentToSelect == "Notifications") {
-  //   notificationsStore.count = 0;
-  //   selectedItem.value = NotificationsView;
-  //   selectedItemTitle.value = componentToSelect;
-  // } else if (componentToSelect == "Friends") {
-  //   selectedItem.value = FriendsView;
-  //   selectedItemTitle.value = componentToSelect;
-  // } else if (componentToSelect == "Communities") {
-  //   selectedItem.value = CommunitiesView;
-  //   selectedItemTitle.value = componentToSelect;
-  // }
+function selectComponent(_componentToSelect: string) {
+  // This function is kept for future implementation of other components
+  // Friends functionality has been moved to direct navigation
 }
 </script>
 

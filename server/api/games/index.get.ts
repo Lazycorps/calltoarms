@@ -9,7 +9,6 @@ interface GameFilters {
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event) as GameFilters;
-  console.log(query);
   const { search } = query;
 
   const filters: {

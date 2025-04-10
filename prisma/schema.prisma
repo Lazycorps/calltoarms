@@ -16,6 +16,8 @@ model User {
     createDate DateTime @default(now())
     updateDate DateTime @default(now())
     admin      Boolean  @default(false)
+    friends    Friend[] @relation("user_friends")
+    friendsOf  Friend[] @relation("friend_friends")
 }
 
 model Game {
@@ -26,4 +28,24 @@ model Game {
     imageUrl    String?
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
+}
+
+model Friend {
+    id        Int          @id @default(autoincrement())
+    userId    String
+    friendId  String
+    status    FriendStatus @default(PENDING)
+    user      User         @relation("user_friends", fields: [userId], references: [id])
+    friend    User         @relation("friend_friends", fields: [friendId], references: [id])
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
+
+    @@unique([userId, friendId])
+}
+
+enum FriendStatus {
+    PENDING
+    ACCEPTED
+    DECLINED
+    BLOCKED
 }

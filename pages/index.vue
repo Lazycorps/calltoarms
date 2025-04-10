@@ -25,9 +25,9 @@
         />
       </template>
     </div>
-    <!-- <v-dialog v-model="dialog" width="600px" scrim="black">
-    <game-vue :game="selectedGame" @send="dialog = false"></game-vue>
-  </v-dialog> -->
+    <v-dialog v-model="dialog" width="600px" scrim="black">
+      <game-dialog :game="selectedGame" @send="dialog = false" />
+    </v-dialog>
   </div>
 </template>
 
