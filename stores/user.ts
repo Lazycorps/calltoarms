@@ -1,5 +1,4 @@
 // Utilities
-import { UserDTO } from "~/shared/models/user";
 import type { FriendDTO } from "~/shared/models/friend";
 import { FriendStatus } from "~/shared/models/friend";
 import { defineStore } from "pinia";
@@ -30,7 +29,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       loading.value = true;
       error.value = null;
-      const result = await $fetch<FriendDTO[]>("/api/friends");
+      const result = await $fetch<FriendDTO[]>("/api/user/friends");
       friends.value = result;
     } catch (err) {
       console.error("Error loading friends:", err);
@@ -45,7 +44,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       loading.value = true;
       error.value = null;
-      const result = await $fetch<FriendDTO>("/api/friends/add", {
+      const result = await $fetch<FriendDTO>("/api/user/friends/add", {
         method: "POST",
         body: { friendId },
       });
@@ -71,7 +70,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       loading.value = true;
       error.value = null;
-      const result = await $fetch<FriendDTO>("/api/friends/respond", {
+      const result = await $fetch<FriendDTO>("/api/user/friends/respond", {
         method: "POST",
         body: { friendRequestId, status },
       });
@@ -97,7 +96,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       loading.value = true;
       error.value = null;
-      await $fetch("/api/friends/remove", {
+      await $fetch("/api/user/friends/remove", {
         method: "POST",
         body: { friendId },
       });

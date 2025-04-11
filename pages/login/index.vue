@@ -34,7 +34,7 @@
           class="mr-5"
           color="primary"
           variant="text"
-          @click="router.push('/login/register')"
+          @click="router.push('./login/register')"
           >register</v-btn
         >
         <v-btn color="primary" variant="flat" @click="signIn">Sign In</v-btn>

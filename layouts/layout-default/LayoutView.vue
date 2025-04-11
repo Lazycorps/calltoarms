@@ -1,6 +1,6 @@
 <template>
   <v-main scrollable>
-    <div class="pa-3">
+    <div class="pa-3 fill-height">
       <NuxtPage />
     </div>
   </v-main>

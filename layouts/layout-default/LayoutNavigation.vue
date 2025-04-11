@@ -9,14 +9,14 @@
           title="Friends"
           rounded
           color="white"
-          @click="router.push({ name: 'Home' })"
+          :to="{ path: '/' }"
         />
         <v-divider class="my-1" />
         <v-list-item
           prepend-icon="mdi-account-multiple"
           title="Friends"
           value="Friends"
-          @click="router.push('/friends')"
+          :to="{ name: 'friends' }"
         />
         <v-list-item
           prepend-icon="mdi-bell"

@@ -1,11 +1,7 @@
 <template>
   <v-app-bar title="Call to arms" flat order="1">
     <template #prepend>
-      <v-app-bar-nav-icon
-        v-if="mobile"
-        icon="mdi-sword-cross"
-        @click="router.push({ name: 'Home' })"
-      />
+      <v-app-bar-nav-icon v-if="mobile" icon="mdi-sword-cross" to="/" />
     </template>
     <template #append>
       <v-btn v-if="notificationPermission != 'granted'" color="orange">

@@ -80,13 +80,13 @@ async function register() {
     await formComponent.value?.validate();
     if (!formIsValid.value) return;
     loading.value = true;
-    // const supabase = useSupabaseClient();
-    // const { error } = await supabase.auth.signUp({
-    //   email: email.value,
-    //   password: password.value,
-    // });
-    // if (error) errorDisplay.value = error.message;
-    // else router.push("registerValidation");
+    const supabase = useSupabaseClient();
+    const { error } = await supabase.auth.signUp({
+      email: email.value,
+      password: password.value,
+    });
+    if (error) errorDisplay.value = error.message;
+    else router.push("registerValidation");
   } finally {
     validateOn.value = "input";
     loading.value = false;

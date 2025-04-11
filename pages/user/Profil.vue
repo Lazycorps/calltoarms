@@ -6,26 +6,12 @@
     style="max-width: 500px; width: 100%"
   >
     <div>
-      <v-card
-        class="mx-auto ma-0"
-        :title="username"
-        :subtitle="`Level ${level}`"
-        flat
-      >
+      <v-card class="mx-auto ma-0" :title="username" flat>
         <template #prepend>
           <v-avatar color="blue-darken-2">
             <v-icon icon="mdi-account" />
           </v-avatar>
         </template>
-        <v-card-text>
-          <v-progress-linear
-            :model-value="xp - xpThreshold"
-            :max="xpMax - xpThreshold"
-            color="primary"
-            height="10"
-            rounded=""
-          />
-        </v-card-text>
         <v-card-text>
           <v-text-field v-model="email" label="Email" readonly />
           <v-text-field
@@ -40,8 +26,6 @@
               </v-avatar>
             </template>
           </v-text-field>
-          <h1>Achievements</h1>
-          <Achievement />
         </v-card-text>
       </v-card>
     </div>
@@ -64,10 +48,6 @@ const router = useRouter();
 const loading = ref(true);
 const username = ref("");
 const email = ref("");
-const level = ref(0);
-const xp = ref(0);
-const xpThreshold = ref(0);
-const xpMax = ref(0);
 const userNameChanged = ref(false);
 const rules = {
   required: (v: string) => !!v || "Required.",
