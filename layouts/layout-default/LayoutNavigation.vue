@@ -16,7 +16,7 @@
           prepend-icon="mdi-account-multiple"
           title="Friends"
           value="Friends"
-          :to="{ name: 'friends' }"
+          @click="selectComponent('Friends')"
         />
         <v-list-item
           prepend-icon="mdi-bell"
@@ -75,7 +75,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-bottom-navigation :active="mobile" grow absolute>
-      <v-btn @click="router.push('/friends')">
+      <v-btn @click="selectComponent('Friends')">
         <v-icon>mdi-account-multiple</v-icon>
         <span>Friends</span>
       </v-btn>
@@ -98,32 +98,30 @@
     </v-bottom-navigation>
     <v-navigation-drawer
       v-model="drawer"
+      temporary
       order="2"
-      width="300"
+      width="525"
       color="#171717"
       class="pa-2"
-      :temporary="mobile"
-      :permanent="!mobile"
       :location="mobile ? 'right' : 'left'"
+      out
     >
       <component :is="selectedItem" />
     </v-navigation-drawer>
   </div>
 </template>
 <script setup lang="ts">
-// import NotificationsView from "@/views/notifications/Notifications.vue";
-// import CommunitiesView from "@/views/communities/Communities.vue";
-import { computed, shallowRef } from "vue";
+import NotificationsView from "~/components/notifications/Notifications.vue";
+import FriendsView from "~/components/friends/FriendsList.vue";
+import { shallowRef } from "vue";
 import { useDisplay } from "vuetify";
 // import { useCommunitiesStore } from "@/store/communities";
-import { useRouter } from "vue-router";
 import { useNotificationsStore } from "~/stores/notifications";
 import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const notificationsStore = useNotificationsStore();
 const { onForegroundMessage } = useFirebaseMessaging();
 // const communitiesStore = useCommunitiesStore();
-const router = useRouter();
 
 onMounted(() => {
   onForegroundMessage(() => {
@@ -134,16 +132,29 @@ onMounted(() => {
 const { mobile } = useDisplay();
 // const { generateColor } = useColorGenerator();
 
-const drawer = computed(() => {
-  return selectedItem.value != null;
-});
+const drawer = ref();
+// const drawer = computed(() => {
+//   return selectedItem.value != null;
+// });
 
 const selectedItem = shallowRef();
-// const selectedItemTitle = ref("");
+const selectedItemTitle = ref("");
 
-function selectComponent(_componentToSelect: string) {
-  // This function is kept for future implementation of other components
-  // Friends functionality has been moved to direct navigation
+function selectComponent(componentToSelect: string) {
+  if (selectedItemTitle.value == componentToSelect) {
+    selectedItem.value = null;
+    selectedItemTitle.value = "";
+    drawer.value = false;
+  } else if (componentToSelect == "Notifications") {
+    notificationsStore.count = 0;
+    selectedItem.value = NotificationsView;
+    selectedItemTitle.value = componentToSelect;
+    drawer.value = true;
+  } else if (componentToSelect == "Friends") {
+    selectedItem.value = FriendsView;
+    selectedItemTitle.value = componentToSelect;
+    drawer.value = true;
+  }
 }
 </script>
 
