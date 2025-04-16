@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-const config = useRuntimeConfig();
+
+// Use environment variables directly for database connection
 const prismaClientSingleton = () => {
   return new PrismaClient({
     datasources: {
       db: {
-        url: config.databaseUrl,
+        url: process.env.DATABASE_URL,
       },
     },
   });

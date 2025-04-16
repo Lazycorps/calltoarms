@@ -3,8 +3,11 @@ import type { FriendDTO } from "~/shared/models/friend";
 import { FriendStatus } from "~/shared/models/friend";
 import { defineStore } from "pinia";
 import { computed, onMounted, ref } from "vue";
+import type { UserDTO } from "~/shared/models/user";
 
 export const useUserStore = defineStore("user", () => {
+  const supabase = useSupabaseClient();
+  const user = ref<UserDTO | null>(null);
   const friends = ref<FriendDTO[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -23,6 +26,30 @@ export const useUserStore = defineStore("user", () => {
   const sentFriendRequests = computed(() =>
     friends.value.filter((f) => f.status === FriendStatus.PENDING && f.isSender)
   );
+
+  onMounted(async () => {
+    await init();
+  });
+
+  async function init() {
+    if (await supabase.auth.getUser()) {
+      await fetchUser();
+      await loadFriends();
+    }
+  }
+
+  async function fetchUser() {
+    try {
+      loading.value = true;
+      const userConnected = await $fetch("/api/user/current");
+      user.value = {
+        id: userConnected?.id ?? "",
+        name: userConnected?.name ?? "",
+      };
+    } finally {
+      loading.value = false;
+    }
+  }
 
   // Load all friends
   async function loadFriends() {
@@ -114,12 +141,16 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  // Initialize
-  onMounted(() => {
-    loadFriends();
-  });
+  async function logout() {
+    const router = useRouter();
+    user.value = null;
+    friends.value = [];
+    supabase.auth.signOut();
+    router.push("login");
+  }
 
   return {
+    user,
     friends,
     acceptedFriends,
     pendingFriendRequests,
@@ -130,5 +161,7 @@ export const useUserStore = defineStore("user", () => {
     sendFriendRequest,
     respondToFriendRequest,
     removeFriend,
+    logout,
+    init,
   };
 });

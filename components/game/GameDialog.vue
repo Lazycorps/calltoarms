@@ -67,61 +67,60 @@
 </template>
 
 <script lang="ts" setup>
-// import type { GameDTO } from "@/shared/models/game";
-// import type { MessageDTO } from "@/shared/models/message";
-// import { getAuth } from "firebase/auth";
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
 import type { GameDTO } from "~/shared/models/game";
-// import { useNotificationsApi } from "@/api/NotificationsApi";
-// import type { Message } from "@/db/NotificationDB";
-// import { useNotificationsDb } from "@/db/NotificationDB";
-// import { useUserStore } from "@/store/user";
-// import { useDisplay } from "vuetify/lib/framework.mjs";
-// import { Timestamp } from "firebase/firestore";
-// import { useCommunitiesStore } from "@/store/communities";
+import type { MessageDTO } from "~/shared/models/message";
+import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
-// const auth = getAuth();
-// const notificationApi = useNotificationsApi();
-// const notificationDb = useNotificationsDb();
 const usersStore = useUserStore();
+const notificationsStore = useNotificationsStore();
+const { sendPushNotification } = useFirebaseMessaging();
 // const communiesStore = useCommunitiesStore();
 
 const { mobile } = useDisplay();
-defineProps<{
+const props = defineProps<{
   game: GameDTO;
 }>();
-// const emits = defineEmits(["send"]);
+const emits = defineEmits(["send"]);
 
 const message = ref("Hey noob, wanna play ?");
 const loading = ref(false);
+const error = ref<string | null>(null);
 
 const selectedUsers = ref<string[]>([]);
 // const selectedCommunities = ref<string[]>([]);
 
 async function sendNotification() {
   try {
-    // if (!auth.currentUser?.uid) return;
-    // loading.value = true;
-    // const notif: MessageDTO = {
-    //   body: message.value,
-    //   title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-    //   users: selectedUsers.value,
-    //   communities: selectedCommunities.value,
-    // };
-    // const mess: Message = {
-    //   senderId: auth.currentUser?.uid,
-    //   body: message.value,
-    //   title: `${auth.currentUser?.displayName} play ${props.game.name}`,
-    //   receiverIds: selectedUsers.value,
-    //   receiverCommunitiesIds: selectedCommunities.value,
-    //   gameCover: props.game.cover.url ?? "",
-    //   gameId: props.game.id ?? 0,
-    //   date: Timestamp.fromDate(new Date()),
-    // };
-    // await notificationDb.addMessage(mess);
-    // await notificationApi.sendNotification(notif);
-    // emits("send");
+    if (!usersStore.user) return;
+    loading.value = true;
+    error.value = null;
+
+    const notif: MessageDTO = {
+      body: message.value,
+      title: `${usersStore.user.name} play ${props.game.title}`,
+      users: selectedUsers.value,
+      communities: [], // selectedCommunities.value,
+    };
+
+    // Send push notification
+    await sendPushNotification(
+      notif,
+      usersStore.user.id,
+      props.game.id,
+      props.game.imageUrl || ""
+    );
+
+    // Increment notification count in store
+    notificationsStore.increment();
+
+    // Emit send event to parent component
+    emits("send");
+  } catch (err) {
+    console.error("Error sending notification:", err);
+    error.value =
+      err instanceof Error ? err.message : "Failed to send notification";
   } finally {
     loading.value = false;
   }

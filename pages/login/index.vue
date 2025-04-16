@@ -44,8 +44,12 @@
 </template>
 
 <script setup lang="ts">
+import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
+
 const supabase = useSupabaseClient();
 const router = useRouter();
+const user = useUserStore();
+const { requestNotificationPermission } = useFirebaseMessaging();
 
 const passwordType = ref<"password" | "text">("password");
 const email = ref("");
@@ -70,6 +74,8 @@ async function signIn() {
           slug: "",
         },
       });
+      await requestNotificationPermission(data.user.id);
+      user.init();
       router.push("/");
     }
   } catch (err) {

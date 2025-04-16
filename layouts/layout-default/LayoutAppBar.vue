@@ -23,9 +23,9 @@
               v-if="notificationPermission != 'denied'"
               class="d-flex justify-end"
             >
-              <!-- <v-btn color="primary" @click="enablePermission()"
+              <v-btn color="primary" @click="enablePermission()"
                 >Enable notifications</v-btn
-              > -->
+              >
             </v-card-text>
           </v-card>
         </v-dialog>
@@ -39,18 +39,27 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item>
-            <template #prepend>
-              <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
-              <!-- {{ auth?.displayName ?? "" }} -->
-            </template>
-          </v-list-item>
-          <v-divider class="mt-2" />
+          <div v-if="user.user">
+            <v-list-item>
+              <template #prepend>
+                <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
+                {{ user.user?.name }}
+              </template>
+            </v-list-item>
+            <v-divider class="mt-2" />
+            <v-list-item
+              prepend-icon="mdi-logout"
+              class="text-red"
+              title="Logout"
+              @click="logout"
+            />
+          </div>
           <v-list-item
-            prepend-icon="mdi-logout"
-            class="text-red"
-            title="Logout"
-            @click="logout"
+            v-else
+            prepend-icon="mdi-login"
+            class="text-green"
+            title="login"
+            @click="login"
           />
         </v-list>
       </v-menu>
@@ -61,20 +70,23 @@
 <script lang="ts" setup>
 import { useDisplay } from "vuetify";
 import { usePermission } from "@vueuse/core";
-import { useRouter } from "vue-router";
+import { useFirebase } from "~/composables/firebase/useFirebase";
 
-const router = useRouter();
-//const auth = useCurrentUser();
+const user = useUserStore();
 const { mobile } = useDisplay();
 const notificationPermission = usePermission("notifications");
 
-// async function enablePermission() {
-//   await webNotification.enableWebNotification();
-// }
+async function enablePermission() {
+  const { requestNotificationPermission } = useFirebase();
+  await requestNotificationPermission();
+}
 
 function logout() {
-  // const auth = getAuth();
-  // auth.signOut();
-  router.push("signin");
+  user.logout();
+}
+
+function login() {
+  const router = useRouter();
+  router.push("login");
 }
 </script>

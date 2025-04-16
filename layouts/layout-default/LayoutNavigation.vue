@@ -24,7 +24,7 @@
           value="Notifications"
           @click="selectComponent('Notifications')"
         >
-          <!-- <template #prepend>
+          <template #prepend>
             <v-badge
               v-model="notificationsStore.newNotification"
               :content="notificationsStore.count"
@@ -32,31 +32,31 @@
             >
               <v-icon>mdi-bell</v-icon>
             </v-badge>
-          </template> -->
+          </template>
         </v-list-item>
         <v-divider />
         <!-- <v-list-item
-        v-for="community in communitiesStore.userCommunities"
-        :key="community.id"
-        :title="community.name"
-        :value="community.id"
-        class="pa-0 mt-2"
-        @click="
-          router.push({ name: 'Community', params: { id: community.id } })
-        "
-      >
-        <template #prepend>
-          <v-avatar
-            :color="generateColor(community.name)"
-            size="40"
-            class="lazy-badge"
-          >
-            <span class="text-h6">{{
-              community.name.substring(0, 2).toUpperCase()
-            }}</span>
-          </v-avatar>
-        </template>
-      </v-list-item> -->
+          v-for="community in communitiesStore.userCommunities"
+          :key="community.id"
+          :title="community.name"
+          :value="community.id"
+          class="pa-0 mt-2"
+          @click="
+            router.push({ name: 'Community', params: { id: community.id } })
+          "
+        >
+          <template #prepend>
+            <v-avatar
+              :color="generateColor(community.name)"
+              size="40"
+              class="lazy-badge"
+            >
+              <span class="text-h6">{{
+                community.name.substring(0, 2).toUpperCase()
+              }}</span>
+            </v-avatar>
+          </template>
+        </v-list-item>
         <v-list-item
           title="Communities"
           value="Communities"
@@ -71,7 +71,7 @@
               color="primary"
             />
           </template>
-        </v-list-item>
+        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
     <v-bottom-navigation :active="mobile" grow absolute>
@@ -118,10 +118,18 @@ import { useDisplay } from "vuetify";
 // import { useCommunitiesStore } from "@/store/communities";
 import { useRouter } from "vue-router";
 import { useNotificationsStore } from "~/stores/notifications";
+import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const notificationsStore = useNotificationsStore();
+const { onForegroundMessage } = useFirebaseMessaging();
 // const communitiesStore = useCommunitiesStore();
 const router = useRouter();
+
+onMounted(() => {
+  onForegroundMessage(() => {
+    notificationsStore.increment();
+  });
+});
 
 const { mobile } = useDisplay();
 // const { generateColor } = useColorGenerator();

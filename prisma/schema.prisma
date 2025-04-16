@@ -10,24 +10,28 @@ generator client {
 }
 
 model User {
-    id         String   @id
-    name       String
-    slug       String
-    createDate DateTime @default(now())
-    updateDate DateTime @default(now())
-    admin      Boolean  @default(false)
-    friends    Friend[] @relation("user_friends")
-    friendsOf  Friend[] @relation("friend_friends")
+    id                    String                 @id
+    name                  String
+    slug                  String
+    createDate            DateTime               @default(now())
+    updateDate            DateTime               @default(now())
+    admin                 Boolean                @default(false)
+    friends               Friend[]               @relation("user_friends")
+    friendsOf             Friend[]               @relation("friend_friends")
+    sentNotifications     Notification[]         @relation("sender")
+    receivedNotifications NotificationReceiver[] @relation("receiver")
+    fcmTokens             FcmToken[]
 }
 
 model Game {
-    id          Int       @id @default(autoincrement())
-    title       String
-    description String?
-    releaseDate DateTime?
-    imageUrl    String?
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+    id           Int            @id @default(autoincrement())
+    title        String
+    description  String?
+    releaseDate  DateTime?
+    imageUrl     String?
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+    Notification Notification[]
 }
 
 model Friend {
@@ -48,4 +52,35 @@ enum FriendStatus {
     ACCEPTED
     DECLINED
     BLOCKED
+}
+
+model Notification {
+    id        Int                    @id @default(autoincrement())
+    title     String
+    body      String
+    senderId  String
+    gameId    Int?
+    gameCover String?
+    sender    User                   @relation("sender", fields: [senderId], references: [id])
+    game      Game?                  @relation(fields: [gameId], references: [id])
+    receivers NotificationReceiver[]
+    createdAt DateTime               @default(now())
+}
+
+model NotificationReceiver {
+    id             Int          @id @default(autoincrement())
+    notificationId Int
+    receiverId     String
+    read           Boolean      @default(false)
+    notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+    receiver       User         @relation("receiver", fields: [receiverId], references: [id])
+    createdAt      DateTime     @default(now())
+}
+
+model FcmToken {
+    id        Int      @id @default(autoincrement())
+    userId    String
+    token     String   @unique
+    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
 }
