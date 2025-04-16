@@ -1,35 +1,7 @@
-# Use Node.js as the base image
-FROM node:20-alpine AS build
+ARG NODE_VERSION=20.14.0
 
-# Set working directory
-WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy the rest of the application
-COPY . .
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Build the application
-RUN npm run build
-
-# Production stage
-FROM node:20-alpine AS production
-
-# Set working directory
-WORKDIR /app
-
-# Copy built application from build stage
-COPY --from=build /app/.output ./.output
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/prisma ./prisma
+# Create build stage
+FROM node:${NODE_VERSION}-slim AS build
 
 # Environment variables
 # Database
@@ -74,8 +46,34 @@ ENV FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL
 ARG FIREBASE_PRIVATE_KEY
 ENV FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY
 
-# Expose the port the app will run on
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copier le package.json et le package-lock.json pour installer les dépendances
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install
+
+# Copier le reste des fichiers de l'application
+COPY . .
+
+# Construire l'application Nuxt.js pour la production
+RUN npm run build
+
+# Étape 2 : Exécuter l'application
+FROM node:18
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copier uniquement les fichiers nécessaires du build précédent
+COPY --from=build /app/.output ./.output
+COPY --from=build /app/node_modules ./node_modules
+
+# Exposer le port sur lequel l'application s'exécutera
 EXPOSE 3000
 
-# Command to run the application
+# Lancer l'application Nuxt.js
 CMD ["node", ".output/server/index.mjs"]
