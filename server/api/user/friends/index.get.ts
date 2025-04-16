@@ -9,21 +9,11 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const status = query.status as FriendStatus | undefined;
 
-  // Build the where clause with proper typing
-  const whereClause: {
-    OR: Array<{ userId?: string; friendId?: string }>;
-    status?: FriendStatus;
-  } = {
-    OR: [{ userId }, { friendId: userId }],
-  };
-
-  // Add status filter if provided
-  if (status) {
-    whereClause.status = status;
-  }
-
   const friends = await prisma.friend.findMany({
-    where: whereClause,
+    where: {
+      OR: [{ friendId: userId }, { userId: userId }],
+      status,
+    },
     include: {
       user: {
         select: {
@@ -50,13 +40,11 @@ export default defineEventHandler(async (event) => {
     const isSender = friend.userId === userId;
     return {
       id: friend.id,
-      userId: friend.userId,
-      friendId: friend.friendId,
+      friendId: isSender ? friend.friendId : friend.userId,
+      friend: isSender ? friend.friend : friend.user,
       status: friend.status,
       createdAt: friend.createdAt,
       updatedAt: friend.updatedAt,
-      user: friend.user,
-      friend: friend.friend,
       isSender,
     };
   });

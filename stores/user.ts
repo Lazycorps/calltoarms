@@ -4,6 +4,7 @@ import { FriendStatus } from "~/shared/models/friend";
 import { defineStore } from "pinia";
 import { computed, onMounted, ref } from "vue";
 import type { UserDTO } from "~/shared/models/user";
+import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 export const useUserStore = defineStore("user", () => {
   const supabase = useSupabaseClient();
@@ -32,9 +33,12 @@ export const useUserStore = defineStore("user", () => {
   });
 
   async function init() {
-    if (await supabase.auth.getUser()) {
+    const supabaseUser = await supabase.auth.getUser();
+    if (supabaseUser.data.user) {
+      const { requestNotificationPermission } = useFirebaseMessaging();
       await fetchUser();
       await loadFriends();
+      await requestNotificationPermission(supabaseUser.data.user?.id);
     }
   }
 

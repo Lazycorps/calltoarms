@@ -35,7 +35,7 @@
           v-model="selectedUsers"
           :items="usersStore.acceptedFriends"
           :item-title="(item) => item.friend?.name || ''"
-          item-value="id"
+          item-value="friendId"
           label="Select friends to notify"
           variant="outlined"
           multiple
@@ -74,7 +74,6 @@ import type { MessageDTO } from "~/shared/models/message";
 import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const usersStore = useUserStore();
-const notificationsStore = useNotificationsStore();
 const { sendPushNotification } = useFirebaseMessaging();
 // const communiesStore = useCommunitiesStore();
 
@@ -112,10 +111,6 @@ async function sendNotification() {
       props.game.imageUrl || ""
     );
 
-    // Increment notification count in store
-    notificationsStore.increment();
-
-    // Emit send event to parent component
     emits("send");
   } catch (err) {
     console.error("Error sending notification:", err);

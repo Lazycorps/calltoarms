@@ -44,12 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
-
 const supabase = useSupabaseClient();
 const router = useRouter();
 const user = useUserStore();
-const { requestNotificationPermission } = useFirebaseMessaging();
 
 const passwordType = ref<"password" | "text">("password");
 const email = ref("");
@@ -66,16 +63,18 @@ async function signIn() {
     });
     if (error) displayError.value = error.message;
     else {
-      await $fetch("/api/user/create", {
-        method: "post",
-        body: {
-          id: data.user.id,
-          name: "",
-          slug: "",
-        },
-      });
-      await requestNotificationPermission(data.user.id);
-      user.init();
+      await user.init();
+      if (!user.user) {
+        await $fetch("/api/user/create", {
+          method: "post",
+          body: {
+            id: data.user.id,
+            name: data.user.email,
+            slug: "",
+          },
+        });
+        await user.init();
+      }
       router.push("/");
     }
   } catch (err) {

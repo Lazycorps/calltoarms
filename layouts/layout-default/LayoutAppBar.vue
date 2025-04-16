@@ -70,15 +70,15 @@
 <script lang="ts" setup>
 import { useDisplay } from "vuetify";
 import { usePermission } from "@vueuse/core";
-import { useFirebase } from "~/composables/firebase/useFirebase";
+import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const user = useUserStore();
 const { mobile } = useDisplay();
 const notificationPermission = usePermission("notifications");
 
 async function enablePermission() {
-  const { requestNotificationPermission } = useFirebase();
-  await requestNotificationPermission();
+  const { requestNotificationPermission } = useFirebaseMessaging();
+  if (user.user?.id) await requestNotificationPermission(user.user?.id);
 }
 
 function logout() {

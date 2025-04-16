@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
         error: "Notification and sender ID are required",
       };
     }
-    console.log(notification.users);
+
     // Create notification in database
     const newNotification = await prisma.notification.create({
       data: {
