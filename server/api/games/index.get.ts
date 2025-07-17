@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "~/lib/prisma";
+import prisma from "../../../lib/prisma";
 
 interface GameFilters {
   search?: string;

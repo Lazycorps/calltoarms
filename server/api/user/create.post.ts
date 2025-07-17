@@ -1,5 +1,5 @@
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "~/lib/prisma";
+import prisma from "../../../lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const userConnected = await serverSupabaseUser(event);
