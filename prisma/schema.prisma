@@ -21,6 +21,7 @@ model User {
     sentNotifications     Notification[]         @relation("sender")
     receivedNotifications NotificationReceiver[] @relation("receiver")
     fcmTokens             FcmToken[]
+    platformAccounts      PlatformAccount[]
 }
 
 model Game {
@@ -83,4 +84,75 @@ model FcmToken {
     token     String   @unique
     user      User     @relation(fields: [userId], references: [id])
     createdAt DateTime @default(now())
+}
+
+// Énumération des plateformes de jeux
+enum GamingPlatform {
+    STEAM
+    PLAYSTATION
+    XBOX
+    NINTENDO
+    EPIC_GAMES
+    GOG
+}
+
+// Comptes de plateformes liés à l'utilisateur
+model PlatformAccount {
+    id           Int            @id @default(autoincrement())
+    userId       String // Référence à l'utilisateur
+    platform     GamingPlatform // Type de plateforme
+    platformId   String // ID sur la plateforme (Steam ID, PSN ID, etc.)
+    username     String? // Nom d'utilisateur sur la plateforme
+    displayName  String? // Nom d'affichage
+    avatarUrl    String? // URL de l'avatar
+    profileUrl   String? // URL du profil
+    accessToken  String? // Token d'accès (chiffré)
+    refreshToken String? // Token de rafraîchissement (chiffré)
+    isActive     Boolean        @default(true)
+    lastSync     DateTime? // Dernière synchronisation
+    user         User           @relation(fields: [userId], references: [id])
+    games        PlatformGame[]
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+
+    @@unique([userId, platform]) // Un seul compte par plateforme par utilisateur
+}
+
+// Jeux sur les différentes plateformes
+model PlatformGame {
+    id                Int                   @id @default(autoincrement())
+    platformAccountId Int // Référence au compte plateforme
+    platformGameId    String // ID du jeu sur la plateforme
+    name              String // Nom du jeu
+    playtimeTotal     Int                   @default(0) // Temps total en minutes
+    playtimeRecent    Int? // Temps récent (2 semaines)
+    lastPlayed        DateTime? // Dernière fois joué
+    iconUrl           String? // URL de l'icône
+    coverUrl          String? // URL de la couverture
+    isInstalled       Boolean               @default(false)
+    platformAccount   PlatformAccount       @relation(fields: [platformAccountId], references: [id])
+    achievements      PlatformAchievement[]
+    createdAt         DateTime              @default(now())
+    updatedAt         DateTime              @updatedAt
+
+    @@unique([platformAccountId, platformGameId])
+}
+
+// Succès/Trophées génériques
+model PlatformAchievement {
+    id             Int          @id @default(autoincrement())
+    platformGameId Int // Référence au jeu
+    achievementId  String // ID du succès sur la plateforme
+    name           String // Nom du succès
+    description    String? // Description
+    iconUrl        String? // URL de l'icône
+    isUnlocked     Boolean      @default(false)
+    unlockedAt     DateTime? // Date de déblocage
+    rarity         Float? // Rareté (pourcentage)
+    points         Int? // Points/Score du succès
+    game           PlatformGame @relation(fields: [platformGameId], references: [id])
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+
+    @@unique([platformGameId, achievementId])
 }

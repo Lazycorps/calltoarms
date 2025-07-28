@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     },
     "@prisma/nuxt",
     "@pinia/nuxt",
+    "@vueuse/nuxt",
   ],
   vite: {
     vue: {
@@ -42,6 +43,9 @@ export default defineNuxtConfig({
     twitchSecret: process.env.TWITCH_SECRET,
     twitchClientId: process.env.TWITCH_CLIENT_ID,
     //shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
+
+    // Steam API configuration
+    steamApiKey: process.env.STEAM_API_KEY,
 
     // Firebase Admin SDK configuration (server-side)
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
