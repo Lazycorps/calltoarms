@@ -1,11 +1,11 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { getPlatformService } from "../../../utils/gaming-platforms";
-import type { GamingPlatform } from "@prisma/client";
+import { PlayStationService } from "../../../utils/gaming-platforms/playstation/PlayStationService";
 import prisma from "../../../../lib/prisma";
 
-interface AuthRequest {
-  credentials: Record<string, string | number | boolean>;
+interface PlayStationAuthRequest {
+  username: string;
+  npsso: string;
 }
 
 export default defineEventHandler(async (event) => {
@@ -19,36 +19,24 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Récupérer la plateforme depuis l'URL
-    const platform = getRouterParam(
-      event,
-      "platform"
-    )?.toUpperCase() as GamingPlatform;
-    if (!platform) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "Plateforme non spécifiée",
-      });
-    }
-
     // Lire les données de la requête
-    const body = await readBody<AuthRequest>(event);
-    if (!body.credentials) {
+    const body = await readBody<PlayStationAuthRequest>(event);
+    if (!body.npsso) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Identifiants manquants",
+        statusMessage: "NPSSO token manquant",
       });
     }
 
-    // Obtenir le service de la plateforme
-    const platformService = getPlatformService(platform);
+    // Créer une instance du service PlayStation
+    const playStationService = new PlayStationService();
 
-    // Authentifier avec la plateforme
-    const authResult = await platformService.authenticate(body.credentials);
+    // Authentifier avec PlayStation
+    const authResult = await playStationService.authenticate({ npsso: body.npsso, username: body.username });
     if (!authResult.success || !authResult.data) {
       throw createError({
         statusCode: 400,
-        statusMessage: authResult.error || "Échec de l'authentification",
+        statusMessage: authResult.error || "Échec de l'authentification PlayStation",
       });
     }
 
@@ -57,7 +45,7 @@ export default defineEventHandler(async (event) => {
       where: {
         userId_platform: {
           userId: user.id,
-          platform,
+          platform: "PLAYSTATION",
         },
       },
     });
@@ -74,22 +62,23 @@ export default defineEventHandler(async (event) => {
           displayName: authResult.data.displayName,
           avatarUrl: authResult.data.avatarUrl,
           profileUrl: authResult.data.profileUrl,
+          accessToken: body.npsso, // Stocker le NPSSO pour réutilisation
           isActive: true,
           lastSync: new Date(),
         },
       });
     } else {
       // Créer un nouveau compte
-      console.log(authResult);
       platformAccount = await prisma.platformAccount.create({
         data: {
           userId: user.id,
-          platform,
+          platform: "PLAYSTATION",
           platformId: authResult.data.platformId,
           username: authResult.data.username,
           displayName: authResult.data.displayName,
           avatarUrl: authResult.data.avatarUrl,
           profileUrl: authResult.data.profileUrl,
+          accessToken: body.npsso, // Stocker le NPSSO pour réutilisation
           isActive: true,
           lastSync: new Date(),
         },
@@ -98,10 +87,17 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      account: platformAccount,
+      account: {
+        id: platformAccount.id,
+        platformId: platformAccount.platformId,
+        username: platformAccount.username,
+        displayName: platformAccount.displayName,
+        avatarUrl: platformAccount.avatarUrl,
+        profileUrl: platformAccount.profileUrl,
+      },
     };
   } catch (error) {
-    console.error("Erreur lors de l'authentification de la plateforme:", error);
+    console.error("Erreur lors de l'authentification PlayStation:", error);
 
     if (error && typeof error === "object" && "statusCode" in error) {
       throw error;

@@ -10,13 +10,18 @@ import type {
 import type { PlayStationCredentials } from "./playstation-types";
 
 // Import de la bibliothèque psn-api
+import type {
+  UserThinTrophy,
+  TitleThinTrophy,
+  TrophyTitle} from "psn-api";
 import {
   exchangeAccessCodeForAuthTokens,
   exchangeNpssoForAccessCode,
   exchangeRefreshTokenForAuthTokens,
   getUserTitles,
   getUserTrophiesEarnedForTitle,
-  getProfileFromUserName,
+  getTitleTrophies,
+  getProfileFromUserName
 } from "psn-api";
 
 export class PlayStationService extends PlatformService {
@@ -101,7 +106,7 @@ export class PlayStationService extends PlatformService {
     }
   }
 
-  async syncGames(account: PlatformAccount): Promise<SyncResult<GameData[]>> {
+  async syncGames(): Promise<SyncResult<GameData[]>> {
     try {
       if (!this.accessToken) {
         return this.createErrorResult("No access token available");
@@ -112,12 +117,11 @@ export class PlayStationService extends PlatformService {
         { accessToken: this.accessToken },
         "me"
       );
-      console.log(userTitles);
       if (!userTitles?.trophyTitles) {
         return this.createSuccessResult([]);
       }
 
-      const games: GameData[] = userTitles.trophyTitles.map((game: any) => {
+      const games: GameData[] = userTitles.trophyTitles.map((game: TrophyTitle) => {
         return {
           platformGameId: game.npCommunicationId,
           name: game.trophyTitleName,
@@ -127,6 +131,7 @@ export class PlayStationService extends PlatformService {
           iconUrl: game.trophyTitleIconUrl,
           coverUrl: game.trophyTitleIconUrl,
           isInstalled: false, // Information non disponible via l'API trophées
+          isPs5Game: game.trophyTitlePlatform.includes("PS5")
         };
       });
 
@@ -141,48 +146,103 @@ export class PlayStationService extends PlatformService {
   }
 
   async syncAchievements(
-    account: PlatformAccount,
-    gameId: string
+    gameId: string,
+    isPs5Game: boolean
   ): Promise<SyncResult<AchievementData[]>> {
     try {
       if (!this.accessToken) {
         return this.createErrorResult("No access token available");
       }
 
-      // Récupérer les trophées pour un jeu spécifique
-      const trophiesData = await getUserTrophiesEarnedForTitle(
-        { accessToken: this.accessToken },
-        "me",
-        gameId,
-        "all", // Groupe de trophées
-        {
-          npServiceName: "trophy",
-        }
-      );
+      const authTokens = { accessToken: this.accessToken };
+      const allAchievements: AchievementData[] = [];
 
-      if (!trophiesData?.trophies) {
-        return this.createSuccessResult([]);
+      try {
+        // 1. Récupérer tous les trophées du jeu pour le groupe principal (default)
+        const gameTrophiesData = await getTitleTrophies(
+          authTokens,
+          gameId,
+          "all", // Commencer par le groupe principal
+          {
+            npServiceName: isPs5Game ? undefined : "trophy",
+          }
+        );
+
+        if (!gameTrophiesData?.trophies) {
+          console.log(`No trophies found for game ${gameId}`);
+          return this.createSuccessResult([]);
+        }
+
+        // 2. Récupérer les trophées gagnés par l'utilisateur pour ce jeu (groupe principal)
+        const userTrophiesData = await getUserTrophiesEarnedForTitle(
+          authTokens,
+          "me",
+          gameId,
+          "all",
+          {
+            npServiceName: isPs5Game ? undefined : "trophy",
+          }
+        );
+
+        // 3. Créer un map des trophées gagnés par l'utilisateur pour un accès rapide
+        const userTrophiesMap = new Map<number, UserThinTrophy>();
+        if (userTrophiesData?.trophies) {
+          userTrophiesData.trophies.forEach((userTrophy: UserThinTrophy) => {
+            userTrophiesMap.set(userTrophy.trophyId, userTrophy);
+          });
+        }
+
+        // 4. Merger les données pour le groupe principal
+        const mainGroupAchievements: AchievementData[] = gameTrophiesData.trophies.map(
+          (gameTrophy: TitleThinTrophy) => {
+            const userTrophy = userTrophiesMap.get(gameTrophy.trophyId);
+            
+            return {
+              achievementId: `${gameId}_${gameTrophy.trophyId}`, // ID unique avec préfixe du jeu
+              name: gameTrophy.trophyName || 'Trophée inconnu', // Nom complet depuis les données du jeu
+              description: gameTrophy.trophyDetail || '', // Description depuis les données du jeu
+              iconUrl: gameTrophy.trophyIconUrl, // Icône depuis les données du jeu
+              isUnlocked: userTrophy?.earned || false, // Statut depuis les données utilisateur
+              unlockedAt: userTrophy?.earnedDateTime
+                ? new Date(userTrophy.earnedDateTime)
+                : undefined, // Date depuis les données utilisateur
+              rarity: userTrophy?.trophyRare 
+                ? parseFloat(userTrophy.trophyRare.toFixed(2))
+                : undefined, // Rareté depuis les données utilisateur
+              points: this.getTrophyPoints(gameTrophy.trophyType), // Points basés sur le type
+            };
+          }
+        );
+
+        allAchievements.push(...mainGroupAchievements);
+
+        // 5. Essayer de récupérer d'autres groupes de trophées (DLC, etc.)
+        // Note: Pour l'instant, on se concentre sur le groupe principal
+        // Une amélioration future pourrait parcourir tous les groupes disponibles
+
+      } catch (trophyError) {
+        console.error(`Error fetching trophies for game ${gameId}:`, trophyError);
+        
+        // Si l'erreur est due à un jeu sans trophées ou à des permissions, retourner une liste vide
+        if (trophyError instanceof Error && 
+            (trophyError.message.includes('404') || 
+             trophyError.message.includes('not found') ||
+             trophyError.message.includes('no trophies'))) {
+          console.log(`Game ${gameId} has no trophies or is not accessible`);
+          return this.createSuccessResult([]);
+        }
+        
+        // Pour d'autres erreurs, les propager
+        throw trophyError;
       }
 
-      const achievements: AchievementData[] = trophiesData.trophies.map(
-        (trophy: any) => ({
-          achievementId: trophy.trophyId.toString(),
-          name: trophy.trophyName,
-          description: trophy.trophyDetail,
-          iconUrl: trophy.trophyIconUrl,
-          isUnlocked: trophy.earned,
-          unlockedAt: trophy.earnedDateTime
-            ? new Date(trophy.earnedDateTime)
-            : undefined,
-          rarity: parseFloat(trophy.trophyEarnedRate.replace("%", "")),
-          points: this.getTrophyPoints(trophy.trophyType),
-        })
-      );
+      console.log(`Successfully synced ${allAchievements.length} trophies for game ${gameId}`);
+      return this.createSuccessResult(allAchievements);
 
-      return this.createSuccessResult(achievements);
     } catch (error) {
+      console.error("Detailed PlayStation trophy sync error:", error);
       return this.createErrorResult(
-        `Failed to sync PlayStation trophies: ${
+        `Failed to sync PlayStation trophies for game ${gameId}: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );

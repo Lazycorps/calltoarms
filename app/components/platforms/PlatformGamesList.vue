@@ -4,7 +4,7 @@
     <v-card class="mb-4">
       <v-card-text>
         <v-row align="center">
-          <v-col cols="12" md="4">
+          <v-col cols="12" :md="props.platform ? 4 : 3">
             <v-text-field
               v-model="searchQuery"
               label="Rechercher un jeu"
@@ -15,7 +15,18 @@
               @input="debouncedSearch"
             />
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col v-if="!props.platform" cols="12" md="2">
+            <v-select
+              v-model="selectedPlatform"
+              label="Plateforme"
+              :items="platformOptions"
+              variant="outlined"
+              density="compact"
+              clearable
+              @update:model-value="loadGames"
+            />
+          </v-col>
+          <v-col cols="12" :md="props.platform ? 3 : 2">
             <v-select
               v-model="sortBy"
               label="Trier par"
@@ -25,7 +36,7 @@
               @update:model-value="loadGames"
             />
           </v-col>
-          <v-col cols="12" md="2">
+          <v-col cols="12" :md="props.platform ? 2 : 2">
             <v-select
               v-model="sortOrder"
               label="Ordre"
@@ -35,8 +46,9 @@
               @update:model-value="loadGames"
             />
           </v-col>
-          <v-col cols="12" md="3" class="d-flex justify-end">
+          <v-col cols="12" :md="3" class="d-flex justify-end">
             <v-btn
+              v-if="props.platform"
               color="primary"
               prepend-icon="mdi-sync"
               :loading="syncing"
@@ -112,7 +124,7 @@
                 md="4"
                 lg="3"
               >
-                <v-card class="game-card" hover>
+                <v-card class="game-card" hover @click="viewGameDetails(game.raw)">
                   <div class="game-image-container">
                     <v-img
                       :src="game.raw.coverUrl || ''"
@@ -171,17 +183,6 @@
                     </div>
                   </v-card-text>
 
-                  <v-card-actions class="pt-0">
-                    <v-spacer />
-                    <v-btn
-                      size="small"
-                      variant="text"
-                      color="primary"
-                      @click="viewGameDetails(game.raw)"
-                    >
-                      Détails
-                    </v-btn>
-                  </v-card-actions>
                 </v-card>
               </v-col>
             </v-row>
@@ -217,16 +218,23 @@
       </v-card-text>
     </v-card>
   </div>
+
+  <!-- Dialog des détails du jeu -->
+  <GameDetailsDialog 
+    v-model="showGameDetailsDialog"
+    :game-id="selectedGameId"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import type { GamingPlatform } from "@prisma/client";
+import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
 
 // Props
 interface Props {
-  platform: GamingPlatform;
+  platform?: GamingPlatform;
   accountId?: number;
 }
 
@@ -242,6 +250,9 @@ const sortOrder = ref("asc");
 const page = ref(1);
 const itemsPerPage = ref(12);
 const syncing = ref(false);
+const selectedPlatform = ref<GamingPlatform | null>(null);
+const showGameDetailsDialog = ref(false);
+const selectedGameId = ref<number | null>(null);
 
 // Options de tri
 const sortOptions = [
@@ -254,6 +265,21 @@ const orderOptions = [
   { title: "Croissant", value: "asc" },
   { title: "Décroissant", value: "desc" },
 ];
+
+const platformOptions = computed(() => {
+  const platforms = [
+    { title: "Toutes les plateformes", value: null },
+    { title: "Steam", value: "STEAM" },
+    { title: "PlayStation", value: "PLAYSTATION" },
+  ];
+  
+  // Si on est déjà sur une plateforme spécifique, on ne montre pas le filtre
+  if (props.platform) {
+    return [];
+  }
+  
+  return platforms;
+});
 
 // Computed
 const games = computed(() => gamingPlatformsStore.allGames);
@@ -287,9 +313,8 @@ function debouncedSearch() {
 }
 
 async function loadGames() {
-  await gamingPlatformsStore.loadGames({
-    platform: props.platform,
-    accountId: props.accountId,
+  await gamingPlatformsStore.loadAllGames({
+    platform: props.platform || selectedPlatform.value || undefined,
     search: searchQuery.value || undefined,
     sortBy: sortBy.value as "name" | "playtime" | "lastPlayed",
     sortOrder: sortOrder.value as "asc" | "desc",
@@ -298,7 +323,7 @@ async function loadGames() {
 }
 
 async function syncGames() {
-  if (!props.accountId) return;
+  if (!props.accountId || !props.platform) return;
 
   try {
     syncing.value = true;
@@ -336,8 +361,9 @@ function viewGameDetails(game: {
   playtimeTotal: number;
   _count: { achievements: number };
 }) {
-  // TODO: Implémenter la vue détaillée du jeu
-  console.log("Voir les détails du jeu:", game);
+  console.log('Opening game details for:', { id: game.id, name: game.name });
+  selectedGameId.value = game.id;
+  showGameDetailsDialog.value = true;
 }
 
 // Lifecycle

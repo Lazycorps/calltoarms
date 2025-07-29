@@ -83,6 +83,7 @@
 import { ref, computed } from "vue";
 import type { GamingPlatform } from "@prisma/client";
 import { useLocalStorage } from "@vueuse/core";
+import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 
 interface PlayStationCredentials {
   username: string;
@@ -93,6 +94,9 @@ const emit = defineEmits<{
   connected: [platform: GamingPlatform];
   error: [message: string];
 }>();
+
+// Store
+const gamingPlatformsStore = useGamingPlatformsStore();
 
 const form = ref();
 const loading = ref(false);
@@ -130,28 +134,14 @@ async function handleConnect() {
   error.value = null;
 
   try {
-    const response = await $fetch<{
-      success: boolean;
-      account?: object;
-      error?: string;
-    }>("/api/platforms/playstation/auth", {
-      method: "POST",
-      body: {
-        credentials: credentials.value,
-      },
+    await gamingPlatformsStore.connectPlatform("PLAYSTATION", {
+      username: credentials.value.username,
+      npsso: credentials.value.npsso,
     });
 
-    if (response.success) {
-      emit("connected", "PLAYSTATION");
-      // Réinitialiser le formulaire
-      credentials.value = {
-        username: "",
-        npsso: "",
-      };
-    } else {
-      error.value = response.error || "Erreur de connexion PlayStation";
-      emit("error", error.value);
-    }
+    emit("connected", "PLAYSTATION");
+    // Ne pas réinitialiser les credentials pour permettre la réutilisation
+    // Les credentials restent dans le localStorage pour la synchronisation
   } catch (err) {
     console.error("Erreur lors de la connexion PlayStation:", err);
     error.value = "Impossible de se connecter à PlayStation Network";

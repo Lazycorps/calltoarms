@@ -38,7 +38,7 @@
             </v-card>
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <v-card>
+            <v-card class="stat-card" hover @click="viewAllGames">
               <v-card-text class="text-center">
                 <v-icon size="48" color="success" class="mb-2"
                   >mdi-library</v-icon
@@ -198,7 +198,7 @@
                 md="4"
                 lg="2"
               >
-                <v-card class="recent-game-card" hover>
+                <v-card class="recent-game-card" hover @click="viewGameDetails(game)">
                   <v-img
                     :src="game.coverUrl || ''"
                     :alt="game.name"
@@ -254,7 +254,7 @@
                 md="4"
                 lg="2"
               >
-                <v-card class="most-played-game-card" hover>
+                <v-card class="most-played-game-card" hover @click="viewGameDetails(game)">
                   <v-img
                     :src="game.coverUrl || ''"
                     :alt="game.name"
@@ -341,18 +341,23 @@
               @click="showGamesDialog = false"
             />
             <span class="ms-2">
-              Jeux {{ selectedPlatformForGames?.platform }}
+              {{ selectedPlatformForGames ? `Jeux ${selectedPlatformForGames.platform}` : 'Tous les jeux' }}
             </span>
           </v-card-title>
           <v-card-text class="pa-0">
             <PlatformGamesList
-              v-if="selectedPlatformForGames"
-              :platform="selectedPlatformForGames.platform"
-              :account-id="selectedPlatformForGames.id"
+              :platform="selectedPlatformForGames?.platform"
+              :account-id="selectedPlatformForGames?.id"
             />
           </v-card-text>
         </v-card>
       </v-dialog>
+
+      <!-- Dialog des détails du jeu -->
+      <GameDetailsDialog 
+        v-model="showGameDetailsDialog"
+        :game-id="selectedGameId"
+      />
     </v-container>
   </LayoutDefault>
 </template>
@@ -366,6 +371,7 @@ import type { GamingPlatform } from "@prisma/client";
 import SteamConnector from "~/components/platforms/SteamConnector.vue";
 import PlayStationConnector from "~/components/platforms/PlayStationConnector.vue";
 import PlatformGamesList from "~/components/platforms/PlatformGamesList.vue";
+import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
 
 // Store
 const gamingPlatformsStore = useGamingPlatformsStore();
@@ -379,6 +385,8 @@ const selectedPlatformForGames = ref<{
   platform: GamingPlatform;
 } | null>(null);
 const syncingPlatforms = ref(new Set<number>());
+const showGameDetailsDialog = ref(false);
+const selectedGameId = ref<number | null>(null);
 
 // Computed
 const connectedPlatforms = computed(
@@ -443,9 +451,19 @@ function viewPlatformGames(platform: { id: number; platform: GamingPlatform }) {
   showGamesDialog.value = true;
 }
 
+function viewAllGames() {
+  selectedPlatformForGames.value = null;
+  showGamesDialog.value = true;
+}
+
 function onPlatformConnected() {
   showConnectDialog.value = false;
   // Les données seront automatiquement rechargées par le store
+}
+
+function viewGameDetails(game: { id: number }) {
+  selectedGameId.value = game.id;
+  showGameDetailsDialog.value = true;
 }
 
 // Lifecycle
@@ -497,5 +515,14 @@ useSeoMeta({
   position: absolute;
   bottom: 8px;
   left: 8px;
+}
+
+.stat-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
 }
 </style>

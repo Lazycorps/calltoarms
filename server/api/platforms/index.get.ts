@@ -86,6 +86,7 @@ export default defineEventHandler(async (event) => {
         lastPlayed: true,
         playtimeTotal: true,
         platformGameId: true,
+        achievements: true,
         platformAccount: {
           select: {
             platform: true,
@@ -113,6 +114,7 @@ export default defineEventHandler(async (event) => {
         coverUrl: true,
         playtimeTotal: true,
         platformGameId: true,
+        achievements: true,
         platformAccount: {
           select: {
             platform: true,
@@ -129,7 +131,7 @@ export default defineEventHandler(async (event) => {
       },
       take: 10,
     });
-
+    console.log(mostPlayedGames);
     return {
       success: true,
       connectedPlatforms: platformAccounts,

@@ -133,7 +133,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         account: PlatformAccount;
       }>(`/api/platforms/${platform.toLowerCase()}/auth`, {
         method: "POST",
-        body: { credentials },
+        body: credentials,
       });
 
       if (response.success) {
@@ -169,18 +169,24 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         await loadPlatforms();
         return response.games;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur lors de la synchronisation:", err);
-      error.value = "Impossible de synchroniser la plateforme";
+      
+      // Si l'erreur est liée à l'authentification PlayStation, nettoyer les credentials
+      if (platform === "PLAYSTATION" && err?.status === 401) {
+        clearPlatformCredentials(platform);
+        error.value = "Session PlayStation expirée. Veuillez vous reconnecter.";
+      } else {
+        error.value = "Impossible de synchroniser la plateforme";
+      }
       throw err;
     } finally {
       loading.value = false;
     }
   }
 
-  async function loadGames(options?: {
+  async function loadAllGames(options?: {
     platform?: GamingPlatform;
-    accountId?: number;
     search?: string;
     sortBy?: "name" | "playtime" | "lastPlayed";
     sortOrder?: "asc" | "desc";
@@ -192,18 +198,14 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       error.value = null;
 
       const params = new URLSearchParams();
-      if (options?.accountId)
-        params.append("accountId", options.accountId.toString());
+      if (options?.platform) params.append("platform", options.platform);
       if (options?.search) params.append("search", options.search);
       if (options?.sortBy) params.append("sortBy", options.sortBy);
       if (options?.sortOrder) params.append("sortOrder", options.sortOrder);
       if (options?.limit) params.append("limit", options.limit.toString());
       if (options?.offset) params.append("offset", options.offset.toString());
 
-      const platform = options?.platform || "steam"; // Par défaut Steam pour l'instant
-      const url = `/api/platforms/${platform.toLowerCase()}/games${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
+      const url = `/api/platforms-games${params.toString() ? `?${params.toString()}` : ""}`;
 
       const response = await $fetch<{
         success: boolean;
@@ -214,17 +216,32 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           offset: number;
           hasMore: boolean;
         };
+        stats: {
+          totalGames: number;
+          totalPlaytime: number;
+          recentlyPlayed: number;
+          byPlatform: Record<GamingPlatform, { totalGames: number; totalPlaytime: number }>;
+        };
       }>(url);
 
       if (response.success) {
+        // Transformer les jeux pour s'assurer que _count existe
+        const transformedGames = response.games.map(game => ({
+          ...game,
+          _count: game._count || { achievements: 0 }
+        }));
+
         if (options?.offset && options.offset > 0) {
           // Ajouter à la liste existante (pagination)
-          allGames.value.push(...response.games);
+          allGames.value.push(...transformedGames);
         } else {
           // Remplacer la liste
-          allGames.value = response.games;
+          allGames.value = transformedGames;
         }
-        return response;
+        return {
+          ...response,
+          games: transformedGames
+        };
       }
     } catch (err) {
       console.error("Erreur lors du chargement des jeux:", err);
@@ -235,6 +252,19 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     }
   }
 
+  // Garder l'ancienne méthode pour la compatibilité
+  async function loadGames(options?: {
+    platform?: GamingPlatform;
+    accountId?: number;
+    search?: string;
+    sortBy?: "name" | "playtime" | "lastPlayed";
+    sortOrder?: "asc" | "desc";
+    limit?: number;
+    offset?: number;
+  }) {
+    return loadAllGames(options);
+  }
+
   function getGamesByPlatform(platform: GamingPlatform) {
     return gamesByPlatform.value[platform] || [];
   }
@@ -243,6 +273,13 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     return connectedPlatforms.value.some(
       (account) => account.platform === platform
     );
+  }
+
+  function clearPlatformCredentials(platform: GamingPlatform) {
+    // Nettoyer les credentials stockés dans le localStorage
+    if (platform === "PLAYSTATION") {
+      localStorage.removeItem("playstation-credentials");
+    }
   }
 
   function getPlatformAccount(platform: GamingPlatform) {
@@ -279,9 +316,11 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     connectPlatform,
     syncPlatform,
     loadGames,
+    loadAllGames,
     getGamesByPlatform,
     isPlatformConnected,
     getPlatformAccount,
+    clearPlatformCredentials,
     init,
   };
 });
