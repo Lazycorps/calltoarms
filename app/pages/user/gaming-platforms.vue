@@ -5,7 +5,7 @@
         <!-- En-tête -->
         <div class="d-flex align-center justify-space-between mb-6">
           <div>
-            <h1 class="text-h4 font-weight-bold">Plateformes de Jeux</h1>
+            <h1 class="text-h4 font-weight-bold">Bibliothèques de jeux</h1>
             <p class="text-body-1 text-medium-emphasis mt-2">
               Connectez vos comptes de plateformes de jeux pour synchroniser vos
               bibliothèques
@@ -111,7 +111,7 @@
                 md="6"
                 lg="4"
               >
-                <v-card class="platform-card" hover>
+                <v-card variant="tonal">
                   <v-card-text>
                     <div class="d-flex align-center mb-3">
                       <v-avatar size="48" class="me-3">
@@ -198,7 +198,11 @@
                 md="4"
                 lg="2"
               >
-                <v-card class="recent-game-card" hover @click="viewGameDetails(game)">
+                <v-card
+                  class="recent-game-card"
+                  hover
+                  @click="viewGameDetails(game)"
+                >
                   <v-img
                     :src="game.coverUrl || ''"
                     :alt="game.name"
@@ -217,7 +221,10 @@
                     <div class="playtime-overlay">
                       <v-chip color="white">
                         <v-icon size="18" class="me-1">mdi-calendar</v-icon>
-                        {{ new Date(game.lastPlayed).toLocaleDateString("fr") }}
+                        {{
+                          game.lastPlayed &&
+                          new Date(game.lastPlayed).toLocaleDateString("fr")
+                        }}
                       </v-chip>
                     </div>
                     <div class="platform-icon-overlay">
@@ -254,7 +261,11 @@
                 md="4"
                 lg="2"
               >
-                <v-card class="most-played-game-card" hover @click="viewGameDetails(game)">
+                <v-card
+                  class="most-played-game-card"
+                  hover
+                  @click="viewGameDetails(game)"
+                >
                   <v-img
                     :src="game.coverUrl || ''"
                     :alt="game.name"
@@ -341,7 +352,11 @@
               @click="showGamesDialog = false"
             />
             <span class="ms-2">
-              {{ selectedPlatformForGames ? `Jeux ${selectedPlatformForGames.platform}` : 'Tous les jeux' }}
+              {{
+                selectedPlatformForGames
+                  ? `Jeux ${selectedPlatformForGames.platform}`
+                  : "Tous les jeux"
+              }}
             </span>
           </v-card-title>
           <v-card-text class="pa-0">
@@ -354,7 +369,7 @@
       </v-dialog>
 
       <!-- Dialog des détails du jeu -->
-      <GameDetailsDialog 
+      <GameDetailsDialog
         v-model="showGameDetailsDialog"
         :game-id="selectedGameId"
       />
@@ -484,15 +499,6 @@ useSeoMeta({
 <style scoped>
 .gaming-platforms-page {
   margin: 0 auto;
-}
-
-.platform-card {
-  height: 100%;
-  transition: transform 0.2s ease-in-out;
-}
-
-.platform-card:hover {
-  transform: translateY(-2px);
 }
 
 .recent-game-card,

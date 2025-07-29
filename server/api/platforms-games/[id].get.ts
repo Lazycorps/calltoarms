@@ -59,28 +59,21 @@ export default defineEventHandler(async (event) => {
 
     // Calculer les statistiques des succès
     const totalAchievements = game.achievements.length;
-    const unlockedAchievements = game.achievements.filter(a => a.isUnlocked).length;
-    const completionPercentage = totalAchievements > 0 
-      ? Math.round((unlockedAchievements / totalAchievements) * 100) 
-      : 0;
-
-    console.log(`Game ${gameId} details:`, {
-      name: game.name,
-      platform: game.platformAccount.platform,
-      totalAchievements,
-      unlockedAchievements,
-      completionPercentage,
-      sampleAchievements: game.achievements.slice(0, 3).map(a => ({
-        id: a.id,
-        name: a.name,
-        isUnlocked: a.isUnlocked
-      }))
-    });
+    const unlockedAchievements = game.achievements.filter(
+      (a) => a.isUnlocked
+    ).length;
+    const completionPercentage =
+      totalAchievements > 0
+        ? Math.round((unlockedAchievements / totalAchievements) * 100)
+        : 0;
 
     // Calculer la valeur totale des points (si disponible)
-    const totalPoints = game.achievements.reduce((sum, a) => sum + (a.points || 0), 0);
+    const totalPoints = game.achievements.reduce(
+      (sum, a) => sum + (a.points || 0),
+      0
+    );
     const unlockedPoints = game.achievements
-      .filter(a => a.isUnlocked)
+      .filter((a) => a.isUnlocked)
       .reduce((sum, a) => sum + (a.points || 0), 0);
 
     // Formater le temps de jeu
@@ -89,8 +82,8 @@ export default defineEventHandler(async (event) => {
       const hours = Math.floor(minutes / 60);
       const remainingMinutes = minutes % 60;
       if (hours < 24) {
-        return remainingMinutes > 0 
-          ? `${hours}h ${remainingMinutes}min` 
+        return remainingMinutes > 0
+          ? `${hours}h ${remainingMinutes}min`
           : `${hours} heures`;
       }
       const days = Math.floor(hours / 24);
@@ -103,10 +96,15 @@ export default defineEventHandler(async (event) => {
 
     // Calculer les statistiques de rareté
     const rarityStats = {
-      common: game.achievements.filter(a => a.rarity && a.rarity > 50).length,
-      uncommon: game.achievements.filter(a => a.rarity && a.rarity > 20 && a.rarity <= 50).length,
-      rare: game.achievements.filter(a => a.rarity && a.rarity > 5 && a.rarity <= 20).length,
-      ultraRare: game.achievements.filter(a => a.rarity && a.rarity <= 5).length,
+      common: game.achievements.filter((a) => a.rarity && a.rarity > 50).length,
+      uncommon: game.achievements.filter(
+        (a) => a.rarity && a.rarity > 20 && a.rarity <= 50
+      ).length,
+      rare: game.achievements.filter(
+        (a) => a.rarity && a.rarity > 5 && a.rarity <= 20
+      ).length,
+      ultraRare: game.achievements.filter((a) => a.rarity && a.rarity <= 5)
+        .length,
     };
 
     return {
@@ -114,7 +112,9 @@ export default defineEventHandler(async (event) => {
       game: {
         ...game,
         playtimeFormatted: formatPlaytime(game.playtimeTotal),
-        recentPlaytimeFormatted: game.playtimeRecent ? formatPlaytime(game.playtimeRecent) : null,
+        recentPlaytimeFormatted: game.playtimeRecent
+          ? formatPlaytime(game.playtimeRecent)
+          : null,
       },
       stats: {
         totalAchievements,

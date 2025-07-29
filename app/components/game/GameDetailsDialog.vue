@@ -8,13 +8,10 @@
             {{ gameDetails.game.name }}
           </v-card-title>
           <v-card-subtitle class="text-white">
-            <v-chip
-              size="small"
-              color="white"
-              variant="outlined"
-              class="mr-2"
-            >
-              <v-icon start>{{ getPlatformIcon(gameDetails.game.platformAccount.platform) }}</v-icon>
+            <v-chip size="small" color="white" variant="outlined" class="mr-2">
+              <v-icon start>{{
+                getPlatformIcon(gameDetails.game.platformAccount.platform)
+              }}</v-icon>
               {{ gameDetails.game.platformAccount.platform }}
             </v-chip>
             <span v-if="gameDetails.game.lastPlayed">
@@ -30,14 +27,18 @@
           <v-col cols="6" sm="3">
             <div class="text-center">
               <v-icon size="32" color="primary" class="mb-1">mdi-clock</v-icon>
-              <div class="text-h6">{{ gameDetails.game.playtimeFormatted }}</div>
+              <div class="text-h6">
+                {{ gameDetails.game.playtimeFormatted }}
+              </div>
               <div class="text-caption text-medium-emphasis">Temps total</div>
             </div>
           </v-col>
           <v-col cols="6" sm="3">
             <div class="text-center">
               <v-icon size="32" color="success" class="mb-1">mdi-trophy</v-icon>
-              <div class="text-h6">{{ gameDetails.stats.completionPercentage }}%</div>
+              <div class="text-h6">
+                {{ gameDetails.stats.completionPercentage }}%
+              </div>
               <div class="text-caption text-medium-emphasis">Progression</div>
             </div>
           </v-col>
@@ -45,16 +46,22 @@
             <div class="text-center">
               <v-icon size="32" color="warning" class="mb-1">mdi-medal</v-icon>
               <div class="text-h6">
-                {{ gameDetails.stats.unlockedAchievements }}/{{ gameDetails.stats.totalAchievements }}
+                {{ gameDetails.stats.unlockedAchievements }}/{{
+                  gameDetails.stats.totalAchievements
+                }}
               </div>
-              <div class="text-caption text-medium-emphasis">Succès débloqués</div>
+              <div class="text-caption text-medium-emphasis">
+                Succès débloqués
+              </div>
             </div>
           </v-col>
-          <v-col cols="6" sm="3" v-if="gameDetails.stats.totalPoints > 0">
+          <v-col v-if="gameDetails.stats.totalPoints > 0" cols="6" sm="3">
             <div class="text-center">
               <v-icon size="32" color="info" class="mb-1">mdi-star</v-icon>
               <div class="text-h6">
-                {{ gameDetails.stats.unlockedPoints }}/{{ gameDetails.stats.totalPoints }}
+                {{ gameDetails.stats.unlockedPoints }}/{{
+                  gameDetails.stats.totalPoints
+                }}
               </div>
               <div class="text-caption text-medium-emphasis">Points</div>
             </div>
@@ -83,7 +90,10 @@
             Débloqués ({{ gameDetails.stats.unlockedAchievements }})
           </v-tab>
           <v-tab value="locked">
-            Verrouillés ({{ gameDetails.stats.totalAchievements - gameDetails.stats.unlockedAchievements }})
+            Verrouillés ({{
+              gameDetails.stats.totalAchievements -
+              gameDetails.stats.unlockedAchievements
+            }})
           </v-tab>
         </v-tabs>
 
@@ -117,7 +127,10 @@
             :key="tabValue"
             :value="tabValue"
           >
-            <div v-if="filteredAchievements.length === 0" class="text-center py-8">
+            <div
+              v-if="filteredAchievements.length === 0"
+              class="text-center py-8"
+            >
               <v-icon size="64" color="grey-lighten-2" class="mb-4">
                 mdi-trophy-outline
               </v-icon>
@@ -131,7 +144,7 @@
                 v-for="achievement in filteredAchievements"
                 :key="achievement.id"
                 class="achievement-item"
-                :class="{ 'unlocked': achievement.isUnlocked }"
+                :class="{ unlocked: achievement.isUnlocked }"
               >
                 <template #prepend>
                   <v-avatar size="48" rounded>
@@ -141,7 +154,11 @@
                       :alt="achievement.name"
                     />
                     <v-icon v-else size="32">
-                      {{ achievement.isUnlocked ? 'mdi-trophy' : 'mdi-trophy-outline' }}
+                      {{
+                        achievement.isUnlocked
+                          ? "mdi-trophy"
+                          : "mdi-trophy-outline"
+                      }}
                     </v-icon>
                   </v-avatar>
                 </template>
@@ -162,18 +179,21 @@
                     :color="getRarityColor(achievement.rarity)"
                     class="ml-2"
                   >
-                    {{ getRarityLabel(achievement.rarity) }}
+                    {{ getRarityLabel(achievement) }}
                   </v-chip>
                 </v-list-item-title>
 
                 <v-list-item-subtitle>
                   {{ achievement.description }}
-                  <div v-if="achievement.isUnlocked && achievement.unlockedAt" class="text-caption mt-1">
+                  <div
+                    v-if="achievement.isUnlocked && achievement.unlockedAt"
+                    class="text-caption mt-1"
+                  >
                     Débloqué le {{ formatDate(achievement.unlockedAt) }}
                   </div>
                 </v-list-item-subtitle>
 
-                <template #append v-if="achievement.isUnlocked">
+                <template v-if="achievement.isUnlocked" #append>
                   <v-icon color="success">mdi-check-circle</v-icon>
                 </template>
               </v-list-item>
@@ -199,8 +219,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import type { GamingPlatform } from '@prisma/client';
+import { ref, computed, watch } from "vue";
+import type { GamingPlatform } from "@prisma/client";
+import type { AchievementData } from "~~/server/utils/gaming-platforms/base/types";
 
 interface GameDetailsResponse {
   success: boolean;
@@ -255,93 +276,90 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
+  "update:modelValue": [value: boolean];
 }>();
 
 // État local
 const loading = ref(false);
 const gameDetails = ref<GameDetailsResponse | null>(null);
-const tab = ref('all');
-const searchQuery = ref('');
-const sortBy = ref('name');
+const tab = ref("all");
+const searchQuery = ref("");
+const sortBy = ref("name");
 
 const sortOptions = [
-  { title: 'Nom', value: 'name' },
-  { title: 'Date de déblocage', value: 'date' },
-  { title: 'Rareté', value: 'rarity' },
-  { title: 'Points', value: 'points' },
+  { title: "Nom", value: "name" },
+  { title: "Date de déblocage", value: "date" },
+  { title: "Rareté", value: "rarity" },
+  { title: "Points", value: "points" },
 ];
 
 // Computed
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
+  set: (value) => emit("update:modelValue", value),
 });
 
 const headerStyle = computed(() => {
   if (gameDetails.value?.game.coverUrl) {
     return {
       backgroundImage: `url(${gameDetails.value.game.coverUrl})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      height: '200px',
-      position: 'relative',
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      height: "200px",
+      position: "relative",
     };
   }
   return {
-    backgroundColor: 'rgb(var(--v-theme-primary))',
-    height: '200px',
-    position: 'relative',
+    backgroundColor: "rgb(var(--v-theme-primary))",
+    height: "200px",
+    position: "relative",
   };
 });
 
 const filteredAchievements = computed(() => {
   if (!gameDetails.value) {
-    console.log('No game details available for filtering');
     return [];
   }
-  
+
   let achievements = [...gameDetails.value.game.achievements];
-  console.log(`Starting with ${achievements.length} achievements, tab: ${tab.value}`);
 
   // Filtrer par tab
-  if (tab.value === 'unlocked') {
-    achievements = achievements.filter(a => a.isUnlocked);
-    console.log(`After unlocked filter: ${achievements.length} achievements`);
-  } else if (tab.value === 'locked') {
-    achievements = achievements.filter(a => !a.isUnlocked);
-    console.log(`After locked filter: ${achievements.length} achievements`);
+  if (tab.value === "unlocked") {
+    achievements = achievements.filter((a) => a.isUnlocked);
+  } else if (tab.value === "locked") {
+    achievements = achievements.filter((a) => !a.isUnlocked);
   }
 
   // Filtrer par recherche
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    achievements = achievements.filter(a => 
-      a.name.toLowerCase().includes(query) ||
-      (a.description && a.description.toLowerCase().includes(query))
+    achievements = achievements.filter(
+      (a) =>
+        a.name.toLowerCase().includes(query) ||
+        (a.description && a.description.toLowerCase().includes(query))
     );
-    console.log(`After search filter: ${achievements.length} achievements`);
   }
 
   // Trier
   achievements.sort((a, b) => {
     switch (sortBy.value) {
-      case 'date':
+      case "date":
         if (!a.unlockedAt && !b.unlockedAt) return 0;
         if (!a.unlockedAt) return 1;
         if (!b.unlockedAt) return -1;
-        return new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime();
-      case 'rarity':
+        return (
+          new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime()
+        );
+      case "rarity":
         return (a.rarity || 100) - (b.rarity || 100);
-      case 'points':
+      case "points":
         return (b.points || 0) - (a.points || 0);
-      case 'name':
+      case "name":
       default:
         return a.name.localeCompare(b.name);
     }
   });
 
-  console.log(`Final filtered achievements: ${achievements.length}`);
   return achievements;
 });
 
@@ -351,18 +369,17 @@ async function loadGameDetails() {
 
   loading.value = true;
   try {
-    console.log(`Loading game details for ID: ${props.gameId}`);
-    const response = await $fetch<GameDetailsResponse>(`/api/platforms-games/${props.gameId}`);
-    console.log('Game details response:', response);
-    
+    const response = await $fetch<GameDetailsResponse>(
+      `/api/platforms-games/${props.gameId}`
+    );
+
     if (response.success) {
       gameDetails.value = response;
-      console.log(`Loaded ${response.game.achievements.length} achievements for ${response.game.name}`);
     } else {
-      console.error('Response was not successful:', response);
+      console.error("Response was not successful:", response);
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des détails du jeu:', error);
+    console.error("Erreur lors du chargement des détails du jeu:", error);
   } finally {
     loading.value = false;
   }
@@ -371,53 +388,56 @@ async function loadGameDetails() {
 function close() {
   isOpen.value = false;
   // Réinitialiser l'état
-  tab.value = 'all';
-  searchQuery.value = '';
-  sortBy.value = 'name';
+  tab.value = "all";
+  searchQuery.value = "";
+  sortBy.value = "name";
   gameDetails.value = null;
 }
 
 function getPlatformIcon(platform: GamingPlatform): string {
   const icons: Record<GamingPlatform, string> = {
-    STEAM: 'mdi-steam',
-    PLAYSTATION: 'mdi-sony-playstation',
-    XBOX: 'mdi-microsoft-xbox',
-    NINTENDO: 'mdi-nintendo-switch',
-    EPIC_GAMES: 'mdi-gamepad-variant',
-    GOG: 'mdi-gamepad-variant',
+    STEAM: "mdi-steam",
+    PLAYSTATION: "mdi-sony-playstation",
+    XBOX: "mdi-microsoft-xbox",
+    NINTENDO: "mdi-nintendo-switch",
+    EPIC_GAMES: "mdi-gamepad-variant",
+    GOG: "mdi-gamepad-variant",
   };
-  return icons[platform] || 'mdi-gamepad-variant';
+  return icons[platform] || "mdi-gamepad-variant";
 }
 
 function formatDate(date: string | Date): string {
   const d = new Date(date);
-  return d.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  return d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function getRarityColor(rarity: number): string {
-  if (rarity <= 5) return 'purple';
-  if (rarity <= 20) return 'orange';
-  if (rarity <= 50) return 'blue';
-  return 'grey';
+  if (rarity == 0) return "purple";
+  if (rarity == 1) return "orange";
+  if (rarity == 2) return "blue";
+  return "grey";
 }
 
-function getRarityLabel(rarity: number): string {
-  if (rarity <= 5) return `Ultra rare (${rarity}%)`;
-  if (rarity <= 20) return `Rare (${rarity}%)`;
-  if (rarity <= 50) return `Peu commun (${rarity}%)`;
-  return `Commun (${rarity}%)`;
+function getRarityLabel(achievement: AchievementData): string {
+  if (achievement.rarity == 0) return `Ultra rare (${achievement.earnedRate}%)`;
+  if (achievement.rarity == 1) return `Très rare (${achievement.earnedRate}%)`;
+  if (achievement.rarity == 2) return `Rare (${achievement.earnedRate}%)`;
+  return `Commun (${achievement.earnedRate}%)`;
 }
 
 // Watchers
-watch(() => props.gameId, (newValue) => {
-  if (newValue && isOpen.value) {
-    loadGameDetails();
+watch(
+  () => props.gameId,
+  (newValue) => {
+    if (newValue && isOpen.value) {
+      loadGameDetails();
+    }
   }
-});
+);
 
 watch(isOpen, (newValue) => {
   if (newValue && props.gameId) {
@@ -438,7 +458,7 @@ watch(isOpen, (newValue) => {
   left: 0;
   right: 0;
   padding: 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
 }
 
 .achievement-item {

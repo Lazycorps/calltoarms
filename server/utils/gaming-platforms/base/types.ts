@@ -15,7 +15,7 @@ export interface GameData {
   iconUrl?: string;
   coverUrl?: string;
   isInstalled?: boolean;
-  isPs5Game?: boolean
+  isPs5Game?: boolean;
 }
 
 export interface AchievementData {
@@ -27,6 +27,7 @@ export interface AchievementData {
   unlockedAt?: Date;
   rarity?: number;
   points?: number;
+  earnedRate?: number;
 }
 
 export interface PlatformCredentials {

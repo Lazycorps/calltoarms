@@ -1,7 +1,7 @@
 import { defineEventHandler, getQuery, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "../../../lib/prisma";
-import type { GamingPlatform } from "@prisma/client";
+import type { GamingPlatform, Prisma } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const offset = query.offset ? parseInt(query.offset as string) : 0;
 
     // Construire la requête de base
-    const whereClause: any = {
+    const whereClause: Prisma.PlatformGameWhereInput = {
       platformAccount: {
         userId: user.id,
       },
@@ -32,7 +32,10 @@ export default defineEventHandler(async (event) => {
 
     // Ajouter le filtre de plateforme si spécifié
     if (platform) {
-      whereClause.platformAccount.platform = platform;
+      whereClause.platformAccount = {
+        userId: user.id,
+        platform: platform,
+      };
     }
 
     // Ajouter le filtre de recherche si spécifié
@@ -44,7 +47,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Construire l'objet orderBy
-    const orderByClause: any = {};
+    const orderByClause: Prisma.PlatformGameOrderByWithRelationInput = {};
     switch (sortBy) {
       case "playtime":
         orderByClause.playtimeTotal = sortOrder;
@@ -115,7 +118,9 @@ export default defineEventHandler(async (event) => {
     });
 
     const statsByPlatform = accounts.reduce((acc, account) => {
-      const stat = platformStats.find(s => s.platformAccountId === account.id);
+      const stat = platformStats.find(
+        (s) => s.platformAccountId === account.id
+      );
       if (!acc[account.platform]) {
         acc[account.platform] = {
           totalGames: 0,
@@ -131,15 +136,20 @@ export default defineEventHandler(async (event) => {
 
     // Calculer les statistiques globales
     const totalGames = totalCount;
-    const totalPlaytime = games.reduce((sum, game) => sum + game.playtimeTotal, 0);
+    const totalPlaytime = games.reduce(
+      (sum, game) => sum + game.playtimeTotal,
+      0
+    );
     const recentlyPlayed = games.filter(
-      (game) => game.lastPlayed && 
-      new Date(game.lastPlayed).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000
+      (game) =>
+        game.lastPlayed &&
+        new Date(game.lastPlayed).getTime() >
+          Date.now() - 14 * 24 * 60 * 60 * 1000
     ).length;
 
     return {
       success: true,
-      games: games.map(game => ({
+      games: games.map((game) => ({
         ...game,
         _count: {
           achievements: 0, // À implémenter si nécessaire

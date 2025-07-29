@@ -171,7 +171,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       }
     } catch (err: any) {
       console.error("Erreur lors de la synchronisation:", err);
-      
+
       // Si l'erreur est liée à l'authentification PlayStation, nettoyer les credentials
       if (platform === "PLAYSTATION" && err?.status === 401) {
         clearPlatformCredentials(platform);
@@ -205,7 +205,9 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       if (options?.limit) params.append("limit", options.limit.toString());
       if (options?.offset) params.append("offset", options.offset.toString());
 
-      const url = `/api/platforms-games${params.toString() ? `?${params.toString()}` : ""}`;
+      const url = `/api/platforms-games${
+        params.toString() ? `?${params.toString()}` : ""
+      }`;
 
       const response = await $fetch<{
         success: boolean;
@@ -220,15 +222,18 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           totalGames: number;
           totalPlaytime: number;
           recentlyPlayed: number;
-          byPlatform: Record<GamingPlatform, { totalGames: number; totalPlaytime: number }>;
+          byPlatform: Record<
+            GamingPlatform,
+            { totalGames: number; totalPlaytime: number }
+          >;
         };
       }>(url);
 
       if (response.success) {
         // Transformer les jeux pour s'assurer que _count existe
-        const transformedGames = response.games.map(game => ({
+        const transformedGames = response.games.map((game) => ({
           ...game,
-          _count: game._count || { achievements: 0 }
+          _count: game._count || { achievements: 0 },
         }));
 
         if (options?.offset && options.offset > 0) {
@@ -240,7 +245,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         }
         return {
           ...response,
-          games: transformedGames
+          games: transformedGames,
         };
       }
     } catch (err) {

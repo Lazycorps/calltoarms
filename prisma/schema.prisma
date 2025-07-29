@@ -148,6 +148,7 @@ model PlatformAchievement {
     iconUrl        String? // URL de l'icône
     isUnlocked     Boolean      @default(false)
     unlockedAt     DateTime? // Date de déblocage
+    earnedRate     Float?
     rarity         Float? // Rareté (pourcentage)
     points         Int? // Points/Score du succès
     game           PlatformGame @relation(fields: [platformGameId], references: [id])

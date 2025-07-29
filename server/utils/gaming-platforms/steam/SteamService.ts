@@ -1,5 +1,4 @@
 import type { GamingPlatform, PlatformAccount } from "@prisma/client";
-import { PlatformService } from "../base/PlatformService";
 import type {
   UserProfile,
   GameData,
@@ -19,13 +18,12 @@ import type {
   SteamAchievement,
 } from "./steam-types";
 
-export class SteamService extends PlatformService {
+export class SteamService {
   readonly platform: GamingPlatform = "STEAM";
   private readonly baseUrl = "https://api.steampowered.com";
   private readonly apiKey: string;
 
   constructor() {
-    super();
     const config = useRuntimeConfig();
     this.apiKey = config.steamApiKey;
 
@@ -261,5 +259,19 @@ export class SteamService extends PlatformService {
         }`
       );
     }
+  }
+
+  protected createSuccessResult<T>(data: T): SyncResult<T> {
+    return {
+      success: true,
+      data,
+    };
+  }
+
+  protected createErrorResult<T>(error: string): SyncResult<T> {
+    return {
+      success: false,
+      error,
+    };
   }
 }

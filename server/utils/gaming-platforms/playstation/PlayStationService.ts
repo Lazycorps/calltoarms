@@ -1,5 +1,4 @@
 import type { GamingPlatform, PlatformAccount } from "@prisma/client";
-import { PlatformService } from "../base/PlatformService";
 import type {
   UserProfile,
   GameData,
@@ -10,10 +9,7 @@ import type {
 import type { PlayStationCredentials } from "./playstation-types";
 
 // Import de la bibliothèque psn-api
-import type {
-  UserThinTrophy,
-  TitleThinTrophy,
-  TrophyTitle} from "psn-api";
+import type { UserThinTrophy, TrophyTitle, Trophy } from "psn-api";
 import {
   exchangeAccessCodeForAuthTokens,
   exchangeNpssoForAccessCode,
@@ -21,10 +17,10 @@ import {
   getUserTitles,
   getUserTrophiesEarnedForTitle,
   getTitleTrophies,
-  getProfileFromUserName
+  getProfileFromUserName,
 } from "psn-api";
 
-export class PlayStationService extends PlatformService {
+export class PlayStationService {
   readonly platform: GamingPlatform = "PLAYSTATION";
   private accessToken: string | null = null;
   private psRefreshToken: string | null = null;
@@ -121,19 +117,21 @@ export class PlayStationService extends PlatformService {
         return this.createSuccessResult([]);
       }
 
-      const games: GameData[] = userTitles.trophyTitles.map((game: TrophyTitle) => {
-        return {
-          platformGameId: game.npCommunicationId,
-          name: game.trophyTitleName,
-          playtimeTotal: 0,
-          playtimeRecent: undefined, // PlayStation API ne fournit pas cette info
-          lastPlayed: new Date(game.lastUpdatedDateTime),
-          iconUrl: game.trophyTitleIconUrl,
-          coverUrl: game.trophyTitleIconUrl,
-          isInstalled: false, // Information non disponible via l'API trophées
-          isPs5Game: game.trophyTitlePlatform.includes("PS5")
-        };
-      });
+      const games: GameData[] = userTitles.trophyTitles.map(
+        (game: TrophyTitle) => {
+          return {
+            platformGameId: game.npCommunicationId,
+            name: game.trophyTitleName,
+            playtimeTotal: 0,
+            playtimeRecent: undefined, // PlayStation API ne fournit pas cette info
+            lastPlayed: new Date(game.lastUpdatedDateTime),
+            iconUrl: game.trophyTitleIconUrl,
+            coverUrl: game.trophyTitleIconUrl,
+            isInstalled: false, // Information non disponible via l'API trophées
+            isPs5Game: game.trophyTitlePlatform.includes("PS5"),
+          };
+        }
+      );
 
       return this.createSuccessResult(games);
     } catch (error) {
@@ -193,52 +191,45 @@ export class PlayStationService extends PlatformService {
         }
 
         // 4. Merger les données pour le groupe principal
-        const mainGroupAchievements: AchievementData[] = gameTrophiesData.trophies.map(
-          (gameTrophy: TitleThinTrophy) => {
+        const mainGroupAchievements: AchievementData[] =
+          gameTrophiesData.trophies.map((gameTrophy: Trophy) => {
             const userTrophy = userTrophiesMap.get(gameTrophy.trophyId);
-            
-            return {
-              achievementId: `${gameId}_${gameTrophy.trophyId}`, // ID unique avec préfixe du jeu
-              name: gameTrophy.trophyName || 'Trophée inconnu', // Nom complet depuis les données du jeu
-              description: gameTrophy.trophyDetail || '', // Description depuis les données du jeu
-              iconUrl: gameTrophy.trophyIconUrl, // Icône depuis les données du jeu
-              isUnlocked: userTrophy?.earned || false, // Statut depuis les données utilisateur
-              unlockedAt: userTrophy?.earnedDateTime
-                ? new Date(userTrophy.earnedDateTime)
-                : undefined, // Date depuis les données utilisateur
-              rarity: userTrophy?.trophyRare 
-                ? parseFloat(userTrophy.trophyRare.toFixed(2))
-                : undefined, // Rareté depuis les données utilisateur
-              points: this.getTrophyPoints(gameTrophy.trophyType), // Points basés sur le type
-            };
-          }
-        );
+            return this.normalizeTrophy(
+              { ...gameTrophy, ...userTrophy },
+              gameId
+            );
+          });
 
         allAchievements.push(...mainGroupAchievements);
 
         // 5. Essayer de récupérer d'autres groupes de trophées (DLC, etc.)
         // Note: Pour l'instant, on se concentre sur le groupe principal
         // Une amélioration future pourrait parcourir tous les groupes disponibles
-
       } catch (trophyError) {
-        console.error(`Error fetching trophies for game ${gameId}:`, trophyError);
-        
+        console.error(
+          `Error fetching trophies for game ${gameId}:`,
+          trophyError
+        );
+
         // Si l'erreur est due à un jeu sans trophées ou à des permissions, retourner une liste vide
-        if (trophyError instanceof Error && 
-            (trophyError.message.includes('404') || 
-             trophyError.message.includes('not found') ||
-             trophyError.message.includes('no trophies'))) {
+        if (
+          trophyError instanceof Error &&
+          (trophyError.message.includes("404") ||
+            trophyError.message.includes("not found") ||
+            trophyError.message.includes("no trophies"))
+        ) {
           console.log(`Game ${gameId} has no trophies or is not accessible`);
           return this.createSuccessResult([]);
         }
-        
+
         // Pour d'autres erreurs, les propager
         throw trophyError;
       }
 
-      console.log(`Successfully synced ${allAchievements.length} trophies for game ${gameId}`);
+      console.log(
+        `Successfully synced ${allAchievements.length} trophies for game ${gameId}`
+      );
       return this.createSuccessResult(allAchievements);
-
     } catch (error) {
       console.error("Detailed PlayStation trophy sync error:", error);
       return this.createErrorResult(
@@ -247,6 +238,22 @@ export class PlayStationService extends PlatformService {
         }`
       );
     }
+  }
+
+  private normalizeTrophy(trophy: Trophy, gameid: string) {
+    return {
+      achievementId: `${gameid}_${trophy.trophyId}`, // ID unique avec préfixe du jeu
+      name: trophy.trophyName || "Trophée inconnu", // Nom complet depuis les données du jeu
+      description: trophy.trophyDetail || "", // Description depuis les données du jeu
+      iconUrl: trophy.trophyIconUrl, // Icône depuis les données du jeu
+      isUnlocked: trophy?.earned || false, // Statut depuis les données utilisateur
+      unlockedAt: trophy?.earnedDateTime
+        ? new Date(trophy.earnedDateTime)
+        : undefined, // Date depuis les données utilisateur
+      rarity: trophy?.trophyRare, // Rareté depuis les données utilisateur
+      points: this.getTrophyPoints(trophy.trophyType), // Points basés sur le type
+      earnedRate: Number(trophy.trophyEarnedRate),
+    };
   }
 
   async getUserProfile(
@@ -276,6 +283,20 @@ export class PlayStationService extends PlatformService {
       psCredentials.username.length > 0 &&
       psCredentials.npsso.length > 0
     );
+  }
+
+  protected createSuccessResult<T>(data: T): SyncResult<T> {
+    return {
+      success: true,
+      data,
+    };
+  }
+
+  protected createErrorResult<T>(error: string): SyncResult<T> {
+    return {
+      success: false,
+      error,
+    };
   }
 
   private getTrophyPoints(trophyType: string): number {

@@ -1,6 +1,5 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { getSupportedPlatforms } from "../../utils/gaming-platforms";
 import prisma from "../../../lib/prisma";
 
 export default defineEventHandler(async (event) => {
@@ -33,7 +32,7 @@ export default defineEventHandler(async (event) => {
     });
 
     // Récupérer les plateformes supportées
-    const supportedPlatforms = getSupportedPlatforms();
+    const supportedPlatforms = ["STEAM", "PLAYSTATION"];
 
     // Calculer les statistiques avec des requêtes optimisées
     const baseWhere = {
@@ -131,7 +130,7 @@ export default defineEventHandler(async (event) => {
       },
       take: 10,
     });
-    console.log(mostPlayedGames);
+
     return {
       success: true,
       connectedPlatforms: platformAccounts,
