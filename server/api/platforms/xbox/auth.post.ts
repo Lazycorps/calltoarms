@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "../../../../lib/prisma";
@@ -71,7 +72,6 @@ export default defineEventHandler(async (event) => {
         },
       }
     );
-
     if (!profileResponse.ok) {
       throw createError({
         statusCode: 400,
@@ -80,6 +80,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const profileData = await profileResponse.json();
+    console.log(profileData.profileUsers[0]);
+    console.log(profileData.profileUsers[1]);
     const profileUser = profileData.profileUsers[0];
     const settings = profileUser.settings.reduce((acc: any, setting: any) => {
       acc[setting.id] = setting.value;
@@ -106,7 +108,7 @@ export default defineEventHandler(async (event) => {
           platformId: profileUser.id,
           username: settings.Gamertag,
           displayName: settings.GameDisplayName || settings.Gamertag,
-          avatarUrl: settings.AppDisplayPicRaw || settings.PublicGamerpic,
+          avatarUrl: settings.PublicGamerpic,
           profileUrl: `https://account.xbox.com/en-us/profile?gamertag=${settings.Gamertag}`,
           accessToken: xboxLiveAuth.xsts_token, // Stocker le token XSTS
           refreshToken: xboxLiveAuth.user_hash, // Stocker le user hash

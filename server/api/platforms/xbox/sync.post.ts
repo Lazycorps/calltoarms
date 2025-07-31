@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
 
         syncedGamesCount++;
 
-        // Synchroniser les succès pour ce jeu
+        //Synchroniser les succès pour ce jeu
         const achievementsResult = await xboxService.syncAchievements(
           platformAccount,
           gameData.platformGameId
