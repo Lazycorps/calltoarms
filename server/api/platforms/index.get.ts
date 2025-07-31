@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     });
 
     // Récupérer les plateformes supportées
-    const supportedPlatforms = ["STEAM", "PLAYSTATION"];
+    const supportedPlatforms = ["STEAM", "PLAYSTATION", "XBOX"];
 
     // Calculer les statistiques avec des requêtes optimisées
     const baseWhere = {

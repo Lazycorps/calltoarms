@@ -322,6 +322,10 @@
                 <v-icon class="me-2">mdi-sony-playstation</v-icon>
                 PlayStation
               </v-tab>
+              <v-tab value="xbox">
+                <v-icon class="me-2">mdi-microsoft-xbox</v-icon>
+                Xbox
+              </v-tab>
             </v-tabs>
 
             <v-tabs-window v-model="selectedPlatformTab">
@@ -330,6 +334,9 @@
               </v-tabs-window-item>
               <v-tabs-window-item value="playstation">
                 <PlayStationConnector @connected="onPlatformConnected" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="xbox">
+                <XboxConnector @connected="onPlatformConnected" />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card-text>
@@ -385,6 +392,7 @@ import type { GamingPlatform } from "@prisma/client";
 // Composants
 import SteamConnector from "~/components/platforms/SteamConnector.vue";
 import PlayStationConnector from "~/components/platforms/PlayStationConnector.vue";
+import XboxConnector from "~/components/platforms/XboxConnector.vue";
 import PlatformGamesList from "~/components/platforms/PlatformGamesList.vue";
 import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
 

@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.11.2",
     "@prisma/client": "^6.12.0",
     "@prisma/nuxt": "^0.3.0",
+    "@xboxreplay/xboxlive-auth": "^5.0.2",
     "eslint": "^9.32.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0",
