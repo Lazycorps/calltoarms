@@ -1,4 +1,4 @@
-ARG NODE_VERSION=20.14.0
+ARG NODE_VERSION=22
 
 # Create build stage
 FROM node:${NODE_VERSION}-slim AS build
@@ -66,7 +66,7 @@ COPY . .
 RUN npm run build
 
 # Étape 2 : Exécuter l'application
-FROM node:18
+FROM node:22
 
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
