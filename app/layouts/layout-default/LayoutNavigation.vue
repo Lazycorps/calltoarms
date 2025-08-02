@@ -34,6 +34,12 @@
             </v-badge>
           </template>
         </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-bookshelf"
+          title="Library"
+          value="Library"
+          to="gamesLibrary"
+        />
         <v-divider />
         <!-- <v-list-item
           v-for="community in communitiesStore.userCommunities"
@@ -74,7 +80,7 @@
         </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
-    <v-bottom-navigation :active="mobile" grow absolute>
+    <v-bottom-navigation :active="mobile" absolute>
       <v-btn @click="selectComponent('Friends')">
         <v-icon>mdi-account-multiple</v-icon>
         <span>Friends</span>
@@ -91,9 +97,13 @@
         <span>Notifications</span>
       </v-btn>
 
-      <v-btn @click="selectComponent('Communities')">
+      <!-- <v-btn @click="selectComponent('Communities')">
         <v-icon>mdi-account-group</v-icon>
         <span>Communities</span>
+      </v-btn> -->
+      <v-btn to="gamesLibrary">
+        <v-icon>mdi-bookshelf</v-icon>
+        <span>Labrary</span>
       </v-btn>
     </v-bottom-navigation>
     <v-navigation-drawer
@@ -151,6 +161,10 @@ function selectComponent(componentToSelect: string) {
     selectedItemTitle.value = componentToSelect;
     drawer.value = true;
   } else if (componentToSelect == "Friends") {
+    selectedItem.value = FriendsView;
+    selectedItemTitle.value = componentToSelect;
+    drawer.value = true;
+  } else if (componentToSelect == "Library") {
     selectedItem.value = FriendsView;
     selectedItemTitle.value = componentToSelect;
     drawer.value = true;

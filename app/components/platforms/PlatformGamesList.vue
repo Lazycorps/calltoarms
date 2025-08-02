@@ -124,7 +124,11 @@
                 md="4"
                 lg="3"
               >
-                <v-card class="game-card" hover @click="viewGameDetails(game.raw)">
+                <v-card
+                  class="game-card"
+                  hover
+                  @click="viewGameDetails(game.raw)"
+                >
                   <div class="game-image-container">
                     <v-img
                       :src="game.raw.coverUrl || ''"
@@ -182,7 +186,6 @@
                       </span>
                     </div>
                   </v-card-text>
-
                 </v-card>
               </v-col>
             </v-row>
@@ -220,7 +223,7 @@
   </div>
 
   <!-- Dialog des détails du jeu -->
-  <GameDetailsDialog 
+  <GameDetailsDialog
     v-model="showGameDetailsDialog"
     :game-id="selectedGameId"
   />
@@ -272,12 +275,12 @@ const platformOptions = computed(() => {
     { title: "Steam", value: "STEAM" },
     { title: "PlayStation", value: "PLAYSTATION" },
   ];
-  
+
   // Si on est déjà sur une plateforme spécifique, on ne montre pas le filtre
   if (props.platform) {
     return [];
   }
-  
+
   return platforms;
 });
 
@@ -361,7 +364,7 @@ function viewGameDetails(game: {
   playtimeTotal: number;
   _count: { achievements: number };
 }) {
-  console.log('Opening game details for:', { id: game.id, name: game.name });
+  console.log("Opening game details for:", { id: game.id, name: game.name });
   selectedGameId.value = game.id;
   showGameDetailsDialog.value = true;
 }

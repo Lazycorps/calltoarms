@@ -16,37 +16,16 @@
         {{ error }}
       </VAlert>
 
-      <VAlert v-if="storedCredentials.email" type="success" class="mb-4">
-        <div class="text-body-2">
-          <VIcon icon="mdi-check-circle" class="me-2" />
-          <strong>Identifiants sauvegardés</strong> - Votre email est
-          automatiquement rempli depuis la dernière connexion.
-        </div>
-      </VAlert>
-
       <VAlert type="info" class="mb-4">
         <div class="text-body-2">
           <strong>Connexion Xbox Live :</strong>
           <ul class="mt-2">
             <li>Utilisez votre email et mot de passe Microsoft/Xbox Live</li>
             <li>
-              L'authentification à deux facteurs doit être désactivée
-              temporairement
+              <strong>Important, </strong> L'authentification à deux facteurs
+              doit être désactivée temporairement.
             </li>
-            <li>
-              Vos identifiants sont stockés de manière sécurisée localement
-            </li>
-            <li>La connexion peut prendre quelques secondes</li>
           </ul>
-        </div>
-      </VAlert>
-
-      <VAlert type="warning" class="mb-4">
-        <div class="text-body-2">
-          <VIcon icon="mdi-alert" class="me-2" />
-          <strong>Important :</strong> Cette méthode utilise l'authentification
-          directe Xbox Live. Microsoft peut bloquer les connexions automatisées.
-          Utilisez à vos propres risques.
         </div>
       </VAlert>
 
@@ -127,12 +106,11 @@ const error = ref<string | null>(null);
 // Utiliser useStorage pour persister les identifiants Xbox
 const storedCredentials = useStorage("xbox_credentials", {
   email: "",
-  password: "",
 });
 
 const credentials = ref<XboxCredentials>({
   email: storedCredentials.value.email,
-  password: storedCredentials.value.password,
+  password: "",
 });
 
 // Synchroniser les changements avec le localStorage
@@ -142,7 +120,6 @@ watch(
     if (newCredentials.email && newCredentials.password) {
       storedCredentials.value = {
         email: newCredentials.email,
-        password: newCredentials.password,
       };
     }
   },
@@ -190,7 +167,6 @@ async function handleConnect() {
       // Sauvegarder les identifiants dans le localStorage lors d'une connexion réussie
       storedCredentials.value = {
         email: credentials.value.email,
-        password: credentials.value.password,
       };
       emit("connected", "XBOX");
       // Ne pas réinitialiser le formulaire pour conserver les identifiants
@@ -211,7 +187,6 @@ async function handleConnect() {
 function clearStoredCredentials() {
   storedCredentials.value = {
     email: "",
-    password: "",
   };
   credentials.value = {
     email: "",

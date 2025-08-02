@@ -5,53 +5,12 @@ import type {
   PlatformAccount,
   PlatformGame,
 } from "@prisma/client";
-
-interface PlatformAccountWithStats extends PlatformAccount {
-  _count: {
-    games: number;
-  };
-}
-
-interface PlatformGameWithAccount extends PlatformGame {
-  platformAccount: {
-    id: number;
-    platform: GamingPlatform;
-    username: string | null;
-    displayName: string | null;
-  };
-  _count: {
-    achievements: number;
-  };
-}
-
-interface PlatformStats {
-  totalConnectedPlatforms: number;
-  totalGames: number;
-  totalPlaytime: number;
-  totalAchievements: number;
-}
-
-interface RecentGame {
-  id: number;
-  name: string;
-  iconUrl: string | null;
-  coverUrl: string | null;
-  lastPlayed: Date | null;
-  playtimeTotal: number;
-  platformGameId: number;
-  platform: GamingPlatform;
-}
-
-interface MostPlayedGame {
-  id: number;
-  name: string;
-  iconUrl: string | null;
-  coverUrl: string | null;
-  playtimeTotal: number;
-  achievementsCount: number;
-  platformGameId: number;
-  platform: GamingPlatform;
-}
+import type {
+  PlatformAccountWithStats,
+  PlatformGameWithAccount,
+  PlatformStats,
+} from "~~/shared/models/gamingPlatform";
+import type { GameCard } from "~~/shared/models/gameCard";
 
 export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
   // État
@@ -64,8 +23,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     totalPlaytime: 0,
     totalAchievements: 0,
   });
-  const recentlyPlayedGames = ref<RecentGame[]>([]);
-  const mostPlayedGames = ref<MostPlayedGame[]>([]);
+  const recentlyPlayedGames = ref<GameCard[]>([]);
+  const mostPlayedGames = ref<GameCard[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -101,8 +60,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         connectedPlatforms: PlatformAccountWithStats[];
         supportedPlatforms: GamingPlatform[];
         stats: PlatformStats;
-        recentlyPlayedGames: RecentGame[];
-        mostPlayedGames: MostPlayedGame[];
+        recentlyPlayedGames: GameCard[];
+        mostPlayedGames: GameCard[];
       }>("/api/platforms");
 
       if (response.success) {
