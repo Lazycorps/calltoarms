@@ -31,6 +31,12 @@ export class XboxService {
 
       // Pour chaque jeu, récupérer les statistiques séparément
       for (const title of titleHistory.titles) {
+        const isntPlayedSinceLastSyncro =
+          account.lastSync &&
+          (!title.titleHistory.lastTimePlayed ||
+            new Date(title.titleHistory.lastTimePlayed) < account.lastSync);
+        if (isntPlayedSinceLastSyncro) continue;
+
         const gameStats = await this.fetchGameStats(
           account.platformId,
           title.serviceConfigId,

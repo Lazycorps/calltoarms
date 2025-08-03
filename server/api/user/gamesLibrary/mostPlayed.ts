@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 
 export default defineEventHandler(async (event) => {

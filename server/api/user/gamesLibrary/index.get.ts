@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 import type { GamingPlatform, Prisma } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {

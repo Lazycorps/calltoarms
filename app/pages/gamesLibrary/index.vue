@@ -352,7 +352,7 @@ const {
   status: mostPlayedGamesStatus,
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
-} = await useFetch<GameCard[]>("/api/platforms-games/mostPlayed", {
+} = await useFetch<GameCard[]>("/api/user/gamesLibrary/mostPlayed", {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
 
