@@ -48,7 +48,7 @@
           </v-col>
           <v-col cols="12" :md="3" class="d-flex justify-end">
             <v-btn
-              v-if="props.platform"
+              v-if="props.platform && !props.readOnly"
               color="primary"
               prepend-icon="mdi-sync"
               :loading="syncing"
@@ -239,6 +239,8 @@ import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
 interface Props {
   platform?: GamingPlatform;
   accountId?: number;
+  friendId?: string;
+  readOnly?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -364,9 +366,11 @@ function viewGameDetails(game: {
   playtimeTotal: number;
   _count: { achievements: number };
 }) {
-  console.log("Opening game details for:", { id: game.id, name: game.name });
-  selectedGameId.value = game.id;
-  showGameDetailsDialog.value = true;
+  if (!props.readOnly) {
+    console.log("Opening game details for:", { id: game.id, name: game.name });
+    selectedGameId.value = game.id;
+    showGameDetailsDialog.value = true;
+  }
 }
 
 // Lifecycle

@@ -174,10 +174,18 @@
     </v-card>
 
     <!-- Jeux récemment joués -->
-    <v-card v-if="recentlyPlayedGames.length > 0" class="mb-6">
+    <v-card v-if="recentlyPlayedGames" class="mb-6">
       <v-card-title>
-        <v-icon class="me-2">mdi-clock</v-icon>
-        Jeux Récemment Joués
+        <div class="d-flex align-center">
+          <v-icon class="me-2">mdi-clock</v-icon>
+          Jeux Récemment Joués
+          <v-progress-circular
+            v-if="recentlyPlayedGamesStatus == 'pending'"
+            indeterminate
+            size="small"
+            class="ml-2"
+          />
+        </div>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -341,9 +349,6 @@ const connectedPlatforms = computed(
 const stats = computed(() => gamingPlatformsStore.stats);
 const periodItems = Object.values(MostPlayedGamesPeriodes);
 const totalPlaytime = computed(() => gamingPlatformsStore.totalPlaytime);
-const recentlyPlayedGames = computed<GameCard[]>(
-  () => gamingPlatformsStore.recentlyPlayedGames
-);
 
 const selectedPeriod = ref<MostPlayedGamesPeriodes>(
   MostPlayedGamesPeriodes.LAST_YEAR
@@ -355,6 +360,9 @@ const {
 } = await useFetch<GameCard[]>("/api/user/gamesLibrary/mostPlayed", {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
+
+const { status: recentlyPlayedGamesStatus, data: recentlyPlayedGames } =
+  await useFetch<GameCard[]>("/api/user/gamesLibrary/recentlyPlayed");
 
 async function syncPlatform(platform: {
   id: number;

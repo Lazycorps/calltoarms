@@ -45,7 +45,10 @@
 import type { GameCard } from "~~/shared/models/gameCard";
 
 const showGameDetailsDialog = ref(false);
-const { game } = defineProps<{ game: GameCard }>();
+const { game, readOnly = false } = defineProps<{
+  game: GameCard;
+  readOnly?: boolean;
+}>();
 
 function formatPlaytime(minutes: number): string {
   if (minutes < 60) {
@@ -69,7 +72,9 @@ function getAchievementColor(percentage: number): string {
 }
 
 function viewGameDetails() {
-  showGameDetailsDialog.value = true;
+  if (!readOnly) {
+    showGameDetailsDialog.value = true;
+  }
 }
 </script>
 

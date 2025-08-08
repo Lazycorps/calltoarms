@@ -69,6 +69,14 @@
                   </template>
                   <v-list>
                     <v-list-item
+                      title="Voir la bibliothèque"
+                      @click="viewFriendLibrary(friend.friend?.id || '')"
+                    >
+                      <template #prepend>
+                        <v-icon icon="mdi-library" />
+                      </template>
+                    </v-list-item>
+                    <v-list-item
                       title="Remove Friend"
                       @click="removeFriend(friend.friend?.id || '')"
                     >
@@ -305,5 +313,9 @@ async function removeFriend(friendId: string) {
   } catch (error) {
     console.error("Error removing friend:", error);
   }
+}
+
+function viewFriendLibrary(friendId: string) {
+  navigateTo(`/gamesLibrary/friend/${friendId}`);
 }
 </script>
