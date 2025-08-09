@@ -45,7 +45,8 @@ export class XboxService {
           (!title.titleHistory.lastTimePlayed ||
             new Date(title.titleHistory.lastTimePlayed) < account.lastSync);
         if (isntPlayedSinceLastSyncro) continue;
-
+        const skipNonXboxGame = title.devices[0] == "Win32";
+        if (skipNonXboxGame) continue;
         const gameStats = await this.fetchGameStats(
           account.platformId,
           title.serviceConfigId,

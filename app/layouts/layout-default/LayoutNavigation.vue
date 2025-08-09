@@ -38,7 +38,7 @@
           prepend-icon="mdi-bookshelf"
           title="Library"
           value="Library"
-          to="gamesLibrary"
+          to="/gamesLibrary"
         />
         <v-divider />
         <!-- <v-list-item
@@ -131,6 +131,7 @@ import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessagin
 
 const notificationsStore = useNotificationsStore();
 const { onForegroundMessage } = useFirebaseMessaging();
+const router = useRouter();
 // const communitiesStore = useCommunitiesStore();
 
 onMounted(() => {
@@ -165,9 +166,8 @@ function selectComponent(componentToSelect: string) {
     selectedItemTitle.value = componentToSelect;
     drawer.value = true;
   } else if (componentToSelect == "Library") {
-    selectedItem.value = FriendsView;
-    selectedItemTitle.value = componentToSelect;
-    drawer.value = true;
+    drawer.value = false;
+    router.push("gamesLibrary");
   }
 }
 </script>

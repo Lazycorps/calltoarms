@@ -61,44 +61,6 @@
       </v-card-text>
     </v-card>
 
-    <!-- Statistiques -->
-    <v-row class="mb-4">
-      <v-col cols="12" sm="6" md="3">
-        <v-card>
-          <v-card-text class="text-center">
-            <div class="text-h4 text-primary">{{ games.length }}</div>
-            <div class="text-body-2 text-medium-emphasis">Jeux</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card>
-          <v-card-text class="text-center">
-            <div class="text-h4 text-success">
-              {{ formatPlaytime(totalPlaytime) }}
-            </div>
-            <div class="text-body-2 text-medium-emphasis">Temps total</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card>
-          <v-card-text class="text-center">
-            <div class="text-h4 text-info">{{ recentGamesCount }}</div>
-            <div class="text-body-2 text-medium-emphasis">Joués récemment</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card>
-          <v-card-text class="text-center">
-            <div class="text-h4 text-warning">{{ totalAchievements }}</div>
-            <div class="text-body-2 text-medium-emphasis">Succès</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
     <!-- Liste des jeux -->
     <v-card>
       <v-card-title>
@@ -120,73 +82,11 @@
                 v-for="game in items"
                 :key="game.raw.id"
                 cols="12"
-                sm="6"
-                md="4"
-                lg="3"
+                sm="4"
+                md="3"
+                lg="2"
               >
-                <v-card
-                  class="game-card"
-                  hover
-                  @click="viewGameDetails(game.raw)"
-                >
-                  <div class="game-image-container">
-                    <v-img
-                      :src="game.raw.coverUrl || ''"
-                      :alt="game.raw.name"
-                      height="120"
-                      cover
-                      class="game-image"
-                    >
-                      <template #placeholder>
-                        <div
-                          class="d-flex align-center justify-center fill-height"
-                        >
-                          <v-icon size="48" color="grey-lighten-2"
-                            >mdi-gamepad-variant</v-icon
-                          >
-                        </div>
-                      </template>
-                    </v-img>
-
-                    <div class="game-overlay">
-                      <v-chip
-                        v-if="game.raw.playtimeTotal > 0"
-                        size="small"
-                        color="primary"
-                        class="playtime-chip"
-                      >
-                        {{ formatPlaytime(game.raw.playtimeTotal) }}
-                      </v-chip>
-                    </div>
-                  </div>
-
-                  <v-card-title class="text-subtitle-1 pa-3">
-                    {{ game.raw.name }}
-                  </v-card-title>
-
-                  <v-card-text class="pt-0 pb-2">
-                    <div
-                      class="d-flex align-center justify-space-between text-caption"
-                    >
-                      <span
-                        v-if="game.raw.lastPlayed"
-                        class="text-medium-emphasis"
-                      >
-                        <v-icon size="small" class="me-1"
-                          >mdi-clock-outline</v-icon
-                        >
-                        {{ formatDate(game.raw.lastPlayed) }}
-                      </span>
-                      <span
-                        v-if="game.raw._count.achievements > 0"
-                        class="text-medium-emphasis"
-                      >
-                        <v-icon size="small" class="me-1">mdi-trophy</v-icon>
-                        {{ game.raw._count.achievements }} succès
-                      </span>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <GameCardVue :game="game.raw" />
               </v-col>
             </v-row>
           </template>
@@ -234,6 +134,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import type { GamingPlatform } from "@prisma/client";
 import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
+import GameCardVue from "~/components/game/GameCard.vue";
 
 // Props
 interface Props {
@@ -253,7 +154,7 @@ const searchQuery = ref("");
 const sortBy = ref("name");
 const sortOrder = ref("asc");
 const page = ref(1);
-const itemsPerPage = ref(12);
+const itemsPerPage = ref(24);
 const syncing = ref(false);
 const selectedPlatform = ref<GamingPlatform | null>(null);
 const showGameDetailsDialog = ref(false);
@@ -290,23 +191,6 @@ const platformOptions = computed(() => {
 const games = computed(() => gamingPlatformsStore.allGames);
 const loading = computed(() => gamingPlatformsStore.loading);
 
-const totalPlaytime = computed(() => {
-  return games.value.reduce((total, game) => total + game.playtimeTotal, 0);
-});
-
-const recentGamesCount = computed(() => {
-  return games.value.filter(
-    (game) => game.playtimeRecent && game.playtimeRecent > 0
-  ).length;
-});
-
-const totalAchievements = computed(() => {
-  return games.value.reduce(
-    (total, game) => total + game._count.achievements,
-    0
-  );
-});
-
 // Méthodes
 let searchTimeout: NodeJS.Timeout;
 
@@ -323,7 +207,7 @@ async function loadGames() {
     search: searchQuery.value || undefined,
     sortBy: sortBy.value as "name" | "playtime" | "lastPlayed",
     sortOrder: sortOrder.value as "asc" | "desc",
-    limit: 100, // Charger plus de jeux pour la pagination côté client
+    limit: 1000, // Charger plus de jeux pour la pagination côté client
   });
 }
 
@@ -335,41 +219,6 @@ async function syncGames() {
     await gamingPlatformsStore.syncPlatform(props.accountId, props.platform);
   } finally {
     syncing.value = false;
-  }
-}
-
-function formatPlaytime(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes}min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours}h`;
-  }
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-  return remainingHours > 0 ? `${days}j ${remainingHours}h` : `${days}j`;
-}
-
-function formatDate(date: string | Date): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function viewGameDetails(game: {
-  id: number;
-  name: string;
-  playtimeTotal: number;
-  _count: { achievements: number };
-}) {
-  if (!props.readOnly) {
-    console.log("Opening game details for:", { id: game.id, name: game.name });
-    selectedGameId.value = game.id;
-    showGameDetailsDialog.value = true;
   }
 }
 

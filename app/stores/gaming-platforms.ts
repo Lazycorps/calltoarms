@@ -164,7 +164,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       if (options?.limit) params.append("limit", options.limit.toString());
       if (options?.offset) params.append("offset", options.offset.toString());
 
-      const url = `/api/platforms-games${
+      const url = `/api/user/gamesLibrary${
         params.toString() ? `?${params.toString()}` : ""
       }`;
 

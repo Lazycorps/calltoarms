@@ -43,7 +43,9 @@ export default defineEventHandler(async (event) => {
       redirectUrl.searchParams.append("xbox_linked", "false");
       redirectUrl.searchParams.append(
         "error",
-        error_description || error || "Authentication failed"
+        error_description?.toString() ||
+          error?.toString() ||
+          "Authentication failed"
       );
       return sendRedirect(event, redirectUrl.toString());
     }

@@ -54,6 +54,9 @@ export default defineEventHandler(async (event) => {
         break;
       case "lastPlayed":
         orderByClause.lastPlayed = sortOrder;
+        whereClause.lastPlayed = {
+          not: null,
+        };
         break;
       case "name":
       default:
