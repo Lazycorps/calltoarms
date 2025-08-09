@@ -1,25 +1,28 @@
 <template>
   <v-dialog v-model="isOpen" max-width="900" scrollable>
     <v-card v-if="gameDetails">
-      <!-- Header avec image de fond -->
-      <div class="game-header" :style="headerStyle">
-        <div class="game-header-overlay">
-          <v-card-title class="text-h4 font-weight-bold text-white">
-            {{ gameDetails.game.name }}
-          </v-card-title>
-          <v-card-subtitle class="text-white">
-            <v-chip size="small" color="white" variant="outlined" class="mr-2">
-              <v-icon start>{{
-                getPlatformIcon(gameDetails.game.platformAccount.platform)
-              }}</v-icon>
-              {{ gameDetails.game.platformAccount.platform }}
-            </v-chip>
-            <span v-if="gameDetails.game.lastPlayed">
-              Dernière session : {{ formatDate(gameDetails.game.lastPlayed) }}
-            </span>
-          </v-card-subtitle>
-        </div>
-      </div>
+      <v-img
+        color="surface-variant"
+        height="200"
+        :src="gameDetails.game.coverUrl"
+        cover
+        class="d-flex align-end pa-2"
+      >
+        <v-card-title class="text-h4 font-weight-bold text-white">
+          {{ gameDetails.game.name }}
+        </v-card-title>
+        <v-card-subtitle class="text-white">
+          <v-chip size="small" color="white" variant="outlined" class="mr-2">
+            <v-icon start>{{
+              getPlatformIcon(gameDetails.game.platformAccount.platform)
+            }}</v-icon>
+            {{ gameDetails.game.platformAccount.platform }}
+          </v-chip>
+          <span v-if="gameDetails.game.lastPlayed">
+            Dernière session : {{ formatDate(gameDetails.game.lastPlayed) }}
+          </span>
+        </v-card-subtitle>
+      </v-img>
 
       <v-card-text>
         <!-- Statistiques générales -->
@@ -299,23 +302,6 @@ const isOpen = computed({
   set: (value) => emit("update:modelValue", value),
 });
 
-const headerStyle = computed(() => {
-  if (gameDetails.value?.game.coverUrl) {
-    return {
-      backgroundImage: `url(${gameDetails.value.game.coverUrl})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      height: "200px",
-      position: "relative",
-    };
-  }
-  return {
-    backgroundColor: "rgb(var(--v-theme-primary))",
-    height: "200px",
-    position: "relative",
-  };
-});
-
 const filteredAchievements = computed(() => {
   if (!gameDetails.value) {
     return [];
@@ -370,7 +356,7 @@ async function loadGameDetails() {
   loading.value = true;
   try {
     const response = await $fetch<GameDetailsResponse>(
-      `/api/platforms-games/${props.gameId}`
+      `/api/user/gamesLibrary/${props.gameId}`
     );
 
     if (response.success) {

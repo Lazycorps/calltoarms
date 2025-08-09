@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     apiKey: "",
+    baseUrl: process.env.BASE_URL,
     supabaseUrl: process.env.SUPABASE_URL,
     databaseUrl: process.env.DATABASE_URL,
     directUrl: process.env.DIRECT_URL,
@@ -53,8 +54,10 @@ export default defineNuxtConfig({
     firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY,
 
     microsoftClientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+    microsoftClientId: process.env.MICROSOFT_CLIENT_ID,
     public: {
       // Firebase Web SDK configuration (client-side)
+      baseUrl: process.env.BASE_URL,
       firebaseApiKey: process.env.FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.FIREBASE_AUTH_DOMAIN,
       firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
@@ -62,7 +65,6 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.FIREBASE_APP_ID,
       firebaseVapidKey: process.env.FIREBASE_VAPID_KEY,
-      microsoftClientId: process.env.MICROSOFT_CLIENT_ID,
     },
   },
   // pinia: {

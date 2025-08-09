@@ -114,6 +114,7 @@ model PlatformAccount {
     games        PlatformGame[]
     createdAt    DateTime       @default(now())
     updatedAt    DateTime       @updatedAt
+    metadata     Json?
 
     @@unique([userId, platform]) // Un seul compte par plateforme par utilisateur
 }

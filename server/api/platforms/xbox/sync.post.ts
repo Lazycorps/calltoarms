@@ -7,6 +7,24 @@ interface XboxSyncRequest {
   accountId: number;
 }
 
+interface XboxTokens {
+  userHash: string;
+  xuid: string;
+  xstsToken: string;
+  xstsTokenExpiry: string;
+  msAccessToken: string;
+  msTokenExpiry: string;
+  refreshToken: string;
+}
+
+interface XboxMetadata {
+  userHash?: string;
+  xuid?: string;
+  xstsTokenExpiry?: string;
+  msAccessToken?: string;
+  msTokenExpiry?: string;
+}
+
 export default defineEventHandler(async (event) => {
   try {
     // Vérifier l'authentification
@@ -43,12 +61,31 @@ export default defineEventHandler(async (event) => {
         statusMessage: "Compte Xbox non trouvé",
       });
     }
-
     // Créer une instance du service Xbox
     const xboxService = new XboxService();
 
+    const metadata = platformAccount.metadata as XboxMetadata;
+    let tokens: XboxTokens = {
+      userHash: metadata?.userHash || "",
+      xuid: metadata?.xuid || "",
+      xstsToken: platformAccount.accessToken || "",
+      xstsTokenExpiry: metadata?.xstsTokenExpiry || "",
+      msAccessToken: metadata?.msAccessToken || "",
+      msTokenExpiry: metadata?.msTokenExpiry || "",
+      refreshToken: platformAccount.refreshToken!,
+    };
+
+    // Vérifier si les tokens sont expirés et les renouveler si nécessaire
+    const now = new Date();
+    const xstsExpiry = new Date(tokens.xstsTokenExpiry);
+
+    if (xstsExpiry <= now) {
+      console.log("XSTS token expiré, renouvellement...");
+      tokens = await xboxService.refreshXboxTokens(tokens, platformAccount.id);
+    }
+
     // Synchroniser les jeux
-    const gamesResult = await xboxService.syncGames(platformAccount);
+    const gamesResult = await xboxService.syncGames(platformAccount, tokens);
     if (!gamesResult.success) {
       throw createError({
         statusCode: 500,
@@ -101,6 +138,7 @@ export default defineEventHandler(async (event) => {
         //Synchroniser les succès pour ce jeu
         const achievementsResult = await xboxService.syncAchievements(
           platformAccount,
+          tokens,
           gameData.platformGameId
         );
 

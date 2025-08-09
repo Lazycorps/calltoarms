@@ -1,16 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GamingPlatform, PlatformAccount } from "@prisma/client";
 import type { GameData, AchievementData, SyncResult } from "../base/types";
+import prisma from "../../../../lib/prisma";
+interface XboxTokens {
+  userHash: string;
+  xuid: string;
+  xstsToken: string;
+  xstsTokenExpiry: string;
+  msAccessToken: string;
+  msTokenExpiry: string;
+  refreshToken: string;
+}
 
 export class XboxService {
   readonly platform: GamingPlatform = "XBOX";
-  async syncGames(account: PlatformAccount): Promise<SyncResult<GameData[]>> {
+  async syncGames(
+    account: PlatformAccount,
+    tokens: XboxTokens
+  ): Promise<SyncResult<GameData[]>> {
     try {
-      // Récupérer le token XSTS depuis les données du compte
-      const xstsToken = account.accessToken;
-      const userHash = account.refreshToken; // Nous stockons le userHash dans refreshToken
-
-      if (!xstsToken || !userHash) {
+      if (!tokens.xstsToken || !tokens.userHash) {
         return this.createErrorResult(
           "No access tokens found for Xbox account"
         );
@@ -19,8 +28,8 @@ export class XboxService {
       // Appel à l'API Xbox Live pour récupérer l'historique des titres
       const titleHistory = await this.fetchTitleHistory(
         account.platformId,
-        xstsToken,
-        userHash
+        tokens.xstsToken,
+        tokens.userHash
       );
 
       if (!titleHistory || !titleHistory.titles) {
@@ -40,8 +49,8 @@ export class XboxService {
         const gameStats = await this.fetchGameStats(
           account.platformId,
           title.serviceConfigId,
-          xstsToken,
-          userHash
+          tokens.xstsToken,
+          tokens.userHash
         );
 
         const playtimeTotal = this.calculatePlaytimeFromStats(gameStats);
@@ -76,13 +85,11 @@ export class XboxService {
 
   async syncAchievements(
     account: PlatformAccount,
+    tokens: XboxTokens,
     gameId: string
   ): Promise<SyncResult<AchievementData[]>> {
     try {
-      const xstsToken = account.accessToken;
-      const userHash = account.refreshToken;
-
-      if (!xstsToken || !userHash) {
+      if (!tokens.xstsToken || !tokens.userHash) {
         return this.createErrorResult(
           "No access tokens found for Xbox account"
         );
@@ -92,8 +99,8 @@ export class XboxService {
       const achievementsData = await this.fetchAchievements(
         account.platformId,
         gameId,
-        xstsToken,
-        userHash
+        tokens.xstsToken,
+        tokens.userHash
       );
 
       if (!achievementsData || !achievementsData.achievements) {
@@ -308,6 +315,181 @@ export class XboxService {
     }
 
     return 0;
+  }
+
+  public async refreshXboxTokens(
+    tokens: XboxTokens,
+    accountId: number
+  ): Promise<XboxTokens> {
+    const config = useRuntimeConfig();
+
+    try {
+      // Vérifier que nous avons bien un refresh token
+      if (!tokens.refreshToken) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "Refresh token manquant",
+        });
+      }
+
+      // 1. Préparer le body pour le refresh token
+      const msTokenBody = {
+        client_id: config.microsoftClientId,
+        // PAS de client_secret pour public client
+        refresh_token: tokens.refreshToken,
+        grant_type: "refresh_token",
+        scope: "XboxLive.signin offline_access",
+      };
+
+      // Convertir en URLSearchParams
+      const bodyParams = new URLSearchParams(msTokenBody);
+      // Faire la requête avec gestion d'erreur détaillée
+      const msTokenResponse = await fetch(
+        "https://login.microsoftonline.com/consumers/oauth2/v2.0/token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+            Origin: config.baseUrl,
+          },
+          body: bodyParams.toString(),
+        }
+      );
+
+      // Lire la réponse
+      const responseText = await msTokenResponse.text();
+
+      if (!msTokenResponse.ok) {
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch {
+          errorData = { error: "unknown", error_description: responseText };
+        }
+
+        // Analyser le type d'erreur
+        if (errorData.error === "invalid_grant") {
+          // Le refresh token est expiré ou invalide
+          throw createError({
+            statusCode: 401,
+            statusMessage:
+              "Session expirée. Le refresh token n'est plus valide. Veuillez vous reconnecter.",
+          });
+        } else if (errorData.error === "invalid_request") {
+          // Problème avec les paramètres
+          throw createError({
+            statusCode: 400,
+            statusMessage: `Erreur de requête: ${
+              errorData.error_description || "Paramètres invalides"
+            }`,
+          });
+        } else if (errorData.error === "invalid_client") {
+          // Problème avec le client_id
+          throw createError({
+            statusCode: 400,
+            statusMessage:
+              "Configuration client invalide. Vérifiez le client_id.",
+          });
+        }
+
+        throw createError({
+          statusCode: msTokenResponse.status,
+          statusMessage:
+            errorData.error_description || "Erreur lors du refresh token",
+        });
+      }
+
+      // Parser la réponse JSON
+      const tokenData = JSON.parse(responseText);
+
+      // 2. Obtenir un nouveau token Xbox Live User
+      const xblUserTokenResponse = await $fetch<any>(
+        "https://user.auth.xboxlive.com/user/authenticate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: {
+            RelyingParty: "http://auth.xboxlive.com",
+            TokenType: "JWT",
+            Properties: {
+              AuthMethod: "RPS",
+              SiteName: "user.auth.xboxlive.com",
+              RpsTicket: `d=${tokenData.access_token}`,
+            },
+          },
+        }
+      ).catch((error) => {
+        console.error("Erreur Xbox Live User Token:", error.data || error);
+        throw error;
+      });
+
+      // 3. Obtenir un nouveau token XSTS
+      const xstsTokenResponse = await $fetch<any>(
+        "https://xsts.auth.xboxlive.com/xsts/authorize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: {
+            RelyingParty: "http://xboxlive.com",
+            TokenType: "JWT",
+            Properties: {
+              UserTokens: [xblUserTokenResponse.Token],
+              SandboxId: "RETAIL",
+            },
+          },
+        }
+      ).catch((error) => {
+        console.error("Erreur XSTS Token:", error.data || error);
+        throw error;
+      });
+
+      // Construire les nouveaux tokens
+      const newTokens: XboxTokens = {
+        userHash: xstsTokenResponse.DisplayClaims.xui[0].uhs,
+        xuid: xstsTokenResponse.DisplayClaims.xui[0].xid,
+        xstsToken: xstsTokenResponse.Token,
+        xstsTokenExpiry: new Date(Date.now() + 3600 * 1000).toISOString(),
+        msAccessToken: tokenData.access_token,
+        msTokenExpiry: new Date(
+          Date.now() + tokenData.expires_in * 1000
+        ).toISOString(),
+        // Microsoft peut ou non retourner un nouveau refresh token
+        refreshToken: tokenData.refresh_token || tokens.refreshToken,
+      };
+
+      // 4. Mettre à jour les tokens en base de données
+      await prisma.platformAccount.update({
+        where: { id: accountId },
+        data: {
+          accessToken: newTokens.xstsToken,
+          refreshToken: newTokens.refreshToken,
+          lastSync: new Date(),
+          metadata: {
+            userHash: newTokens.userHash,
+            xuid: newTokens.xuid,
+            msAccessToken: newTokens.msAccessToken,
+            xblUserToken: xblUserTokenResponse.Token,
+            msTokenExpiry: newTokens.msTokenExpiry,
+            xstsTokenExpiry: newTokens.xstsTokenExpiry,
+            lastTokenRefresh: new Date().toISOString(),
+          },
+        },
+      });
+
+      return newTokens;
+    } catch (error: any) {
+      console.error("=== ERREUR REFRESH TOKENS ===");
+      console.error("Erreur complète:", error);
+      // Relancer l'erreur
+      throw error;
+    }
   }
 
   protected createSuccessResult<T>(data: T): SyncResult<T> {
