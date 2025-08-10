@@ -41,43 +41,6 @@
           to="/user/library"
         />
         <v-divider />
-        <!-- <v-list-item
-          v-for="community in communitiesStore.userCommunities"
-          :key="community.id"
-          :title="community.name"
-          :value="community.id"
-          class="pa-0 mt-2"
-          @click="
-            router.push({ name: 'Community', params: { id: community.id } })
-          "
-        >
-          <template #prepend>
-            <v-avatar
-              :color="generateColor(community.name)"
-              size="40"
-              class="lazy-badge"
-            >
-              <span class="text-h6">{{
-                community.name.substring(0, 2).toUpperCase()
-              }}</span>
-            </v-avatar>
-          </template>
-        </v-list-item>
-        <v-list-item
-          title="Communities"
-          value="Communities"
-          class="pa-0 mt-2"
-          @click="selectComponent('Communities')"
-        >
-          <template #prepend>
-            <v-avatar
-              icon="mdi-plus"
-              size="40"
-              class="lazy-badge"
-              color="primary"
-            />
-          </template>
-        </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
     <v-bottom-navigation :active="mobile" absolute>
@@ -96,12 +59,7 @@
         </v-badge>
         <span>Notifications</span>
       </v-btn>
-
-      <!-- <v-btn @click="selectComponent('Communities')">
-        <v-icon>mdi-account-group</v-icon>
-        <span>Communities</span>
-      </v-btn> -->
-      <v-btn to="library">
+      <v-btn to="/user/library">
         <v-icon>mdi-bookshelf</v-icon>
         <span>Labrary</span>
       </v-btn>

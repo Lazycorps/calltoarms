@@ -262,14 +262,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const redirectUrl = new URL(`${config.public.baseUrl}library`);
+    const redirectUrl = new URL(`${config.public.baseUrl}/user/library`);
     redirectUrl.searchParams.append("xbox_linked", "true");
     redirectUrl.searchParams.append("status", "success");
 
     return sendRedirect(event, redirectUrl.toString());
   } catch (error: any) {
     console.error("Erreur:", error);
-    const redirectUrl = new URL(`${config.public.baseUrl}library`);
+    const redirectUrl = new URL(`${config.public.baseUrl}/user/library`);
     redirectUrl.searchParams.append("xbox_linked", "false");
     redirectUrl.searchParams.append(
       "error",

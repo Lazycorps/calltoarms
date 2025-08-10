@@ -1,8 +1,9 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
+import type { GameDetailsDTO } from "~~/shared/types/library";
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<GameDetailsDTO> => {
   try {
     // Vérifier l'authentification
     const user = await serverSupabaseUser(event);
@@ -35,9 +36,15 @@ export default defineEventHandler(async (event) => {
           select: {
             id: true,
             platform: true,
+            platformId: true,
             username: true,
             displayName: true,
             avatarUrl: true,
+            profileUrl: true,
+            isActive: true,
+            lastSync: true,
+            createdAt: true,
+            updatedAt: true,
           },
         },
         achievements: {
@@ -76,24 +83,6 @@ export default defineEventHandler(async (event) => {
       .filter((a) => a.isUnlocked)
       .reduce((sum, a) => sum + (a.points || 0), 0);
 
-    // Formater le temps de jeu
-    const formatPlaytime = (minutes: number) => {
-      if (minutes < 60) return `${minutes} minutes`;
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-      if (hours < 24) {
-        return remainingMinutes > 0
-          ? `${hours}h ${remainingMinutes}min`
-          : `${hours} heures`;
-      }
-      const days = Math.floor(hours / 24);
-      const remainingHours = hours % 24;
-      if (remainingHours > 0) {
-        return `${days} jours, ${remainingHours} heures`;
-      }
-      return `${days} jours`;
-    };
-
     // Calculer les statistiques de rareté
     const rarityStats = {
       common: game.achievements.filter((a) => a.rarity && a.rarity > 50).length,
@@ -107,15 +96,54 @@ export default defineEventHandler(async (event) => {
         .length,
     };
 
-    return {
-      success: true,
+    // Mapper vers DTO
+    const gameDetailsDTO: GameDetailsDTO = {
       game: {
-        ...game,
-        playtimeFormatted: formatPlaytime(game.playtimeTotal),
-        recentPlaytimeFormatted: game.playtimeRecent
-          ? formatPlaytime(game.playtimeRecent)
-          : null,
+        id: game.id,
+        platformGameId: game.platformGameId,
+        name: game.name,
+        playtimeTotal: game.playtimeTotal,
+        playtimeRecent: game.playtimeRecent || undefined,
+        lastPlayed: game.lastPlayed || undefined,
+        iconUrl: game.iconUrl || undefined,
+        coverUrl: game.coverUrl || undefined,
+        isInstalled: game.isInstalled,
+        isCompleted: game.isCompleted,
+        completedAt: game.completedAt || undefined,
+        platformAccount: {
+          id: game.platformAccount.id,
+          platform: game.platformAccount.platform,
+          platformId: game.platformAccount.platformId,
+          username: game.platformAccount.username || undefined,
+          displayName: game.platformAccount.displayName || undefined,
+          avatarUrl: game.platformAccount.avatarUrl || undefined,
+          profileUrl: game.platformAccount.profileUrl || undefined,
+          isActive: game.platformAccount.isActive,
+          lastSync: game.platformAccount.lastSync || undefined,
+          gamesCount: 0, // Non disponible dans ce contexte
+          createdAt: game.platformAccount.createdAt,
+          updatedAt: game.platformAccount.updatedAt,
+        },
+        achievementsCount: unlockedAchievements,
+        totalAchievements,
+        achievementPercentage: completionPercentage,
+        createdAt: game.createdAt,
+        updatedAt: game.updatedAt,
       },
+      achievements: game.achievements.map((achievement) => ({
+        id: achievement.id,
+        achievementId: achievement.achievementId,
+        name: achievement.name,
+        description: achievement.description || undefined,
+        iconUrl: achievement.iconUrl || undefined,
+        isUnlocked: achievement.isUnlocked,
+        unlockedAt: achievement.unlockedAt || undefined,
+        earnedRate: achievement.earnedRate || undefined,
+        rarity: achievement.rarity || undefined,
+        points: achievement.points || undefined,
+        createdAt: achievement.createdAt,
+        updatedAt: achievement.updatedAt,
+      })),
       stats: {
         totalAchievements,
         unlockedAchievements,
@@ -125,6 +153,8 @@ export default defineEventHandler(async (event) => {
         rarityStats,
       },
     };
+
+    return gameDetailsDTO;
   } catch (error) {
     console.error("Erreur lors de la récupération des détails du jeu:", error);
 

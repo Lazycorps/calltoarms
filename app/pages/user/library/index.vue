@@ -130,7 +130,7 @@
                 <div class="d-flex justify-space-between text-body-2 mb-2">
                   <span>Jeux :</span>
                   <span class="font-weight-medium">{{
-                    platform._count.games
+                    platform.gamesCount
                   }}</span>
                 </div>
 
@@ -326,7 +326,7 @@ import PlayStationConnector from "~/components/library/PlayStationConnector.vue"
 import XboxConnector from "~/components/library/XboxConnector.vue";
 import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
-import type { GameCard } from "~~/shared/models/gameCard";
+import type { PlatformGameCardDTO } from "~~/shared/types/library";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 
 // Store
@@ -357,12 +357,12 @@ const {
   status: mostPlayedGamesStatus,
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
-} = await useFetch<GameCard[]>("/api/user/library/mostPlayed", {
+} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/mostPlayed", {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
 
 const { status: recentlyPlayedGamesStatus, data: recentlyPlayedGames } =
-  await useFetch<GameCard[]>("/api/user/library/recentlyPlayed");
+  await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyPlayed");
 
 async function syncPlatform(platform: {
   id: number;

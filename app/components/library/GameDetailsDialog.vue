@@ -4,7 +4,7 @@
       <v-img
         color="surface-variant"
         height="200"
-        :src="gameDetails.game.coverUrl"
+        :src="gameDetails.game.coverUrl || undefined"
         cover
         class="d-flex align-end pa-2"
       >
@@ -41,7 +41,7 @@
             <div class="text-center">
               <v-icon size="32" color="primary" class="mb-1">mdi-clock</v-icon>
               <div class="text-h6">
-                {{ gameDetails.game.playtimeFormatted }}
+                {{ formatPlaytimeInHours(gameDetails.game.playtimeTotal) }}
               </div>
               <div class="text-caption text-medium-emphasis">Temps total</div>
             </div>
@@ -261,55 +261,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import type { GamingPlatform } from "@prisma/client";
-
-interface GameDetailsResponse {
-  success: boolean;
-  game: {
-    id: number;
-    name: string;
-    platformGameId: string;
-    playtimeTotal: number;
-    playtimeRecent: number | null;
-    lastPlayed: Date | null;
-    iconUrl: string | null;
-    coverUrl: string | null;
-    isCompleted: boolean;
-    completedAt: string | null;
-    playtimeFormatted: string;
-    recentPlaytimeFormatted: string | null;
-    platformAccount: {
-      id: number;
-      platform: GamingPlatform;
-      username: string | null;
-      displayName: string | null;
-      avatarUrl: string | null;
-    };
-    achievements: Array<{
-      id: number;
-      achievementId: string;
-      name: string;
-      description: string | null;
-      iconUrl: string | null;
-      isUnlocked: boolean;
-      unlockedAt: Date | null;
-      rarity: number | null;
-      points: number | null;
-    }>;
-  };
-  stats: {
-    totalAchievements: number;
-    unlockedAchievements: number;
-    completionPercentage: number;
-    totalPoints: number;
-    unlockedPoints: number;
-    rarityStats: {
-      common: number;
-      uncommon: number;
-      rare: number;
-      ultraRare: number;
-    };
-  };
-}
+import type {
+  GameDetailsDTO,
+  PlatformAchievementDTO,
+} from "~~/shared/types/library";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -322,7 +277,7 @@ const emit = defineEmits<{
 
 // État local
 const loading = ref(false);
-const gameDetails = ref<GameDetailsResponse | null>(null);
+const gameDetails = ref<GameDetailsDTO | null>(null);
 const tab = ref("all");
 const searchQuery = ref("");
 const sortBy = ref("name");
@@ -346,7 +301,7 @@ const filteredAchievements = computed(() => {
     return [];
   }
 
-  let achievements = [...gameDetails.value.game.achievements];
+  let achievements = [...gameDetails.value.achievements];
 
   // Filtrer par tab
   if (tab.value === "unlocked") {
@@ -394,15 +349,11 @@ async function loadGameDetails() {
 
   loading.value = true;
   try {
-    const response = await $fetch<GameDetailsResponse>(
+    const response = await $fetch<GameDetailsDTO>(
       `/api/user/library/${props.gameId}`
     );
 
-    if (response.success) {
-      gameDetails.value = response;
-    } else {
-      console.error("Response was not successful:", response);
-    }
+    gameDetails.value = response;
   } catch (error) {
     console.error("Erreur lors du chargement des détails du jeu:", error);
   } finally {
@@ -447,7 +398,7 @@ function getRarityColor(rarity: number): string {
   return "grey";
 }
 
-function getRarityLabel(achievement: any): string {
+function getRarityLabel(achievement: PlatformAchievementDTO): string {
   if (achievement.rarity == 0) return `Ultra rare (${achievement.earnedRate}%)`;
   if (achievement.rarity == 1) return `Très rare (${achievement.earnedRate}%)`;
   if (achievement.rarity == 2) return `Rare (${achievement.earnedRate}%)`;
@@ -469,10 +420,11 @@ async function toggleCompletion() {
       }
     );
 
-    if (response.success) {
+    if (response.success && response.data) {
       // Mettre à jour les données locales
-      gameDetails.value.game.isCompleted = response.game.isCompleted;
-      gameDetails.value.game.completedAt = response.game.completedAt;
+      gameDetails.value.game.isCompleted = response.data.game.isCompleted;
+      gameDetails.value.game.completedAt =
+        response.data.game.completedAt || null;
     }
   } catch (error) {
     console.error(

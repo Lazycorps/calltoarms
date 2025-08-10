@@ -42,12 +42,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { GameCard } from "~~/shared/models/gameCard";
+import type { PlatformGameCardDTO } from "~~/shared/types/library";
 import GameDetailsDialog from "./GameDetailsDialog.vue";
 
 const showGameDetailsDialog = ref(false);
 const { game, readOnly = false } = defineProps<{
-  game: GameCard;
+  game: PlatformGameCardDTO;
   readOnly?: boolean;
 }>();
 

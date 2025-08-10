@@ -6,14 +6,14 @@ import type {
   PlatformGame,
 } from "@prisma/client";
 import type {
-  PlatformAccountWithStats,
   PlatformGameWithAccount,
   PlatformStats,
 } from "~~/shared/models/gamingPlatform";
+import type { PlatformAccountDTO } from "~~/shared/types/library";
 
 export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
   // État
-  const connectedPlatforms = ref<PlatformAccountWithStats[]>([]);
+  const connectedPlatforms = ref<PlatformAccountDTO[]>([]);
   const supportedPlatforms = ref<GamingPlatform[]>([]);
   const allGames = ref<PlatformGameWithAccount[]>([]);
   const stats = ref<PlatformStats>({
@@ -54,17 +54,14 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       error.value = null;
 
       const response = await $fetch<{
-        success: boolean;
-        connectedPlatforms: PlatformAccountWithStats[];
+        connectedPlatforms: PlatformAccountDTO[];
         supportedPlatforms: GamingPlatform[];
         stats: PlatformStats;
       }>("/api/user/library/platforms");
 
-      if (response.success) {
-        connectedPlatforms.value = response.connectedPlatforms;
-        supportedPlatforms.value = response.supportedPlatforms;
-        stats.value = response.stats;
-      }
+      connectedPlatforms.value = response.connectedPlatforms;
+      supportedPlatforms.value = response.supportedPlatforms;
+      stats.value = response.stats;
     } catch (err) {
       console.error("Erreur lors du chargement des plateformes:", err);
       error.value = "Impossible de charger les plateformes";
@@ -122,11 +119,17 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         await loadPlatforms();
         return response.games;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Erreur lors de la synchronisation:", err);
 
       // Si l'erreur est liée à l'authentification PlayStation, nettoyer les credentials
-      if (platform === "PLAYSTATION" && err?.status === 401) {
+      if (
+        platform === "PLAYSTATION" &&
+        err &&
+        typeof err === "object" &&
+        "status" in err &&
+        err.status === 401
+      ) {
         clearPlatformCredentials(platform);
         error.value = "Session PlayStation expirée. Veuillez vous reconnecter.";
       } else {
@@ -158,24 +161,22 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       if (options?.limit) params.append("limit", options.limit.toString());
       if (options?.offset) params.append("offset", options.offset.toString());
 
-      const url = `/api/user/library${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
-
       const response = await $fetch<{
         success: boolean;
-        games: PlatformGameWithAccount[];
+        data: PlatformGameWithAccount[];
         pagination: {
           total: number;
           limit: number;
           offset: number;
           hasMore: boolean;
         };
-      }>(url);
+      }>(
+        `/api/user/library${params.toString() ? `?${params.toString()}` : ""}`
+      );
 
       if (response.success) {
         // Transformer les jeux pour s'assurer que _count existe
-        const transformedGames = response.games.map((game) => ({
+        const transformedGames = response.data.map((game) => ({
           ...game,
           _count: game._count || { achievements: 0 },
         }));
