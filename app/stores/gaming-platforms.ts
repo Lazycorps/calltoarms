@@ -10,7 +10,6 @@ import type {
   PlatformGameWithAccount,
   PlatformStats,
 } from "~~/shared/models/gamingPlatform";
-import type { GameCard } from "~~/shared/models/gameCard";
 
 export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
   // État
@@ -22,9 +21,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     totalGames: 0,
     totalPlaytime: 0,
     totalAchievements: 0,
+    totalFinishedGames: 0,
   });
-  const recentlyPlayedGames = ref<GameCard[]>([]);
-  const mostPlayedGames = ref<GameCard[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -60,16 +58,12 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         connectedPlatforms: PlatformAccountWithStats[];
         supportedPlatforms: GamingPlatform[];
         stats: PlatformStats;
-        recentlyPlayedGames: GameCard[];
-        mostPlayedGames: GameCard[];
       }>("/api/user/library/platforms");
 
       if (response.success) {
         connectedPlatforms.value = response.connectedPlatforms;
         supportedPlatforms.value = response.supportedPlatforms;
         stats.value = response.stats;
-        recentlyPlayedGames.value = response.recentlyPlayedGames;
-        mostPlayedGames.value = response.mostPlayedGames;
       }
     } catch (err) {
       console.error("Erreur lors du chargement des plateformes:", err);
@@ -263,8 +257,6 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     // Computed
     gamesByPlatform,
     totalPlaytime,
-    recentlyPlayedGames,
-    mostPlayedGames,
 
     // Actions
     loadPlatforms,

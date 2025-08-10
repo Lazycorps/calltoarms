@@ -62,74 +62,10 @@ export default defineEventHandler(async (event) => {
         prisma.platformAchievement.count({
           where: {
             game: baseWhere,
+            isUnlocked: true,
           },
         }),
       ]);
-
-    // 2. Jeux récemment joués (limité à 10, optimisé)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 360);
-
-    const recentlyPlayedGames = await prisma.platformGame.findMany({
-      where: {
-        ...baseWhere,
-        lastPlayed: {
-          gte: thirtyDaysAgo,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        iconUrl: true,
-        coverUrl: true,
-        lastPlayed: true,
-        playtimeTotal: true,
-        platformGameId: true,
-        achievements: true,
-        platformAccount: {
-          select: {
-            platform: true,
-          },
-        },
-      },
-      orderBy: {
-        lastPlayed: "desc",
-      },
-      take: 10,
-    });
-
-    // 3. Jeux les plus joués (limité à 10, optimisé)
-    const mostPlayedGames = await prisma.platformGame.findMany({
-      where: {
-        ...baseWhere,
-        playtimeTotal: {
-          gt: 0,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        iconUrl: true,
-        coverUrl: true,
-        playtimeTotal: true,
-        platformGameId: true,
-        achievements: true,
-        platformAccount: {
-          select: {
-            platform: true,
-          },
-        },
-        _count: {
-          select: {
-            achievements: true,
-          },
-        },
-      },
-      orderBy: {
-        playtimeTotal: "desc",
-      },
-      take: 10,
-    });
 
     return {
       success: true,
@@ -141,18 +77,6 @@ export default defineEventHandler(async (event) => {
         totalPlaytime: totalPlaytimeResult._sum.playtimeTotal || 0,
         totalAchievements: totalAchievementsResult,
       },
-      recentlyPlayedGames: recentlyPlayedGames.map((game) => ({
-        ...game,
-        platform: game.platformAccount.platform,
-        platformAccount: undefined, // Nettoyer la propriété platformAccount
-      })),
-      mostPlayedGames: mostPlayedGames.map((game) => ({
-        ...game,
-        platform: game.platformAccount.platform,
-        achievementsCount: game._count.achievements,
-        platformAccount: undefined, // Nettoyer la propriété platformAccount
-        _count: undefined, // Nettoyer la propriété _count
-      })),
     };
   } catch (error) {
     console.error("Erreur lors de la récupération des plateformes:", error);

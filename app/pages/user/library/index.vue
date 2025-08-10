@@ -60,9 +60,9 @@
           <v-card-text class="text-center">
             <v-icon size="48" color="warning" class="mb-2">mdi-trophy</v-icon>
             <div class="text-h4 text-warning">
-              {{ recentlyPlayedGames.length }}
+              {{ stats.totalAchievements }}
             </div>
-            <div class="text-body-2 text-medium-emphasis">Jeux récents</div>
+            <div class="text-body-2 text-medium-emphasis">Succès</div>
           </v-card-text>
         </v-card>
       </v-col>

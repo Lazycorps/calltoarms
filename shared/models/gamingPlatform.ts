@@ -27,4 +27,5 @@ export interface PlatformStats {
   totalGames: number;
   totalPlaytime: number;
   totalAchievements: number;
+  totalFinishedGames: number;
 }

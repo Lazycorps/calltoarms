@@ -1,3 +1,5 @@
+import type { NotificationReceivedDTO } from "./notificationReceived";
+
 export type NotificationDTO = {
   id: number;
   createdAt: Date;
@@ -6,4 +8,5 @@ export type NotificationDTO = {
   senderId: string;
   gameId: number | null;
   gameCover: string | null;
+  receiver: NotificationReceivedDTO;
 };

@@ -93,63 +93,6 @@ export default defineEventHandler(async (event) => {
       skip: offset,
     });
 
-    // Calculer les statistiques par plateforme
-    const platformStats = await prisma.platformGame.groupBy({
-      by: ["platformAccountId"],
-      where: {
-        platformAccount: {
-          userId: user.id,
-        },
-      },
-      _count: {
-        id: true,
-      },
-      _sum: {
-        playtimeTotal: true,
-      },
-    });
-
-    // Récupérer les comptes pour mapper les stats
-    const accounts = await prisma.platformAccount.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        platform: true,
-      },
-    });
-
-    const statsByPlatform = accounts.reduce((acc, account) => {
-      const stat = platformStats.find(
-        (s) => s.platformAccountId === account.id
-      );
-      if (!acc[account.platform]) {
-        acc[account.platform] = {
-          totalGames: 0,
-          totalPlaytime: 0,
-        };
-      }
-      if (stat) {
-        acc[account.platform].totalGames += stat._count.id;
-        acc[account.platform].totalPlaytime += stat._sum.playtimeTotal || 0;
-      }
-      return acc;
-    }, {} as Record<GamingPlatform, { totalGames: number; totalPlaytime: number }>);
-
-    // Calculer les statistiques globales
-    const totalGames = totalCount;
-    const totalPlaytime = games.reduce(
-      (sum, game) => sum + game.playtimeTotal,
-      0
-    );
-    const recentlyPlayed = games.filter(
-      (game) =>
-        game.lastPlayed &&
-        new Date(game.lastPlayed).getTime() >
-          Date.now() - 14 * 24 * 60 * 60 * 1000
-    ).length;
-
     return {
       success: true,
       games: games.map((game) => ({
@@ -163,12 +106,6 @@ export default defineEventHandler(async (event) => {
         limit,
         offset,
         hasMore: offset + limit < totalCount,
-      },
-      stats: {
-        totalGames,
-        totalPlaytime,
-        recentlyPlayed,
-        byPlatform: statsByPlatform,
       },
     };
   } catch (error) {
