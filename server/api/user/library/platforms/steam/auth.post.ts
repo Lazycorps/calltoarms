@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { SteamService } from "../../../utils/gaming-platforms/steam/SteamService";
-import prisma from "../../../../lib/prisma";
+import { SteamService } from "@@/server/utils/gaming-platforms/steam/SteamService";
+import prisma from "~~/lib/prisma";
 
 interface SteamAuthRequest {
   steamId: string;
@@ -39,7 +39,9 @@ export default defineEventHandler(async (event) => {
     const steamService = new SteamService();
 
     // Authentifier avec Steam
-    const authResult = await steamService.authenticate({ steamId: body.steamId });
+    const authResult = await steamService.authenticate({
+      steamId: body.steamId,
+    });
     if (!authResult.success || !authResult.data) {
       throw createError({
         statusCode: 400,

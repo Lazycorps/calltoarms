@@ -62,7 +62,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         stats: PlatformStats;
         recentlyPlayedGames: GameCard[];
         mostPlayedGames: GameCard[];
-      }>("/api/platforms");
+      }>("/api/user/library/platforms");
 
       if (response.success) {
         connectedPlatforms.value = response.connectedPlatforms;
@@ -90,7 +90,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       const response = await $fetch<{
         success: boolean;
         account: PlatformAccount;
-      }>(`/api/platforms/${platform.toLowerCase()}/auth`, {
+      }>(`/api/user/library/platforms/${platform.toLowerCase()}/auth`, {
         method: "POST",
         body: credentials,
       });
@@ -118,7 +118,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         success: boolean;
         gamesCount: number;
         games: PlatformGame[];
-      }>(`/api/platforms/${platform.toLowerCase()}/sync`, {
+      }>(`/api/user/library/platforms/${platform.toLowerCase()}/sync`, {
         method: "POST",
         body: { accountId },
       });
@@ -164,7 +164,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       if (options?.limit) params.append("limit", options.limit.toString());
       if (options?.offset) params.append("offset", options.offset.toString());
 
-      const url = `/api/user/gamesLibrary${
+      const url = `/api/user/library${
         params.toString() ? `?${params.toString()}` : ""
       }`;
 
@@ -176,15 +176,6 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           limit: number;
           offset: number;
           hasMore: boolean;
-        };
-        stats: {
-          totalGames: number;
-          totalPlaytime: number;
-          recentlyPlayed: number;
-          byPlatform: Record<
-            GamingPlatform,
-            { totalGames: number; totalPlaytime: number }
-          >;
         };
       }>(url);
 

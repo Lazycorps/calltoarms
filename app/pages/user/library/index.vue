@@ -321,11 +321,11 @@ import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import type { GamingPlatform } from "@prisma/client";
 
 // Composants
-import SteamConnector from "~/components/platforms/SteamConnector.vue";
-import PlayStationConnector from "~/components/platforms/PlayStationConnector.vue";
-import XboxConnector from "~/components/platforms/XboxConnector.vue";
-import PlatformGamesList from "~/components/platforms/PlatformGamesList.vue";
-import GameCardVue from "~/components/game/GameCard.vue";
+import SteamConnector from "~/components/library/SteamConnector.vue";
+import PlayStationConnector from "~/components/library/PlayStationConnector.vue";
+import XboxConnector from "~/components/library/XboxConnector.vue";
+import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
+import GameCardVue from "~/components/library/GameCard.vue";
 import type { GameCard } from "~~/shared/models/gameCard";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 
@@ -357,12 +357,12 @@ const {
   status: mostPlayedGamesStatus,
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
-} = await useFetch<GameCard[]>("/api/user/gamesLibrary/mostPlayed", {
+} = await useFetch<GameCard[]>("/api/user/library/mostPlayed", {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
 
 const { status: recentlyPlayedGamesStatus, data: recentlyPlayedGames } =
-  await useFetch<GameCard[]>("/api/user/gamesLibrary/recentlyPlayed");
+  await useFetch<GameCard[]>("/api/user/library/recentlyPlayed");
 
 async function syncPlatform(platform: {
   id: number;

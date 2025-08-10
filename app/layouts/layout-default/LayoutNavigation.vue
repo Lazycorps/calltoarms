@@ -38,7 +38,7 @@
           prepend-icon="mdi-bookshelf"
           title="Library"
           value="Library"
-          to="/gamesLibrary"
+          to="/user/library"
         />
         <v-divider />
         <!-- <v-list-item
@@ -101,7 +101,7 @@
         <v-icon>mdi-account-group</v-icon>
         <span>Communities</span>
       </v-btn> -->
-      <v-btn to="gamesLibrary">
+      <v-btn to="library">
         <v-icon>mdi-bookshelf</v-icon>
         <span>Labrary</span>
       </v-btn>
@@ -167,7 +167,7 @@ function selectComponent(componentToSelect: string) {
     drawer.value = true;
   } else if (componentToSelect == "Library") {
     drawer.value = false;
-    router.push("gamesLibrary");
+    router.push("library");
   }
 }
 </script>

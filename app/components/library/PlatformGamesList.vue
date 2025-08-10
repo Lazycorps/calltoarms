@@ -133,8 +133,8 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import type { GamingPlatform } from "@prisma/client";
-import GameDetailsDialog from "~/components/game/GameDetailsDialog.vue";
-import GameCardVue from "~/components/game/GameCard.vue";
+import GameDetailsDialog from "~/components/library/GameDetailsDialog.vue";
+import GameCardVue from "~/components/library/GameCard.vue";
 
 // Props
 interface Props {
@@ -177,6 +177,7 @@ const platformOptions = computed(() => {
     { title: "Toutes les plateformes", value: null },
     { title: "Steam", value: "STEAM" },
     { title: "PlayStation", value: "PLAYSTATION" },
+    { title: "Xbox", value: "XBOX" },
   ];
 
   // Si on est déjà sur une plateforme spécifique, on ne montre pas le filtre

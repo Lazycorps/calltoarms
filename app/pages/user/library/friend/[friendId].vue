@@ -283,8 +283,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import type { GamingPlatform } from "@prisma/client";
-import GameCardVue from "~/components/game/GameCard.vue";
-import PlatformGamesList from "~/components/platforms/PlatformGamesList.vue";
+import GameCardVue from "~/components/library/GameCard.vue";
+import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
 import type { GameCard } from "~~/shared/models/gameCard";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 import {
@@ -310,7 +310,7 @@ const {
   pending,
   error,
   refresh,
-} = await useFetch(`/api/user/gamesLibrary/friend/${friendId}`);
+} = await useFetch(`/api/user/library/friend/${friendId}`);
 
 // Computed
 const recentlyPlayedGames = computed<GameCard[]>(() => {
@@ -336,7 +336,7 @@ const {
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
 } = await useFetch<GameCard[]>(
-  `/api/user/gamesLibrary/friend/${friendId}/mostPlayed`,
+  `/api/user/library/friend/${friendId}/mostPlayed`,
   {
     query: computed(() => ({ period: selectedPeriod.value })),
     default: () => [],

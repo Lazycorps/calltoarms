@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { XboxService } from "../../../utils/gaming-platforms/xbox/XboxService";
-import prisma from "../../../../lib/prisma";
+import { XboxService } from "@@/server/utils/gaming-platforms/xbox/XboxService";
+import prisma from "~~/lib/prisma";
 
 interface XboxSyncRequest {
   accountId: number;

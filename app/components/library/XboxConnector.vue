@@ -59,7 +59,7 @@ function handleConnect() {
   error.value = null;
 
   // Rediriger vers l'endpoint d'authentification
-  window.location.href = "/api/platforms/xbox/init";
+  window.location.href = "/api/user/library/platforms/xbox/init";
 }
 
 // Vérifier si on revient de l'authentification

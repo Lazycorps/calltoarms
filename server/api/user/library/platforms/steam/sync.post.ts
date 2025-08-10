@@ -1,7 +1,7 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { SteamService } from "../../../utils/gaming-platforms/steam/SteamService";
-import prisma from "../../../../lib/prisma";
+import { SteamService } from "@@/server/utils/gaming-platforms/steam/SteamService";
+import prisma from "@@/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
     if (!steamAccount) {
       throw createError({
         statusCode: 404,
-        statusMessage: "Compte Steam non trouvé. Veuillez d'abord connecter votre compte Steam.",
+        statusMessage:
+          "Compte Steam non trouvé. Veuillez d'abord connecter votre compte Steam.",
       });
     }
 
@@ -39,7 +40,8 @@ export default defineEventHandler(async (event) => {
     if (!syncResult.success || !syncResult.data) {
       throw createError({
         statusCode: 500,
-        statusMessage: syncResult.error || "Échec de la synchronisation des jeux",
+        statusMessage:
+          syncResult.error || "Échec de la synchronisation des jeux",
       });
     }
 
@@ -123,13 +125,19 @@ export default defineEventHandler(async (event) => {
         }
         return { gameId: game.id, count: 0 };
       } catch (error) {
-        console.error(`Erreur lors de la synchronisation des succès pour ${game.name}:`, error);
+        console.error(
+          `Erreur lors de la synchronisation des succès pour ${game.name}:`,
+          error
+        );
         return { gameId: game.id, count: 0, error: true };
       }
     });
 
     const achievementResults = await Promise.all(achievementPromises);
-    const totalAchievements = achievementResults.reduce((sum, result) => sum + result.count, 0);
+    const totalAchievements = achievementResults.reduce(
+      (sum, result) => sum + result.count,
+      0
+    );
 
     // Mettre à jour la date de dernière synchronisation
     await prisma.platformAccount.update({

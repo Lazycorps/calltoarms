@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "../../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,10 +23,7 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         games: {
-          orderBy: [
-            { playtimeTotal: "desc" },
-            { name: "asc" },
-          ],
+          orderBy: [{ playtimeTotal: "desc" }, { name: "asc" }],
         },
       },
     });
@@ -46,16 +43,18 @@ export default defineEventHandler(async (event) => {
       0
     );
     const recentlyPlayed = playstationAccount.games.filter(
-      (game) => game.lastPlayed && 
-      new Date(game.lastPlayed).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000
+      (game) =>
+        game.lastPlayed &&
+        new Date(game.lastPlayed).getTime() >
+          Date.now() - 14 * 24 * 60 * 60 * 1000
     ).length;
 
     // Filtrer les jeux PS5, PS4, etc.
-    const ps5Games = playstationAccount.games.filter(
-      (game) => game.platformGameId.includes("PS5")
+    const ps5Games = playstationAccount.games.filter((game) =>
+      game.platformGameId.includes("PS5")
     ).length;
-    const ps4Games = playstationAccount.games.filter(
-      (game) => game.platformGameId.includes("PS4")
+    const ps4Games = playstationAccount.games.filter((game) =>
+      game.platformGameId.includes("PS4")
     ).length;
 
     return {
@@ -79,7 +78,10 @@ export default defineEventHandler(async (event) => {
       },
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération des jeux PlayStation:", error);
+    console.error(
+      "Erreur lors de la récupération des jeux PlayStation:",
+      error
+    );
 
     if (error && typeof error === "object" && "statusCode" in error) {
       throw error;

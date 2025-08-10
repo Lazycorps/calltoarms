@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import prisma from "../../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,10 +23,7 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         games: {
-          orderBy: [
-            { playtimeTotal: "desc" },
-            { name: "asc" },
-          ],
+          orderBy: [{ playtimeTotal: "desc" }, { name: "asc" }],
         },
       },
     });
@@ -46,8 +43,10 @@ export default defineEventHandler(async (event) => {
       0
     );
     const recentlyPlayed = steamAccount.games.filter(
-      (game) => game.lastPlayed && 
-      new Date(game.lastPlayed).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000
+      (game) =>
+        game.lastPlayed &&
+        new Date(game.lastPlayed).getTime() >
+          Date.now() - 14 * 24 * 60 * 60 * 1000
     ).length;
 
     return {

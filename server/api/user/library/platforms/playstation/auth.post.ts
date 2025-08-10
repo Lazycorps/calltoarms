@@ -1,7 +1,6 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { PlayStationService } from "../../../utils/gaming-platforms/playstation/PlayStationService";
-import prisma from "../../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 
 interface PlayStationAuthRequest {
   username: string;
@@ -32,11 +31,15 @@ export default defineEventHandler(async (event) => {
     const playStationService = new PlayStationService();
 
     // Authentifier avec PlayStation
-    const authResult = await playStationService.authenticate({ npsso: body.npsso, username: body.username });
+    const authResult = await playStationService.authenticate({
+      npsso: body.npsso,
+      username: body.username,
+    });
     if (!authResult.success || !authResult.data) {
       throw createError({
         statusCode: 400,
-        statusMessage: authResult.error || "Échec de l'authentification PlayStation",
+        statusMessage:
+          authResult.error || "Échec de l'authentification PlayStation",
       });
     }
 

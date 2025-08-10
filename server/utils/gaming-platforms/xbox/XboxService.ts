@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GamingPlatform, PlatformAccount } from "@prisma/client";
 import type { GameData, AchievementData, SyncResult } from "../base/types";
-import prisma from "../../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 interface XboxTokens {
   userHash: string;
   xuid: string;

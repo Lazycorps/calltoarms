@@ -43,6 +43,7 @@
 
 <script lang="ts" setup>
 import type { GameCard } from "~~/shared/models/gameCard";
+import GameDetailsDialog from "./GameDetailsDialog.vue";
 
 const showGameDetailsDialog = ref(false);
 const { game, readOnly = false } = defineProps<{

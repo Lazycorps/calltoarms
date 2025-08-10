@@ -356,7 +356,7 @@ async function loadGameDetails() {
   loading.value = true;
   try {
     const response = await $fetch<GameDetailsResponse>(
-      `/api/user/gamesLibrary/${props.gameId}`
+      `/api/user/library/${props.gameId}`
     );
 
     if (response.success) {

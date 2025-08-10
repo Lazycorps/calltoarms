@@ -1,6 +1,6 @@
 import { serverSupabaseUser } from "#supabase/server";
 import { defineEventHandler } from "h3";
-import prisma from "../../../lib/prisma";
+import prisma from "~~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   try {

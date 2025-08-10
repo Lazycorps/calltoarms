@@ -1,4 +1,4 @@
-// server/api/platforms/xbox/init.get.ts
+// server/api/user/library/platforms/xbox/init.get.ts
 import { defineEventHandler, sendRedirect, setCookie, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import { randomBytes, createHash } from "crypto";
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
   authUrl.searchParams.append("response_type", "code");
   authUrl.searchParams.append(
     "redirect_uri",
-    `${config.public.baseUrl}/api/platforms/xbox/callback`
+    `${config.public.baseUrl}/api/user/library/platforms/xbox/callback`
   );
   authUrl.searchParams.append("scope", scopes.join(" "));
   authUrl.searchParams.append("state", state);
