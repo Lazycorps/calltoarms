@@ -131,6 +131,8 @@ model PlatformGame {
     iconUrl           String? // URL de l'icône
     coverUrl          String? // URL de la couverture
     isInstalled       Boolean               @default(false)
+    isCompleted       Boolean               @default(false) // Jeu terminé par l'utilisateur
+    completedAt       DateTime? // Date de completion
     platformAccount   PlatformAccount       @relation(fields: [platformAccountId], references: [id])
     achievements      PlatformAchievement[]
     createdAt         DateTime              @default(now())

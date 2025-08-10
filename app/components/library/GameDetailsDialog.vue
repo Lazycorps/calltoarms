@@ -8,8 +8,18 @@
         cover
         class="d-flex align-end pa-2"
       >
-        <v-card-title class="text-h4 font-weight-bold text-white">
+        <v-card-title
+          class="text-h4 font-weight-bold text-white d-flex align-center"
+        >
           {{ gameDetails.game.name }}
+          <v-icon
+            v-if="gameDetails.game.isCompleted"
+            color="success"
+            size="28"
+            class="ml-3"
+          >
+            mdi-check-circle
+          </v-icon>
         </v-card-title>
         <v-card-subtitle class="text-white">
           <v-chip size="small" color="white" variant="outlined" class="mr-2">
@@ -58,7 +68,34 @@
               </div>
             </div>
           </v-col>
-          <v-col v-if="gameDetails.stats.totalPoints > 0" cols="6" sm="3">
+          <v-col cols="6" sm="3">
+            <div class="text-center">
+              <v-btn
+                :icon="
+                  gameDetails.game.isCompleted
+                    ? 'mdi-check-circle'
+                    : 'mdi-check'
+                "
+                :variant="gameDetails.game.isCompleted ? 'text' : 'tonal'"
+                :color="gameDetails.game.isCompleted ? 'success' : 'grey'"
+                size="32"
+                :loading="updatingCompletion"
+                class="mb-1"
+                @click="toggleCompletion"
+              />
+              <div class="text-h6">
+                {{ gameDetails.game.isCompleted ? "Terminé" : "En cours" }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{
+                  gameDetails.game.isCompleted && gameDetails.game.completedAt
+                    ? formatDate(gameDetails.game.completedAt)
+                    : "Cliquer pour terminé"
+                }}
+              </div>
+            </div>
+          </v-col>
+          <!-- <v-col v-if="gameDetails.stats.totalPoints > 0" cols="6" sm="3">
             <div class="text-center">
               <v-icon size="32" color="info" class="mb-1">mdi-star</v-icon>
               <div class="text-h6">
@@ -68,7 +105,7 @@
               </div>
               <div class="text-caption text-medium-emphasis">Points</div>
             </div>
-          </v-col>
+          </v-col> -->
         </v-row>
 
         <!-- Barre de progression -->
@@ -77,7 +114,7 @@
           height="20"
           rounded
           color="success"
-          class="mb-6"
+          class="mb-4"
         >
           <template #default="{ value }">
             <strong class="text-white">{{ value }}%</strong>
@@ -224,7 +261,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import type { GamingPlatform } from "@prisma/client";
-import type { AchievementData } from "~~/server/utils/gaming-platforms/base/types";
 
 interface GameDetailsResponse {
   success: boolean;
@@ -237,6 +273,8 @@ interface GameDetailsResponse {
     lastPlayed: Date | null;
     iconUrl: string | null;
     coverUrl: string | null;
+    isCompleted: boolean;
+    completedAt: string | null;
     playtimeFormatted: string;
     recentPlaytimeFormatted: string | null;
     platformAccount: {
@@ -288,6 +326,7 @@ const gameDetails = ref<GameDetailsResponse | null>(null);
 const tab = ref("all");
 const searchQuery = ref("");
 const sortBy = ref("name");
+const updatingCompletion = ref(false);
 
 const sortOptions = [
   { title: "Nom", value: "name" },
@@ -408,11 +447,41 @@ function getRarityColor(rarity: number): string {
   return "grey";
 }
 
-function getRarityLabel(achievement: AchievementData): string {
+function getRarityLabel(achievement: any): string {
   if (achievement.rarity == 0) return `Ultra rare (${achievement.earnedRate}%)`;
   if (achievement.rarity == 1) return `Très rare (${achievement.earnedRate}%)`;
   if (achievement.rarity == 2) return `Rare (${achievement.earnedRate}%)`;
   return `Commun (${achievement.earnedRate}%)`;
+}
+
+async function toggleCompletion() {
+  if (!gameDetails.value || !props.gameId) return;
+
+  updatingCompletion.value = true;
+  try {
+    const response = await $fetch(
+      `/api/user/library/${props.gameId}/completion`,
+      {
+        method: "PATCH",
+        body: {
+          isCompleted: !gameDetails.value.game.isCompleted,
+        },
+      }
+    );
+
+    if (response.success) {
+      // Mettre à jour les données locales
+      gameDetails.value.game.isCompleted = response.game.isCompleted;
+      gameDetails.value.game.completedAt = response.game.completedAt;
+    }
+  } catch (error) {
+    console.error(
+      "Erreur lors de la mise à jour du statut de completion:",
+      error
+    );
+  } finally {
+    updatingCompletion.value = false;
+  }
 }
 
 // Watchers
