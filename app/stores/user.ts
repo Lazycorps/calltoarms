@@ -42,14 +42,28 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function signIn(id: string, email: string) {
+    await $fetch("/api/user/create", {
+      method: "post",
+      body: {
+        id: id,
+        name: email,
+        slug: "",
+      },
+    });
+    init();
+  }
+
   async function fetchUser() {
     try {
       loading.value = true;
       const userConnected = await $fetch("/api/user/current");
-      user.value = {
-        id: userConnected?.id ?? "",
-        name: userConnected?.name ?? "",
-      };
+      if (userConnected?.id) {
+        user.value = {
+          id: userConnected?.id ?? "",
+          name: userConnected?.name ?? "",
+        };
+      } else user.value = null;
     } finally {
       loading.value = false;
     }
@@ -166,6 +180,7 @@ export const useUserStore = defineStore("user", () => {
     respondToFriendRequest,
     removeFriend,
     logout,
+    signIn,
     init,
   };
 });

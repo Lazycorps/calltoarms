@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   if (userConnected == null) return;
 
-  const userInDb = await prisma.user.findFirst({
+  let userInDb = await prisma.user.findFirst({
     where: { id: userConnected.id },
   });
   if (userInDb == null) {
-    await prisma.user.create({
+    userInDb = await prisma.user.create({
       data: {
         id: userConnected.id,
         name: body.name,
@@ -20,4 +20,8 @@ export default defineEventHandler(async (event) => {
       },
     });
   }
+  return {
+    ...userInDb,
+    email: userConnected.email,
+  };
 });

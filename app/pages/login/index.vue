@@ -63,18 +63,9 @@ async function signIn() {
     });
     if (error) displayError.value = error.message;
     else {
-      await user.init();
-      if (!user.user) {
-        await $fetch("/api/user/create", {
-          method: "post",
-          body: {
-            id: data.user.id,
-            name: data.user.email,
-            slug: "",
-          },
-        });
-        await user.init();
-      }
+      if (data.user.email) {
+        await user.signIn(data.user.id, data.user.email);
+      } else displayError.value = "Missing email";
       router.push("/");
     }
   } catch (err) {
