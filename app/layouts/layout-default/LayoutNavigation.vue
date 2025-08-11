@@ -61,7 +61,7 @@
       </v-btn>
       <v-btn to="/user/library">
         <v-icon>mdi-bookshelf</v-icon>
-        <span>Labrary</span>
+        <span>Library</span>
       </v-btn>
     </v-bottom-navigation>
     <v-navigation-drawer

@@ -203,6 +203,36 @@
       </v-card-text>
     </v-card>
 
+    <!-- Jeux récemment terminés -->
+    <v-card v-if="recentlyCompletedGames" class="mb-6">
+      <v-card-title>
+        <div class="d-flex align-center">
+          <v-icon class="me-2">mdi-check-circle</v-icon>
+          Jeux Récemment Terminés
+          <v-progress-circular
+            v-if="recentlyCompletedGamesStatus == 'pending'"
+            indeterminate
+            size="small"
+            class="ml-2"
+          />
+        </div>
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col
+            v-for="game in recentlyCompletedGames.slice(0, 6)"
+            :key="game.id"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="2"
+          >
+            <GameCardVue :game="game" />
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
     <!-- Jeux les plus joués -->
     <v-card v-if="mostPlayedGames">
       <v-card-title class="d-flex align-center justify-space-between">
@@ -363,6 +393,9 @@ const {
 
 const { status: recentlyPlayedGamesStatus, data: recentlyPlayedGames } =
   await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyPlayed");
+
+const { status: recentlyCompletedGamesStatus, data: recentlyCompletedGames } =
+  await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyCompleted");
 
 async function syncPlatform(platform: {
   id: number;

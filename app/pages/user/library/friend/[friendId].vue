@@ -209,6 +209,36 @@
         </v-card-text>
       </v-card>
 
+      <!-- Jeux récemment terminés -->
+      <v-card v-if="recentlyCompletedGames && recentlyCompletedGames.length > 0" class="mb-6">
+        <v-card-title>
+          <div class="d-flex align-center">
+            <v-icon class="me-2">mdi-check-circle</v-icon>
+            Jeux Récemment Terminés
+            <v-progress-circular
+              v-if="recentlyCompletedGamesStatus == 'pending'"
+              indeterminate
+              size="small"
+              class="ml-2"
+            />
+          </div>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col
+              v-for="game in recentlyCompletedGames.slice(0, 6)"
+              :key="game.id"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="2"
+            >
+              <GameCardVue :game="game" :read-only="true" />
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+
       <!-- Jeux les plus joués -->
       <v-card v-if="mostPlayedGames && mostPlayedGames.length > 0">
         <v-card-title class="d-flex align-center justify-space-between">
@@ -342,6 +372,12 @@ const {
     default: () => [],
   }
 );
+
+// API pour les jeux récemment terminés de l'ami
+const { status: recentlyCompletedGamesStatus, data: recentlyCompletedGames } =
+  await useFetch<GameCard[]>(`/api/user/library/friend/${friendId}/recentlyCompleted`, {
+    default: () => [],
+  });
 
 function viewPlatformGames(platform: { id: number; platform: GamingPlatform }) {
   selectedPlatformForGames.value = platform;

@@ -19,6 +19,15 @@
         </div>
         <div class="platform-icon-overlay">
           <v-chip
+            v-if="game.isCompleted"
+            color="success"
+            size="small"
+            class="mr-1"
+          >
+            <v-icon size="14" class="me-1">mdi-check-circle</v-icon>
+            Terminé
+          </v-chip>
+          <v-chip
             v-if="game.totalAchievements > 0"
             :color="getAchievementColor(game.achievementPercentage)"
             size="small"
