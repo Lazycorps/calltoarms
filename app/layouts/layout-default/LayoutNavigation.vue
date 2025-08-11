@@ -40,6 +40,13 @@
           value="Library"
           to="/user/library"
         />
+        <v-list-item
+          v-if="userStore.user?.admin"
+          prepend-icon="mdi-cog"
+          title="Administration"
+          value="Administration"
+          to="/admin/games"
+        />
         <v-divider />
       </v-list>
     </v-navigation-drawer>
@@ -85,9 +92,11 @@ import { shallowRef } from "vue";
 import { useDisplay } from "vuetify";
 // import { useCommunitiesStore } from "@/store/communities";
 import { useNotificationsStore } from "~/stores/notifications";
+import { useUserStore } from "~/stores/user";
 import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const notificationsStore = useNotificationsStore();
+const userStore = useUserStore();
 const { onForegroundMessage } = useFirebaseMessaging();
 const router = useRouter();
 // const communitiesStore = useCommunitiesStore();

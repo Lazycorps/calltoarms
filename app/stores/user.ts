@@ -62,6 +62,7 @@ export const useUserStore = defineStore("user", () => {
         user.value = {
           id: userConnected?.id ?? "",
           name: userConnected?.name ?? "",
+          admin: userConnected?.admin ?? false,
         };
       } else user.value = null;
     } finally {
