@@ -411,7 +411,7 @@ async function toggleCompletion() {
   updatingCompletion.value = true;
   try {
     const response = await $fetch(
-      `/api/user/library/${props.gameId}/completion`,
+      `/api/user/library/game/${props.gameId}/completion`,
       {
         method: "PATCH",
         body: {

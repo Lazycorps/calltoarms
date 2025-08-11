@@ -24,6 +24,7 @@ export default defineEventHandler(
 
       // Récupérer l'ID du jeu depuis l'URL
       const gameId = getRouterParam(event, "id");
+      console.log(gameId);
       if (!gameId) {
         throw createError({
           statusCode: 400,
@@ -94,29 +95,6 @@ export default defineEventHandler(
         },
       });
 
-      // Fonction utilitaire pour formater le temps de jeu
-      const formatPlaytime = (minutes: number): string => {
-        if (minutes < 60) return `${minutes} minutes`;
-
-        const hours = Math.floor(minutes / 60);
-        const remainingMinutes = minutes % 60;
-
-        if (hours < 24) {
-          return remainingMinutes > 0
-            ? `${hours}h ${remainingMinutes}min`
-            : `${hours} heures`;
-        }
-
-        const days = Math.floor(hours / 24);
-        const remainingHours = hours % 24;
-
-        if (remainingHours > 0) {
-          return `${days} jours, ${remainingHours} heures`;
-        }
-
-        return `${days} jours`;
-      };
-
       // Mapper vers DTO
       const totalAchievements = updatedGame._count.achievements;
       const unlockedAchievements = updatedGame.achievements.filter(
@@ -133,10 +111,6 @@ export default defineEventHandler(
         name: updatedGame.name,
         playtimeTotal: updatedGame.playtimeTotal,
         playtimeRecent: updatedGame.playtimeRecent || undefined,
-        playtimeFormatted: formatPlaytime(updatedGame.playtimeTotal),
-        recentPlaytimeFormatted: updatedGame.playtimeRecent
-          ? formatPlaytime(updatedGame.playtimeRecent)
-          : undefined,
         lastPlayed: updatedGame.lastPlayed || undefined,
         iconUrl: updatedGame.iconUrl || undefined,
         coverUrl: updatedGame.coverUrl || undefined,

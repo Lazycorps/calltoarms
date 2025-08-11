@@ -7,7 +7,6 @@ export interface PlatformGameCardDTO {
   coverUrl?: string;
   lastPlayed?: Date;
   playtimeTotal: number;
-  playtimeFormatted: string;
   platform: GamingPlatform;
   achievementsCount: number;
   totalAchievements: number;

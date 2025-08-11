@@ -7,29 +7,6 @@ import type {
   PlatformGameCardDTO,
 } from "~~/shared/types/library";
 
-// Fonction utilitaire pour formater le temps de jeu
-function formatPlaytime(minutes: number): string {
-  if (minutes < 60) return `${minutes} minutes`;
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours < 24) {
-    return remainingMinutes > 0
-      ? `${hours}h ${remainingMinutes}min`
-      : `${hours} heures`;
-  }
-
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-
-  if (remainingHours > 0) {
-    return `${days} jours, ${remainingHours} heures`;
-  }
-
-  return `${days} jours`;
-}
-
 export default defineEventHandler(
   async (event): Promise<LibraryResponseDTO<PlatformGameCardDTO[]>> => {
     try {
@@ -146,7 +123,6 @@ export default defineEventHandler(
           coverUrl: game.coverUrl || undefined,
           lastPlayed: game.lastPlayed || undefined,
           playtimeTotal: game.playtimeTotal,
-          playtimeFormatted: formatPlaytime(game.playtimeTotal),
           platform: game.platformAccount.platform,
           achievementsCount: unlockedAchievements,
           totalAchievements,
