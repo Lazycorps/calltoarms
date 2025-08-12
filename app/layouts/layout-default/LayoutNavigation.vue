@@ -42,9 +42,9 @@
         />
         <v-list-item
           prepend-icon="mdi-account-heart"
-          title="FriendsHub"
-          value="FriendsHub"
-          to="/friends-hub"
+          title="Activity "
+          value="Activity "
+          to="/activity"
         />
         <v-list-item
           v-if="userStore.user?.admin"
@@ -76,9 +76,9 @@
         <v-icon>mdi-bookshelf</v-icon>
         <span>Library</span>
       </v-btn>
-      <v-btn to="/friends-hub">
-        <v-icon>mdi-account-heart</v-icon>
-        <span>FriendsHub</span>
+      <v-btn to="/activity">
+        <v-icon>mdi-chart-arc</v-icon>
+        <span>Activity</span>
       </v-btn>
     </v-bottom-navigation>
     <v-navigation-drawer

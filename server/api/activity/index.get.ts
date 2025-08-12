@@ -1,9 +1,9 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
-import type { ActivityHubDTO, PlatformGameCardDTO } from "~~/shared/types/library";
+import type { activityDTO, PlatformGameCardDTO } from "~~/shared/types/library";
 
-export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
+export default defineEventHandler(async (event): Promise<activityDTO> => {
   try {
     const config = useRuntimeConfig();
     let userId: string;
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
     // Mode développement avec bypass d'auth
     if (config.devMode && config.devUserId) {
       userId = config.devUserId;
-      console.log('🚀 Mode développement activé avec userId:', userId);
+      console.log("🚀 Mode développement activé avec userId:", userId);
     } else {
       // Mode production avec authentification normale
       const user = await serverSupabaseUser(event);
@@ -165,8 +165,8 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
     });
 
     // 2. Jeux récemment terminés par les amis
-    console.log('🔍 Recherche de jeux terminés par les amis:', friendIds);
-    
+    console.log("🔍 Recherche de jeux terminés par les amis:", friendIds);
+
     // D'abord, regardons tous les jeux terminés par les amis (sans filtre de date)
     const allCompletedByFriends = await prisma.platformGame.findMany({
       where: {
@@ -178,8 +178,11 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
       select: { id: true, name: true, lastPlayed: true },
       take: 10,
     });
-    console.log('🎮 Tous les jeux terminés par les amis:', allCompletedByFriends.length);
-    
+    console.log(
+      "🎮 Tous les jeux terminés par les amis:",
+      allCompletedByFriends.length
+    );
+
     const friendsRecentlyCompleted = await prisma.platformGame.findMany({
       where: {
         platformAccount: {
@@ -214,8 +217,11 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
       orderBy: { lastPlayed: "desc" },
       take: 5,
     });
-    
-    console.log('🎮 Jeux terminés trouvés par les amis:', friendsRecentlyCompleted.length);
+
+    console.log(
+      "🎮 Jeux terminés trouvés par les amis:",
+      friendsRecentlyCompleted.length
+    );
 
     // 3. Jeux populaires dans le cercle d'amis
     const popularGames = await prisma.platformGame.groupBy({
@@ -291,10 +297,7 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
         name: {
           notIn: Array.from(userGameNames),
         },
-        OR: [
-          { isCompleted: true },
-          { playtimeTotal: { gt: 120 } },
-        ],
+        OR: [{ isCompleted: true }, { playtimeTotal: { gt: 120 } }],
       },
       select: {
         id: true,
@@ -372,7 +375,7 @@ export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
       },
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération de l'ActivityHub:", error);
+    console.error("Erreur lors de la récupération de l'activity:", error);
 
     if (error && typeof error === "object" && "statusCode" in error) {
       throw error;

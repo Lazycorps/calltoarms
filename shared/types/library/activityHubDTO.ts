@@ -1,6 +1,6 @@
 import type { PlatformGameCardDTO } from "./platformGameCardDTO";
 
-export interface ActivityHubDTO {
+export interface activityDTO {
   friendsActivity: {
     recentlyPlayed: PlatformGameCardDTO[];
     recentlyCompleted: PlatformGameCardDTO[];
