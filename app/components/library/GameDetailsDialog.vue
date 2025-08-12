@@ -346,7 +346,7 @@ const filteredAchievements = computed(() => {
 // Méthodes
 async function loadGameDetails() {
   if (!props.gameId) return;
-return ;
+
   loading.value = true;
   try {
     const response = await $fetch<GameDetailsDTO>(

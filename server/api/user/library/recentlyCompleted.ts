@@ -22,6 +22,9 @@ export default defineEventHandler(
             userId: user.id,
           },
           isCompleted: true,
+          completedAt: {
+            not: null,
+          },
         },
         select: {
           id: true,
@@ -61,8 +64,8 @@ export default defineEventHandler(
         take: 10,
       });
 
-      const recentlyCompletedGames: PlatformGameCardDTO[] = recentlyCompletedRaw.map(
-        (game) => {
+      const recentlyCompletedGames: PlatformGameCardDTO[] =
+        recentlyCompletedRaw.map((game) => {
           const unlockedAchievements = game.achievements.filter(
             (achievement) => achievement.isUnlocked
           ).length;
@@ -86,8 +89,7 @@ export default defineEventHandler(
             isCompleted: game.isCompleted,
             completedAt: game.completedAt || undefined,
           };
-        }
-      );
+        });
 
       return recentlyCompletedGames;
     } catch (error) {

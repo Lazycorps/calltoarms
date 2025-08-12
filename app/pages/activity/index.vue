@@ -2,17 +2,17 @@
   <v-container>
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-2">activity</h1>
+        <h1 class="text-h4 font-weight-bold mb-2">Activity Hub</h1>
         <p class="text-subtitle-1 text-medium-emphasis">
           Découvrez l'activité gaming de vos amis
         </p>
       </div>
 
       <v-btn
-        :loading="pending"
+        :loading="pending || notificationsPending"
         variant="outlined"
         prepend-icon="mdi-refresh"
-        @click="refresh()"
+        @click="refreshAll()"
       >
         Actualiser
       </v-btn>
@@ -24,7 +24,7 @@
 
     <template v-if="Data">
       <!-- Statistiques -->
-      <v-row class="mb-6">
+      <v-row>
         <v-col cols="12" sm="4">
           <v-card class="text-center pa-4">
             <v-icon size="48" color="primary" class="mb-2"
@@ -66,77 +66,131 @@
         </v-col>
       </v-row>
 
-      <!-- Jeux populaires dans votre cercle -->
-      <GameCardSection
-        title="Populaires dans votre cercle"
-        icon="mdi-trending-up"
-        :games="Data.popularInCircle.games"
-        :show-friend="false"
-        :show-last-played="false"
-        card-min-width="250px"
-        card-max-width="300px"
-        empty-message="Aucun jeu populaire trouvé dans votre cercle d'amis"
-        @game-click="handleGameClick"
-      />
+      <v-row>
+        <v-col cols="12">
+          <ActivityCardSection
+            v-if="friendNotifications && friendNotifications.length > 0"
+            title="Activités récente"
+            :item-count="friendNotifications.length"
+            icon="mdi-bell"
+            empty-message="Aucun jeu récemment terminé"
+          >
+            <div class="notification-scroll-container">
+              <div class="notification-scroll-content">
+                <FriendNotificationCard
+                  v-for="notification in friendNotifications"
+                  :key="notification.notificationId"
+                  :notification="notification"
+                  class="notification-card-item"
+                />
+              </div>
+            </div>
+          </ActivityCardSection>
+        </v-col>
+        <!-- Notifications de jeux d'amis -->
 
-      <!-- Mes jeux récemment terminés -->
-      <GameCardSection
-        v-if="Data.myActivity.recentlyCompleted.length > 0"
-        title="Vos derniers succès"
-        icon="mdi-trophy-variant"
-        :games="Data.myActivity.recentlyCompleted"
-        :show-friend="false"
-        :show-completion-date="true"
-        :show-last-played="false"
-        card-min-width="280px"
-        card-max-width="350px"
-        @game-click="handleGameClick"
-      />
+        <!-- Mes jeux récemment terminés -->
+        <v-col cols="12">
+          <ActivityCardSection
+            v-if="Data.myActivity.recentlyCompleted.length > 0"
+            title="Vos derniers succès"
+            icon="mdi-trophy-variant"
+            :item-count="Data.myActivity.recentlyCompleted.length"
+            item-label="jeu"
+            item-label-plural="jeux"
+            empty-message="Aucun jeu récemment terminé"
+          >
+            <GameCard
+              v-for="game in Data.myActivity.recentlyCompleted"
+              :key="game.id"
+              :game="game"
+              :show-friend="false"
+              :show-completion-date="true"
+              :show-last-played="false"
+              :clickable="!!game.friendName"
+              class="flex-grow-1"
+              :style="`min-width: 280px; max-width: 350px;`"
+              @click="handleGameClick"
+            />
+          </ActivityCardSection>
+        </v-col>
 
-      <!-- Activité récente des amis -->
-      <div class="d-flex flex-column flex-lg-row ga-4 mb-6">
-        <!-- Jeux récemment joués -->
-        <div class="flex-grow-1">
-          <GameCardSection
+        <!-- Activité récente des amis -->
+        <v-col cols="6">
+          <ActivityCardSection
             title="Récemment joués"
             icon="mdi-clock-outline"
-            :games="Data.friendsActivity.recentlyPlayed"
-            :show-playtime="false"
-            card-min-width="280px"
-            card-max-width="400px"
+            :item-count="Data.friendsActivity.recentlyPlayed.length"
+            item-label="jeu"
+            item-label-plural="jeux"
             empty-message="Aucune activité récente de vos amis"
-            @game-click="handleGameClick"
-          />
-        </div>
+          >
+            <GameCard
+              v-for="game in Data.friendsActivity.recentlyPlayed"
+              :key="game.id"
+              :game="game"
+              :show-playtime="false"
+              :clickable="!!game.friendName"
+              class="flex-grow-1"
+              :style="`min-width: 280px; max-width: 400px;`"
+              @click="handleGameClick"
+            />
+          </ActivityCardSection>
+        </v-col>
 
         <!-- Jeux récemment terminés -->
-        <div class="flex-grow-1">
-          <GameCardSection
+        <v-col cols="6">
+          <ActivityCardSection
             title="Récemment terminés"
             icon="mdi-trophy"
-            :games="Data.friendsActivity.recentlyCompleted"
-            :show-playtime="false"
-            :show-completion-date="true"
-            :show-last-played="false"
+            :item-count="Data.friendsActivity.recentlyCompleted.length"
+            item-label="jeu"
+            item-label-plural="jeux"
             card-min-width="280px"
             card-max-width="400px"
             empty-message="Aucun jeu récemment terminé par vos amis"
-            @game-click="handleGameClick"
-          />
-        </div>
-      </div>
-
-      <!-- Recommandations -->
-      <GameCardSection
-        title="Recommandations pour vous"
-        icon="mdi-lightbulb-outline"
-        :games="Data.recommendations.basedOnFriends"
-        :show-last-played="false"
-        card-min-width="280px"
-        card-max-width="350px"
-        empty-message="Aucune recommandation disponible pour le moment"
-        @game-click="handleGameClick"
-      />
+          >
+            <GameCard
+              v-for="game in Data.friendsActivity.recentlyCompleted"
+              :key="game.id"
+              :game="game"
+              :show-playtime="false"
+              :show-completion-date="true"
+              :show-last-played="false"
+              :clickable="!!game.friendName"
+              class="flex-grow-1"
+              :style="`min-width: 280px; max-width: 400px;`"
+              @click="handleGameClick"
+            />
+          </ActivityCardSection>
+        </v-col>
+        <!-- Recommandations -->
+        <v-col cols="12">
+          <ActivityCardSection
+            title="Recommandations pour vous"
+            icon="mdi-lightbulb-outline"
+            :item-count="Data.recommendations.basedOnFriends.length"
+            item-label="jeu"
+            item-label-plural="jeux"
+            empty-message="Aucune recommandation disponible pour le moment"
+          >
+            <div class="notification-scroll-container">
+              <div class="notification-scroll-content">
+                <GameCard
+                  v-for="game in Data.recommendations.basedOnFriends"
+                  :key="game.id"
+                  :game="game"
+                  :show-last-played="false"
+                  :clickable="!!game.friendName"
+                  class="flex-grow-1"
+                  :style="`min-width: 280px; max-width: 350px;`"
+                  @click="handleGameClick"
+                />
+              </div>
+            </div>
+          </ActivityCardSection>
+        </v-col>
+      </v-row>
     </template>
 
     <!-- État de chargement -->
@@ -156,14 +210,11 @@
 </template>
 <script setup lang="ts">
 import type { activityDTO, PlatformGameCardDTO } from "~~/shared/types/library";
+import type { FriendGameNotificationDTO } from "~~/shared/types/activity";
 import GameCard from "~/components/activity/GameCard.vue";
 import GameComparisonDialog from "~/components/activity/GameComparisonDialog.vue";
-import GameCardSection from "~/components/activity/GameCardSection.vue";
-
-// Bypass auth middleware en mode développement
-definePageMeta({
-  middleware: process.env.NODE_ENV === "production" ? "auth" : undefined,
-});
+import ActivityCardSection from "~/components/activity/ActivityCardSection.vue";
+import FriendNotificationCard from "~/components/activity/FriendNotificationCard.vue";
 
 const {
   data: Data,
@@ -172,12 +223,23 @@ const {
   refresh,
 } = await useFetch<activityDTO>("/api/activity");
 
-// Debug logs
-watchEffect(() => {
-  console.log("🔍 activity Data:", Data.value);
-  console.log("⏳ Pending:", pending.value);
-  console.log("❌ Error:", error.value);
-});
+// Récupérer les notifications d'amis
+const {
+  data: friendNotificationsData,
+  pending: notificationsPending,
+  refresh: refreshNotifications,
+} = await useFetch<{ success: boolean; data: FriendGameNotificationDTO[] }>(
+  "/api/activity/friend-notifications"
+);
+
+const friendNotifications = computed(
+  () => friendNotificationsData.value?.data || []
+);
+
+// Fonction de refresh globale
+const refreshAll = async () => {
+  await Promise.all([refresh(), refreshNotifications()]);
+};
 
 // Dialog de comparaison
 const comparisonDialog = ref(false);
@@ -228,5 +290,44 @@ const handleGameClick = async (game: PlatformGameCardDTO) => {
 /* Debug pour voir les avatars sans images */
 .v-avatar {
   background-color: rgba(var(--v-theme-surface-variant)) !important;
+}
+
+/* Styles pour le scroll horizontal des notifications */
+.notification-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--v-theme-primary), 0.3) transparent;
+}
+
+.notification-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.notification-scroll-container::-webkit-scrollbar-track {
+  background: rgba(var(--v-theme-surface-variant), 0.1);
+  border-radius: 4px;
+}
+
+.notification-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.3);
+  border-radius: 4px;
+}
+
+.notification-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.5);
+}
+
+.notification-scroll-content {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 8px;
+  min-width: min-content;
+}
+
+.notification-card-item {
+  flex: 0 0 320px;
+  min-width: 320px;
+  max-width: 320px;
 }
 </style>

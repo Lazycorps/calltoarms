@@ -51,6 +51,17 @@ export default defineEventHandler(
             userId: user.id,
           },
         },
+        include: {
+          achievements: {
+            where: {
+              isUnlocked: true,
+            },
+            orderBy: {
+              unlockedAt: 'desc',
+            },
+            take: 1,
+          },
+        },
       });
 
       if (!existingGame) {
@@ -60,6 +71,17 @@ export default defineEventHandler(
         });
       }
 
+      // Déterminer la date de completion :
+      // - Date du dernier succès débloqué si disponible
+      // - Sinon date de dernière session (lastPlayed)
+      let completedDate = existingGame.lastPlayed;
+      
+      if (existingGame.achievements.length > 0) {
+        const latestAchievementDate = existingGame.achievements[0].unlockedAt;
+        if (latestAchievementDate) {
+          completedDate = latestAchievementDate;
+        }
+      }
       // Mettre à jour le statut de completion
       const updatedGame = await prisma.platformGame.update({
         where: {
@@ -67,7 +89,7 @@ export default defineEventHandler(
         },
         data: {
           isCompleted,
-          completedAt: isCompleted ? new Date() : null,
+          completedAt: completedDate ? completedDate : null,
           updatedAt: new Date(),
         },
         include: {
