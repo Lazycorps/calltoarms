@@ -350,7 +350,7 @@ async function loadGameDetails() {
   loading.value = true;
   try {
     const response = await $fetch<GameDetailsDTO>(
-      `/api/user/library/${props.gameId}`
+      `/api/user/library/game/${props.gameId}`
     );
 
     gameDetails.value = response;
