@@ -42,17 +42,26 @@ npx prisma studio         # Open Prisma Studio for database management
 - **Gaming APIs**: Steam Web API, PlayStation Network API
 
 ### Directory Structure
-- `/app` - Frontend Vue components and pages
-  - `/components` - Reusable components organized by feature
-  - `/pages` - Route-based pages using Nuxt file routing
+- `/app` - Frontend Vue application
+  - `/components` - Reusable Vue components organized by feature
+  - `/pages` - File-based routing pages
   - `/stores` - Pinia stores for state management
-  - `/composables` - Vue composables for shared logic
+  - `/composables` - Vue composables for shared logic (Firebase, utils)
+  - `/layouts` - Application layouts
+  - `/plugins` - Nuxt plugins (Firebase, Vuetify)
 - `/server` - Backend API routes and utilities
   - `/api` - REST API endpoints organized by resource
+    - `/admin` - Admin game management endpoints
+    - `/games` - Game data endpoints
+    - `/notifications` - Notification system endpoints
+    - `/user` - User management and library endpoints
   - `/middleware` - Server middleware (auth)
   - `/utils` - Server utilities including gaming platform services
 - `/prisma` - Database schema and migrations
-- `/shared` - Shared TypeScript models between frontend and backend
+- `/shared` - Shared TypeScript models, DTOs between frontend and backend
+  - `/models` - Core data models
+  - `/utils` - Shared utilities
+- `/docs` - Platform integration documentation
 
 ### Key Architectural Patterns
 
@@ -70,11 +79,13 @@ npx prisma studio         # Open Prisma Studio for database management
 
 ### Environment Variables
 
-Required environment variables (see README.md for full list):
-- Database: `DATABASE_URL`, `DIRECT_URL`
-- Auth: `SUPABASE_URL`, `SUPABASE_KEY`
-- Firebase: `FIREBASE_*` (multiple keys)
-- Gaming: `STEAM_API_KEY`, platform-specific keys
+Required environment variables:
+- **Database**: `DATABASE_URL`, `DIRECT_URL`
+- **Auth**: `SUPABASE_URL`, `SUPABASE_KEY`
+- **Firebase**: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_STORAGE_BUCKET`, `FIREBASE_MESSAGING_SENDER_ID`, `FIREBASE_APP_ID`, `FIREBASE_VAPID_KEY`
+- **Gaming APIs**: `STEAM_API_KEY`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`
+- **Twitch**: `TWITCH_CLIENT_ID`, `TWITCH_SECRET`, `TWITCH_TOKEN`
+- **General**: `BASE_URL`
 
 ### Development Notes
 
@@ -82,3 +93,48 @@ Required environment variables (see README.md for full list):
 - Uses Prisma for type-safe database access
 - Vuetify for Material Design UI components
 - No test framework currently configured
+- Using Nuxt 4 with Vue 3 Composition API
+- ESLint configured for code quality
+
+## Development Best Practices
+
+### Code Structure and Conventions
+
+1. **Components**: Use PascalCase for Vue components (`GameCard.vue`, `FriendsList.vue`)
+2. **Composables**: Use camelCase with `use` prefix (`useFirebase.ts`, `useColorGenerator.ts`)
+3. **Stores**: Use camelCase with descriptive names (`user.ts`, `gamingPlatforms.ts`)
+4. **API Routes**: Follow RESTful conventions in `/server/api/`
+5. **TypeScript**: All components use `<script setup lang="ts">` and strict typing
+
+### Gaming Platform Integration
+
+- Platform services extend abstract `PlatformService` base class
+- Each platform (Steam, PlayStation, Xbox) has dedicated service classes
+- Authentication and game syncing handled per platform
+- Gaming data stored in PostgreSQL via Prisma
+
+### Authentication & Security
+
+- Supabase Auth for user management
+- Server middleware validates auth tokens for protected routes
+- Gaming platform credentials stored securely in database
+- FCM tokens managed for push notifications
+
+### API Response Format
+
+- All API controllers return DTOs from `/shared/` directory
+- Consistent error handling with proper HTTP status codes
+- Use `createError()` for server-side error responses
+
+### Component Organization
+
+- `/components/friends/` - Friend management components
+- `/components/game/` - Game-related UI components  
+- `/components/library/` - Gaming library and platform connectors
+- `/components/notifications/` - Notification system UI
+
+### Firebase Integration
+
+- Cloud Messaging for real-time notifications
+- Admin SDK for server-side Firebase operations
+- Client-side messaging handled via composables
