@@ -316,6 +316,6 @@ async function removeFriend(friendId: string) {
 }
 
 function viewFriendLibrary(friendId: string) {
-  navigateTo(`library/friend/${friendId}`);
+  navigateTo(`user/library/friend/${friendId}`);
 }
 </script>

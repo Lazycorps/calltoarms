@@ -12,4 +12,7 @@ export interface PlatformGameCardDTO {
   totalAchievements: number;
   achievementPercentage: number;
   isCompleted: boolean;
+  // Informations sur l'ami qui possède ce jeu
+  friendName?: string;
+  friendSlug?: string;
 }
