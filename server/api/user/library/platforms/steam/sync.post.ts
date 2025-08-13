@@ -57,9 +57,17 @@ export default defineEventHandler(async (event) => {
       
       const originalCount = gamesToSync.length;
       gamesToSync = syncResult.data.filter((game) => {
-        if (!game.lastPlayed) return false; // Ignorer les jeux jamais joués
-        const lastPlayedDate = new Date(game.lastPlayed);
-        return lastPlayedDate > syncThreshold;
+        // Inclure les jeux avec lastPlayed récent
+        if (game.lastPlayed && new Date(game.lastPlayed) > syncThreshold) {
+          return true;
+        }
+        
+        // Inclure les jeux joués dans les 2 dernières semaines (même sans lastPlayed)
+        if (game.playtimeRecent && game.playtimeRecent > 0) {
+          return true;
+        }
+        
+        return false;
       });
       
       console.log(`Filtré ${gamesToSync.length} jeux modifiés sur ${originalCount} au total`);
@@ -67,7 +75,7 @@ export default defineEventHandler(async (event) => {
       console.log("Première synchronisation Steam, traitement de tous les jeux");
     }
 
-    // Si aucun jeu n'a été joué depuis la dernière sync, terminer ici
+    // Si aucun jeu n'a été joué depuis la dernière sync ET que ce n'est pas la première sync, terminer ici
     if (gamesToSync.length === 0 && steamAccount.lastSync) {
       await prisma.platformAccount.update({
         where: { id: steamAccount.id },
@@ -131,21 +139,44 @@ export default defineEventHandler(async (event) => {
     console.log("Synchronisation des succès pour", games.length, "jeux");
     const achievementPromises = games.map(async (game) => {
       try {
+        // Récupérer les succès existants
+        const existingAchievements = await prisma.platformAchievement.findMany({
+          where: { platformGameId: game.id },
+          select: { achievementId: true, isUnlocked: true },
+        });
+        
+        const existingUnlockedSet = new Set(
+          existingAchievements
+            .filter((ach) => ach.isUnlocked)
+            .map((ach) => ach.achievementId)
+        );
+
         const achievementsResult = await steamService.syncAchievements(
           steamAccount,
-          game.platformGameId
+          game.platformGameId,
+          existingUnlockedSet
         );
 
         if (achievementsResult.success && achievementsResult.data) {
+          const { achievements, mostRecentUnlock } = achievementsResult.data;
+          
+          // Mettre à jour lastPlayed du jeu si de nouveaux succès ont été débloqués
+          if (mostRecentUnlock && (!game.lastPlayed || mostRecentUnlock > game.lastPlayed)) {
+            await prisma.platformGame.update({
+              where: { id: game.id },
+              data: { lastPlayed: mostRecentUnlock },
+            });
+          }
+
           // Supprimer les anciens succès
           await prisma.platformAchievement.deleteMany({
             where: { platformGameId: game.id },
           });
 
           // Créer les nouveaux succès
-          if (achievementsResult.data.length > 0) {
+          if (achievements.length > 0) {
             await prisma.platformAchievement.createMany({
-              data: achievementsResult.data.map((achievement) => ({
+              data: achievements.map((achievement) => ({
                 platformGameId: game.id,
                 achievementId: achievement.achievementId,
                 name: achievement.name,
@@ -158,15 +189,15 @@ export default defineEventHandler(async (event) => {
               })),
             });
           }
-          return { gameId: game.id, count: achievementsResult.data.length };
+          return { gameId: game.id, count: achievements.length, hasNewUnlocks: !!mostRecentUnlock };
         }
-        return { gameId: game.id, count: 0 };
+        return { gameId: game.id, count: 0, hasNewUnlocks: false };
       } catch (error) {
         console.error(
           `Erreur lors de la synchronisation des succès pour ${game.name}:`,
           error
         );
-        return { gameId: game.id, count: 0, error: true };
+        return { gameId: game.id, count: 0, error: true, hasNewUnlocks: false };
       }
     });
 

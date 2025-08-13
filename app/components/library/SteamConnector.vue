@@ -6,75 +6,65 @@
     </v-card-title>
 
     <v-card-text>
-      <v-form v-model="valid" @submit.prevent="connectSteam">
-        <v-text-field
-          v-model="steamId"
-          label="Steam ID"
-          placeholder="76561198000000000"
-          hint="Votre Steam ID (17 chiffres)"
-          persistent-hint
-          :rules="steamIdRules"
+      <v-alert
+        v-if="error"
+        type="error"
+        variant="tonal"
+        class="mb-4"
+        closable
+        @click:close="error = null"
+      >
+        {{ error }}
+      </v-alert>
+
+      <v-alert
+        v-if="success"
+        type="success"
+        variant="tonal"
+        class="mb-4"
+        closable
+        @click:close="success = null"
+      >
+        {{ success }}
+      </v-alert>
+
+      <div class="d-flex flex-column align-center">
+        <p class="text-body-1 mb-4 text-center">
+          Connectez votre compte Steam de manière sécurisée via
+          l'authentification officielle Steam.
+        </p>
+
+        <v-btn
+          color="primary"
+          size="large"
           :loading="loading"
           :disabled="loading"
-          prepend-inner-icon="mdi-account"
-          variant="outlined"
+          prepend-icon="mdi-steam"
           class="mb-4"
-        />
-
-        <v-alert
-          v-if="error"
-          type="error"
-          variant="tonal"
-          class="mb-4"
-          closable
-          @click:close="error = null"
+          @click="connectWithSteamOAuth"
         >
-          {{ error }}
-        </v-alert>
-
-        <v-alert
-          v-if="success"
-          type="success"
-          variant="tonal"
-          class="mb-4"
-          closable
-          @click:close="success = null"
-        >
-          {{ success }}
-        </v-alert>
-
-        <div class="d-flex justify-end">
-          <v-btn
-            type="submit"
-            color="primary"
-            :loading="loading"
-            :disabled="!valid || loading"
-            prepend-icon="mdi-link"
-          >
-            Connecter Steam
-          </v-btn>
-        </div>
-      </v-form>
+          Se connecter avec Steam
+        </v-btn>
+      </div>
 
       <v-divider class="my-6" />
 
       <div class="text-body-2 text-medium-emphasis">
         <v-icon size="small" class="me-1">mdi-information</v-icon>
-        <strong>Comment trouver votre Steam ID :</strong>
-        <ol class="mt-2 ms-4">
-          <li>Ouvrez Steam et allez dans votre profil</li>
-          <li>Cliquez sur "Modifier le profil"</li>
-          <li>Dans l'URL personnalisée, vous verrez votre Steam ID</li>
-          <li>Ou utilisez un site comme steamid.io pour le convertir</li>
-        </ol>
+        <strong>Authentification sécurisée :</strong>
+        <ul class="mt-2 ms-4">
+          <li>Connexion via l'authentification officielle Steam</li>
+          <li>Aucun mot de passe ou Steam ID à saisir manuellement</li>
+          <li>Vos identifiants restent sécurisés chez Steam</li>
+          <li>Accès uniquement aux informations publiques de votre profil</li>
+        </ul>
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
+import { ref, onMounted } from "vue";
 
 // Props
 interface Props {
@@ -85,47 +75,47 @@ const props = withDefaults(defineProps<Props>(), {
   onSuccess: () => {},
 });
 
-// Store
-const gamingPlatformsStore = useGamingPlatformsStore();
-
 // État local
-const valid = ref(false);
-const steamId = ref("");
 const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref<string | null>(null);
 
-// Règles de validation
-const steamIdRules = [
-  (v: string) => !!v || "Steam ID requis",
-  (v: string) =>
-    /^\d{17}$/.test(v) || "Steam ID doit contenir exactement 17 chiffres",
-];
-
 // Méthodes
-async function connectSteam() {
-  if (!valid.value) return;
-
+async function connectWithSteamOAuth() {
   try {
     loading.value = true;
     error.value = null;
     success.value = null;
 
-    await gamingPlatformsStore.connectPlatform("STEAM", {
-      steamId: steamId.value,
-    });
-
-    success.value = "Compte Steam connecté avec succès !";
-    steamId.value = "";
-    props.onSuccess();
+    // Rediriger vers l'endpoint d'authentification Steam OAuth
+    window.location.href = "/api/user/library/platforms/steam/auth";
   } catch (err) {
-    console.error("Erreur lors de la connexion Steam:", err);
+    console.error("Erreur lors de la connexion Steam OAuth:", err);
     error.value =
-      "Impossible de connecter le compte Steam. Vérifiez votre Steam ID.";
-  } finally {
+      "Impossible d'initier la connexion Steam. Veuillez réessayer.";
     loading.value = false;
   }
 }
+
+// Gérer les paramètres de retour (succès ou erreur)
+onMounted(() => {
+  const route = useRoute();
+
+  if (route.query.steam_connected === "true") {
+    success.value = "Compte Steam connecté avec succès !";
+    props.onSuccess();
+
+    // Nettoyer l'URL
+    const router = useRouter();
+    router.replace({ query: {} });
+  } else if (route.query.steam_error) {
+    error.value = decodeURIComponent(route.query.steam_error as string);
+
+    // Nettoyer l'URL
+    const router = useRouter();
+    router.replace({ query: {} });
+  }
+});
 </script>
 
 <style scoped>
@@ -133,11 +123,11 @@ async function connectSteam() {
   max-width: 500px;
 }
 
-.steam-connector ol {
+.steam-connector ul {
   padding-left: 1rem;
 }
 
-.steam-connector ol li {
+.steam-connector ul li {
   margin-bottom: 0.25rem;
 }
 </style>

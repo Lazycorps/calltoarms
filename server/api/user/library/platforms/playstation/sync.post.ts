@@ -239,9 +239,6 @@ export default defineEventHandler(async (event) => {
       updatedGames.push(...batchResults);
     }
 
-    // Synchroniser les trophées uniquement pour les jeux modifiés
-    "Synchronisation des trophées pour", gameIdMapping.size, "jeux";
-
     const BATCH_SIZE = 20; // Réduit encore pour éviter la surcharge
     const gameEntries = Array.from(gameIdMapping.entries());
     const allAchievements: Prisma.PlatformAchievementCreateManyInput[] = [];

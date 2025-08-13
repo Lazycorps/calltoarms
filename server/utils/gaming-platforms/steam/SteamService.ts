@@ -91,20 +91,31 @@ export class SteamService {
       if (!data.response.games) {
         return this.createSuccessResult([]);
       }
-      const games: GameData[] = data.response.games.map((game: SteamGame) => ({
-        platformGameId: game.appid.toString(),
-        name: game.name,
-        playtimeTotal: game.playtime_forever,
-        playtimeRecent: game.playtime_2weeks,
-        lastPlayed: game.rtime_last_played
+
+      const syncDate = new Date();
+      const games: GameData[] = data.response.games.map((game: SteamGame) => {
+        let lastPlayed = game.rtime_last_played
           ? new Date(game.rtime_last_played * 1000)
-          : undefined,
-        iconUrl: game.img_icon_url
-          ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-          : undefined,
-        coverUrl: `https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`,
-        isInstalled: false, // Steam API ne fournit pas cette information
-      }));
+          : undefined;
+
+        // Si pas de lastPlayed mais que le jeu a été joué dans les 2 dernières semaines
+        if (!lastPlayed && game.playtime_2weeks && game.playtime_2weeks > 0) {
+          lastPlayed = syncDate;
+        }
+
+        return {
+          platformGameId: game.appid.toString(),
+          name: game.name,
+          playtimeTotal: game.playtime_forever,
+          playtimeRecent: game.playtime_2weeks,
+          lastPlayed,
+          iconUrl: game.img_icon_url
+            ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+            : undefined,
+          coverUrl: `https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`,
+          isInstalled: false, // Steam API ne fournit pas cette information
+        };
+      });
 
       return this.createSuccessResult(games);
     } catch (error) {
@@ -118,8 +129,11 @@ export class SteamService {
 
   async syncAchievements(
     account: PlatformAccount,
-    gameId: string
-  ): Promise<SyncResult<AchievementData[]>> {
+    gameId: string,
+    existingAchievements?: Set<string>
+  ): Promise<
+    SyncResult<{ achievements: AchievementData[]; mostRecentUnlock?: Date }>
+  > {
     try {
       // D'abord, récupérer le schéma du jeu pour obtenir les informations des succès
       const schemaUrl = `${this.baseUrl}/ISteamUserStats/GetSchemaForGame/v2/?key=${this.apiKey}&appid=${gameId}`;
@@ -134,7 +148,10 @@ export class SteamService {
       const schemaData: SteamGameSchemaResponse = await schemaResponse.json();
 
       if (!schemaData.game?.availableGameStats?.achievements) {
-        return this.createSuccessResult([]);
+        return this.createSuccessResult({
+          achievements: [],
+          mostRecentUnlock: undefined,
+        });
       }
 
       // Ensuite, récupérer les succès du joueur
@@ -154,7 +171,10 @@ export class SteamService {
         !achievementsData.playerstats?.success ||
         !achievementsData.playerstats.achievements
       ) {
-        return this.createSuccessResult([]);
+        return this.createSuccessResult({
+          achievements: [],
+          mostRecentUnlock: undefined,
+        });
       }
 
       // Combiner les données du schéma avec les données du joueur
@@ -186,7 +206,28 @@ export class SteamService {
           }
         );
 
-      return this.createSuccessResult(achievements);
+      // Trouver le succès le plus récent parmi les nouveaux
+      let mostRecentUnlock: Date | undefined;
+      if (existingAchievements) {
+        const newAchievements = achievements.filter(
+          (ach) =>
+            ach.isUnlocked && !existingAchievements.has(ach.achievementId)
+        );
+
+        if (newAchievements.length > 0) {
+          mostRecentUnlock = newAchievements
+            .filter((ach) => ach.unlockedAt)
+            .reduce((latest, current) => {
+              if (!latest || !current.unlockedAt)
+                return latest || current.unlockedAt;
+              return current.unlockedAt! > latest
+                ? current.unlockedAt!
+                : latest;
+            }, undefined as Date | undefined);
+        }
+      }
+
+      return this.createSuccessResult({ achievements, mostRecentUnlock });
     } catch (error) {
       return this.createErrorResult(
         `Failed to sync Steam achievements: ${
