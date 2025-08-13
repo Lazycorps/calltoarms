@@ -197,7 +197,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Mettre à jour la date de dernière synchronisation
+    // Mettre à jour la date de dernière synchronisation seulement en cas de succès
     await prisma.platformAccount.update({
       where: { id: platformAccount.id },
       data: { lastSync: new Date() },
@@ -215,13 +215,27 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     console.error("Erreur lors de la synchronisation Xbox:", error);
 
+    // Ne pas mettre à jour lastSync en cas d'erreur
+    let errorMessage = "Erreur lors de la synchronisation Xbox";
+    
+    if (error && typeof error === "object" && "statusMessage" in error) {
+      errorMessage = String(error.statusMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     if (error && typeof error === "object" && "statusCode" in error) {
-      throw error;
+      throw createError({
+        statusCode: error.statusCode as number,
+        statusMessage: errorMessage,
+        data: { platform: "Xbox", canRetry: true }
+      });
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erreur interne du serveur",
+      statusMessage: errorMessage,
+      data: { platform: "Xbox", canRetry: true }
     });
   }
 });

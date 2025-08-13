@@ -67,13 +67,15 @@
       </v-row>
 
       <v-row>
-        <v-col cols="12">
+        <v-col
+          v-if="friendNotifications && friendNotifications.length > 0"
+          cols="12"
+        >
           <ActivityCardSection
-            v-if="friendNotifications && friendNotifications.length > 0"
-            title="Activités récente"
+            title="Activités récentes"
             :item-count="friendNotifications.length"
             icon="mdi-bell"
-            empty-message="Aucun jeu récemment terminé"
+            empty-message="Aucune activitée récente"
           >
             <div class="notification-scroll-container">
               <div class="notification-scroll-content">
@@ -85,33 +87,6 @@
                 />
               </div>
             </div>
-          </ActivityCardSection>
-        </v-col>
-        <!-- Notifications de jeux d'amis -->
-
-        <!-- Mes jeux récemment terminés -->
-        <v-col cols="12">
-          <ActivityCardSection
-            v-if="Data.myActivity.recentlyCompleted.length > 0"
-            title="Vos derniers succès"
-            icon="mdi-trophy-variant"
-            :item-count="Data.myActivity.recentlyCompleted.length"
-            item-label="jeu"
-            item-label-plural="jeux"
-            empty-message="Aucun jeu récemment terminé"
-          >
-            <GameCard
-              v-for="game in Data.myActivity.recentlyCompleted"
-              :key="game.id"
-              :game="game"
-              :show-friend="false"
-              :show-completion-date="true"
-              :show-last-played="false"
-              :clickable="!!game.friendName"
-              class="flex-grow-1"
-              :style="`min-width: 280px; max-width: 350px;`"
-              @click="handleGameClick"
-            />
           </ActivityCardSection>
         </v-col>
 

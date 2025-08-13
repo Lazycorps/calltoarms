@@ -35,8 +35,7 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
     );
 
     const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const twoWeeksAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 90 jours au lieu de 14
+    const threeMonthAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 90 jours
 
     // Fonction de transformation DTO
     const transformGameToDTO = (game: any): PlatformGameCardDTO => ({
@@ -62,49 +61,11 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       friendSlug: game.platformAccount?.user?.slug || undefined,
     });
 
-    // Récupérer mes jeux récemment terminés (même si pas d'amis)
-    const myRecentlyCompleted = await prisma.platformGame.findMany({
-      where: {
-        platformAccount: {
-          userId: userId,
-        },
-        isCompleted: true,
-        lastPlayed: {
-          gt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // 30 jours
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        iconUrl: true,
-        coverUrl: true,
-        playtimeTotal: true,
-        lastPlayed: true,
-        isCompleted: true,
-        platformAccount: {
-          select: {
-            platform: true,
-            user: { select: { name: true, slug: true } },
-          },
-        },
-        _count: { select: { achievements: true } },
-        achievements: {
-          where: { isUnlocked: true },
-          select: { id: true },
-        },
-      },
-      orderBy: { lastPlayed: "desc" },
-      take: 5,
-    });
-
     if (friendIds.length === 0) {
       return {
         friendsActivity: {
           recentlyPlayed: [],
           recentlyCompleted: [],
-        },
-        myActivity: {
-          recentlyCompleted: myRecentlyCompleted.map(transformGameToDTO),
         },
         popularInCircle: {
           games: [],
@@ -128,7 +89,7 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           userId: { in: friendIds },
         },
         lastPlayed: {
-          gt: oneWeekAgo,
+          gt: threeMonthAgo,
         },
       },
       select: {
@@ -177,10 +138,9 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           userId: { in: friendIds },
         },
         isCompleted: true,
-        // Enlevons temporairement le filtre de date pour voir ce qui se passe
-        // lastPlayed: {
-        //   gt: twoWeeksAgo,
-        // },
+        lastPlayed: {
+          gt: threeMonthAgo,
+        },
       },
       select: {
         id: true,
@@ -313,7 +273,7 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           userId: { in: friendIds },
         },
         lastPlayed: {
-          gt: oneWeekAgo,
+          gt: threeMonthAgo,
         },
       },
       select: {
@@ -336,9 +296,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       friendsActivity: {
         recentlyPlayed: friendsRecentlyPlayed.map(transformGameToDTO),
         recentlyCompleted: friendsRecentlyCompleted.map(transformGameToDTO),
-      },
-      myActivity: {
-        recentlyCompleted: myRecentlyCompleted.map(transformGameToDTO),
       },
       popularInCircle: {
         games: popularGameDetails

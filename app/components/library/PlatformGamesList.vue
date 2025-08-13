@@ -132,6 +132,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
+import { useSnackbarStore } from "~/stores/snackbar";
 import type { GamingPlatform } from "@prisma/client";
 import GameDetailsDialog from "~/components/library/GameDetailsDialog.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
@@ -215,9 +216,18 @@ async function loadGames() {
 async function syncGames() {
   if (!props.accountId || !props.platform) return;
 
+  const snackbarStore = useSnackbarStore();
+  
   try {
     syncing.value = true;
-    await gamingPlatformsStore.syncPlatform(props.accountId, props.platform);
+    const result = await gamingPlatformsStore.syncPlatform(props.accountId, props.platform);
+    
+    if (result.success) {
+      snackbarStore.showSuccess(`Synchronisation ${props.platform} réussie`);
+      await loadGames(); // Recharger les jeux après synchronisation
+    } else {
+      snackbarStore.showError(result.error);
+    }
   } finally {
     syncing.value = false;
   }

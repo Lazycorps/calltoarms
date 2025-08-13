@@ -45,8 +45,45 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Filtrer les jeux selon la date de dernière synchronisation
+    let gamesToSync = syncResult.data;
+    
+    if (steamAccount.lastSync) {
+      console.log(`Synchronisation incrémentale Steam depuis ${steamAccount.lastSync.toISOString()}`);
+      
+      // Ne garder que les jeux joués après la dernière synchronisation
+      // Ajouter une marge de 1 heure pour couvrir les décalages
+      const syncThreshold = new Date(steamAccount.lastSync.getTime() - 60 * 60 * 1000);
+      
+      const originalCount = gamesToSync.length;
+      gamesToSync = syncResult.data.filter((game) => {
+        if (!game.lastPlayed) return false; // Ignorer les jeux jamais joués
+        const lastPlayedDate = new Date(game.lastPlayed);
+        return lastPlayedDate > syncThreshold;
+      });
+      
+      console.log(`Filtré ${gamesToSync.length} jeux modifiés sur ${originalCount} au total`);
+    } else {
+      console.log("Première synchronisation Steam, traitement de tous les jeux");
+    }
+
+    // Si aucun jeu n'a été joué depuis la dernière sync, terminer ici
+    if (gamesToSync.length === 0 && steamAccount.lastSync) {
+      await prisma.platformAccount.update({
+        where: { id: steamAccount.id },
+        data: { lastSync: new Date() },
+      });
+
+      return {
+        success: true,
+        syncedGames: 0,
+        syncedAchievements: 0,
+        message: "Aucun jeu Steam n'a été joué depuis la dernière synchronisation",
+      };
+    }
+
     // Mettre à jour ou créer les jeux dans la base de données
-    const gamePromises = syncResult.data.map(async (gameData) => {
+    const gamePromises = gamesToSync.map(async (gameData) => {
       const existingGame = await prisma.platformGame.findUnique({
         where: {
           platformAccountId_platformGameId: {
@@ -139,7 +176,7 @@ export default defineEventHandler(async (event) => {
       0
     );
 
-    // Mettre à jour la date de dernière synchronisation
+    // Mettre à jour la date de dernière synchronisation seulement en cas de succès
     await prisma.platformAccount.update({
       where: { id: steamAccount.id },
       data: { lastSync: new Date() },
@@ -154,13 +191,27 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     console.error("Erreur lors de la synchronisation Steam:", error);
 
+    // Ne pas mettre à jour lastSync en cas d'erreur
+    let errorMessage = "Erreur lors de la synchronisation Steam";
+    
+    if (error && typeof error === "object" && "statusMessage" in error) {
+      errorMessage = String(error.statusMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     if (error && typeof error === "object" && "statusCode" in error) {
-      throw error;
+      throw createError({
+        statusCode: error.statusCode as number,
+        statusMessage: errorMessage,
+        data: { platform: "Steam", canRetry: true }
+      });
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erreur interne du serveur",
+      statusMessage: errorMessage,
+      data: { platform: "Steam", canRetry: true }
     });
   }
 });

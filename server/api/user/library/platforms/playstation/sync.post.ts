@@ -86,17 +86,10 @@ export default defineEventHandler(async (event) => {
 
     // Déterminer la stratégie de synchronisation
     const lastSync = currentAccount.lastSync;
-    const isFullSync = true; //!lastSync;
-
-    console.log(
-      `Mode de synchronisation: ${
-        isFullSync ? "COMPLET" : "INCREMENTAL"
-      }, dernière sync: ${lastSync?.toISOString() || "jamais"}`
-    );
+    const isFullSync = !lastSync;
 
     // Synchroniser les jeux
     const syncResult = await playStationService.syncGames();
-    console.log(syncResult);
     if (!syncResult.success || !syncResult.data) {
       throw createError({
         statusCode: 500,
@@ -247,11 +240,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Synchroniser les trophées uniquement pour les jeux modifiés
-    console.log(
-      "Synchronisation des trophées pour",
-      gameIdMapping.size,
-      "jeux"
-    );
+    "Synchronisation des trophées pour", gameIdMapping.size, "jeux";
 
     const BATCH_SIZE = 20; // Réduit encore pour éviter la surcharge
     const gameEntries = Array.from(gameIdMapping.entries());
@@ -332,7 +321,6 @@ export default defineEventHandler(async (event) => {
 
       const batchResults = await Promise.all(batchPromises);
       allAchievements.push(...batchResults.flat());
-      console.log(allAchievements);
       // Pause entre les batches
       if (i + BATCH_SIZE < gameEntries.length) {
         await new Promise((resolve) => setTimeout(resolve, 200));
@@ -362,7 +350,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Mettre à jour la date de dernière synchronisation
+    // Mettre à jour la date de dernière synchronisation seulement en cas de succès
     await prisma.platformAccount.update({
       where: { id: currentAccount.id },
       data: { lastSync: new Date() },
@@ -384,13 +372,27 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     console.error("Erreur lors de la synchronisation PlayStation:", error);
 
+    // Ne pas mettre à jour lastSync en cas d'erreur
+    let errorMessage = "Erreur lors de la synchronisation PlayStation";
+
+    if (error && typeof error === "object" && "statusMessage" in error) {
+      errorMessage = String(error.statusMessage);
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     if (error && typeof error === "object" && "statusCode" in error) {
-      throw error;
+      throw createError({
+        statusCode: error.statusCode as number,
+        statusMessage: errorMessage,
+        data: { platform: "PlayStation", canRetry: true },
+      });
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erreur interne du serveur",
+      statusMessage: errorMessage,
+      data: { platform: "PlayStation", canRetry: true },
     });
   }
 });

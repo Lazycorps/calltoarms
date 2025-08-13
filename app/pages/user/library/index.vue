@@ -348,6 +348,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
+import { useSnackbarStore } from "~/stores/snackbar";
 import type { GamingPlatform } from "@prisma/client";
 
 // Composants
@@ -391,19 +392,39 @@ const {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
 
-const { status: recentlyPlayedGamesStatus, data: recentlyPlayedGames } =
-  await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyPlayed");
+const { 
+  status: recentlyPlayedGamesStatus, 
+  data: recentlyPlayedGames,
+  refresh: refreshRecentlyPlayedGames 
+} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyPlayed");
 
-const { status: recentlyCompletedGamesStatus, data: recentlyCompletedGames } =
-  await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyCompleted");
+const { 
+  status: recentlyCompletedGamesStatus, 
+  data: recentlyCompletedGames,
+  refresh: refreshRecentlyCompletedGames 
+} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyCompleted");
 
 async function syncPlatform(platform: {
   id: number;
   platform: GamingPlatform;
 }) {
+  const snackbarStore = useSnackbarStore();
+  
   try {
     syncingPlatforms.value.add(platform.id);
-    await gamingPlatformsStore.syncPlatform(platform.id, platform.platform);
+    const result = await gamingPlatformsStore.syncPlatform(platform.id, platform.platform);
+    
+    if (result.success) {
+      snackbarStore.showSuccess(`Synchronisation ${platform.platform} réussie`);
+      // Recharger les données après synchronisation réussie
+      await Promise.all([
+        refreshRecentlyPlayedGames(),
+        refreshRecentlyCompletedGames(),
+        refreshMostPlayedGames()
+      ]);
+    } else {
+      snackbarStore.showError(result.error);
+    }
   } finally {
     syncingPlatforms.value.delete(platform.id);
   }
@@ -430,6 +451,8 @@ watch(selectedPeriod, () => {
 
 // Lifecycle
 onMounted(() => {
+  // La synchronisation automatique est maintenant gérée par le plugin auto-sync
+  // On utilise init() classique ici pour éviter une double synchronisation
   gamingPlatformsStore.init();
 });
 

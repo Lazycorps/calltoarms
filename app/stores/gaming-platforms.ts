@@ -117,10 +117,22 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       if (response.success) {
         // Recharger les plateformes pour mettre à jour les statistiques
         await loadPlatforms();
-        return response.games;
+        return { success: true, data: response.games };
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur lors de la synchronisation:", err);
+
+      // Extraire les détails de l'erreur pour les retourner au composant
+      let errorMessage = `Erreur lors de la synchronisation ${platform}`;
+      let canRetry = true;
+
+      if (err?.data?.statusMessage) {
+        errorMessage = err.data.statusMessage;
+      } else if (err?.statusMessage) {
+        errorMessage = err.statusMessage;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
 
       // Si l'erreur est liée à l'authentification PlayStation, nettoyer les credentials
       if (
@@ -131,11 +143,18 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         err.status === 401
       ) {
         clearPlatformCredentials(platform);
-        error.value = "Session PlayStation expirée. Veuillez vous reconnecter.";
-      } else {
-        error.value = "Impossible de synchroniser la plateforme";
+        errorMessage = "Session PlayStation expirée. Veuillez vous reconnecter.";
+        canRetry = false;
       }
-      throw err;
+
+      // Retourner les détails de l'erreur au lieu de stocker dans le store
+      return { 
+        success: false, 
+        error: errorMessage, 
+        platform,
+        canRetry,
+        statusCode: err?.status || err?.statusCode || 500
+      };
     } finally {
       loading.value = false;
     }
@@ -238,10 +257,74 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     );
   }
 
+  // Synchroniser toutes les plateformes connectées
+  async function syncAllPlatforms() {
+    if (connectedPlatforms.value.length === 0) {
+      return { success: true, results: [] };
+    }
+
+    const syncResults = await Promise.allSettled(
+      connectedPlatforms.value.map(async (account) => {
+        try {
+          const result = await syncPlatform(account.id, account.platform);
+          return {
+            platform: account.platform,
+            accountId: account.id,
+            ...result
+          };
+        } catch (error) {
+          return {
+            platform: account.platform,
+            accountId: account.id,
+            success: false,
+            error: error instanceof Error ? error.message : "Erreur inconnue"
+          };
+        }
+      })
+    );
+
+    const results = syncResults.map((result, index) => {
+      const platform = connectedPlatforms.value[index];
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return {
+          platform: platform.platform,
+          accountId: platform.id,
+          success: false,
+          error: result.reason?.message || "Erreur de synchronisation"
+        };
+      }
+    });
+
+    const successCount = results.filter(r => r.success).length;
+    const errorCount = results.filter(r => !r.success).length;
+
+    return {
+      success: successCount > 0,
+      results,
+      summary: {
+        total: results.length,
+        success: successCount,
+        errors: errorCount
+      }
+    };
+  }
+
   // Initialisation
   async function init() {
     await loadPlatforms();
     if (connectedPlatforms.value.length > 0) {
+      await loadGames();
+    }
+  }
+
+  // Initialisation avec synchronisation automatique
+  async function initWithAutoSync() {
+    await loadPlatforms();
+    if (connectedPlatforms.value.length > 0) {
+      // Lancer la synchronisation de toutes les plateformes en arrière-plan
+      syncAllPlatforms().catch(console.error);
       await loadGames();
     }
   }
@@ -263,6 +346,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     loadPlatforms,
     connectPlatform,
     syncPlatform,
+    syncAllPlatforms,
     loadGames,
     loadAllGames,
     getGamesByPlatform,
@@ -270,5 +354,6 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     getPlatformAccount,
     clearPlatformCredentials,
     init,
+    initWithAutoSync,
   };
 });

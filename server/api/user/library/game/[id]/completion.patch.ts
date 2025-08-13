@@ -24,7 +24,6 @@ export default defineEventHandler(
 
       // Récupérer l'ID du jeu depuis l'URL
       const gameId = getRouterParam(event, "id");
-      console.log(gameId);
       if (!gameId) {
         throw createError({
           statusCode: 400,
@@ -57,7 +56,7 @@ export default defineEventHandler(
               isUnlocked: true,
             },
             orderBy: {
-              unlockedAt: 'desc',
+              unlockedAt: "desc",
             },
             take: 1,
           },
@@ -75,7 +74,7 @@ export default defineEventHandler(
       // - Date du dernier succès débloqué si disponible
       // - Sinon date de dernière session (lastPlayed)
       let completedDate = existingGame.lastPlayed;
-      
+
       if (existingGame.achievements.length > 0) {
         const latestAchievementDate = existingGame.achievements[0].unlockedAt;
         if (latestAchievementDate) {

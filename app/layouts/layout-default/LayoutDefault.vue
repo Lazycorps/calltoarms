@@ -6,6 +6,7 @@
       <default-bar />
       <default-view />
     </v-layout>
+    <GlobalSnackbar />
   </v-app>
 </template>
 
@@ -13,4 +14,5 @@
 import DefaultBar from "./LayoutAppBar.vue";
 import DefaultView from "./LayoutView.vue";
 import Navigation from "./LayoutNavigation.vue";
+import GlobalSnackbar from "~/components/common/GlobalSnackbar.vue";
 </script>
