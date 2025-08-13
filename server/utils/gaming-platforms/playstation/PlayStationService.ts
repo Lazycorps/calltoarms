@@ -218,7 +218,6 @@ export class PlayStationService {
             trophyError.message.includes("not found") ||
             trophyError.message.includes("no trophies"))
         ) {
-          console.log(`Game ${gameId} has no trophies or is not accessible`);
           return this.createSuccessResult([]);
         }
 

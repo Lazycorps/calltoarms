@@ -5,24 +5,15 @@ import type { activityDTO, PlatformGameCardDTO } from "~~/shared/types/library";
 
 export default defineEventHandler(async (event): Promise<activityDTO> => {
   try {
-    const config = useRuntimeConfig();
-    let userId: string;
-
-    // Mode développement avec bypass d'auth
-    if (config.devMode && config.devUserId) {
-      userId = config.devUserId;
-      console.log("🚀 Mode développement activé avec userId:", userId);
-    } else {
-      // Mode production avec authentification normale
-      const user = await serverSupabaseUser(event);
-      if (!user) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: "Authentification requise",
-        });
-      }
-      userId = user.id;
+    // Mode production avec authentification normale
+    const user = await serverSupabaseUser(event);
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: "Authentification requise",
+      });
     }
+    const userId = user.id;
 
     // Récupérer la liste des amis acceptés
     const friends = await prisma.friend.findMany({
@@ -164,9 +155,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       take: 10,
     });
 
-    // 2. Jeux récemment terminés par les amis
-    console.log("🔍 Recherche de jeux terminés par les amis:", friendIds);
-
     // D'abord, regardons tous les jeux terminés par les amis (sans filtre de date)
     const allCompletedByFriends = await prisma.platformGame.findMany({
       where: {
@@ -217,11 +205,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       orderBy: { lastPlayed: "desc" },
       take: 5,
     });
-
-    console.log(
-      "🎮 Jeux terminés trouvés par les amis:",
-      friendsRecentlyCompleted.length
-    );
 
     // 3. Jeux populaires dans le cercle d'amis
     const popularGames = await prisma.platformGame.groupBy({

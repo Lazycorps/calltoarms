@@ -193,7 +193,7 @@ export class XboxService {
   ): Promise<any | null> {
     try {
       const response = await fetch(
-        `https://title.xboxlive.com/users/xuid(${xuid})/titles/titlehistory/decoration/detail,image,scid`,
+        `https://titlehub.xboxlive.com/users/xuid(${xuid})/titles/titlehistory/decoration/detail,image,scid`,
         {
           method: "GET",
           headers: {
