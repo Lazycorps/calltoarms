@@ -55,10 +55,11 @@ export default defineNuxtConfig({
 
     microsoftClientSecret: process.env.MICROSOFT_CLIENT_SECRET,
     microsoftClientId: process.env.MICROSOFT_CLIENT_ID,
-    
+
+    epicClientId: process.env.EPIC_CLIENT_ID,
+    epicClientSecret: process.env.EPIC_CLIENT_SECRET,
     // Development mode configuration
-    devMode: process.env.NODE_ENV === 'development',
-    devUserId: process.env.DEV_USER_ID || null,
+    devMode: process.env.NODE_ENV === "development",
     public: {
       // Firebase Web SDK configuration (client-side)
       baseUrl: process.env.BASE_URL,

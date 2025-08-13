@@ -4,6 +4,8 @@ export interface UserProfile {
   displayName?: string;
   avatarUrl?: string;
   profileUrl?: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface GameData {

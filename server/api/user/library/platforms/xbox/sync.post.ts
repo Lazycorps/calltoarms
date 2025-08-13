@@ -1,3 +1,4 @@
+// server/api/user/library/platforms/xbox/sync.ts
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import { XboxService } from "@@/server/utils/gaming-platforms/xbox/XboxService";
@@ -217,7 +218,7 @@ export default defineEventHandler(async (event) => {
 
     // Ne pas mettre à jour lastSync en cas d'erreur
     let errorMessage = "Erreur lors de la synchronisation Xbox";
-    
+
     if (error && typeof error === "object" && "statusMessage" in error) {
       errorMessage = String(error.statusMessage);
     } else if (error instanceof Error) {
@@ -228,14 +229,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: error.statusCode as number,
         statusMessage: errorMessage,
-        data: { platform: "Xbox", canRetry: true }
+        data: { platform: "Xbox", canRetry: true },
       });
     }
 
     throw createError({
       statusCode: 500,
       statusMessage: errorMessage,
-      data: { platform: "Xbox", canRetry: true }
+      data: { platform: "Xbox", canRetry: true },
     });
   }
 });

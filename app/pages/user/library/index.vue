@@ -294,6 +294,10 @@
               <v-icon class="me-2">mdi-microsoft-xbox</v-icon>
               Xbox
             </v-tab>
+            <v-tab value="epic">
+              <v-icon class="me-2">mdi-gamepad-variant</v-icon>
+              Epic Games
+            </v-tab>
           </v-tabs>
 
           <v-tabs-window v-model="selectedPlatformTab">
@@ -305,6 +309,9 @@
             </v-tabs-window-item>
             <v-tabs-window-item value="xbox">
               <XboxConnector @connected="onPlatformConnected" />
+            </v-tabs-window-item>
+            <v-tabs-window-item value="epic">
+              <EpicConnector :on-success="onPlatformConnected" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card-text>
@@ -355,6 +362,7 @@ import type { GamingPlatform } from "@prisma/client";
 import SteamConnector from "~/components/library/SteamConnector.vue";
 import PlayStationConnector from "~/components/library/PlayStationConnector.vue";
 import XboxConnector from "~/components/library/XboxConnector.vue";
+import EpicConnector from "~/components/library/EpicConnector.vue";
 import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
 import type { PlatformGameCardDTO } from "~~/shared/types/library";

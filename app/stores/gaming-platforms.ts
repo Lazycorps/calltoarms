@@ -26,6 +26,19 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
+  // Helper pour mapper les noms de plateformes aux URLs d'API
+  function getPlatformUrlSegment(platform: GamingPlatform): string {
+    const mapping: Record<GamingPlatform, string> = {
+      STEAM: "steam",
+      PLAYSTATION: "playstation", 
+      XBOX: "xbox",
+      NINTENDO: "nintendo",
+      EPIC_GAMES: "epic",
+      GOG: "gog"
+    };
+    return mapping[platform] || platform.toLowerCase();
+  }
+
   // Computed
   const gamesByPlatform = computed(() => {
     const grouped: Record<GamingPlatform, PlatformGameWithAccount[]> =
@@ -81,7 +94,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       const response = await $fetch<{
         success: boolean;
         account: PlatformAccount;
-      }>(`/api/user/library/platforms/${platform.toLowerCase()}/auth`, {
+      }>(`/api/user/library/platforms/${getPlatformUrlSegment(platform)}/auth`, {
         method: "POST",
         body: credentials,
       });
@@ -109,7 +122,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         success: boolean;
         gamesCount: number;
         games: PlatformGame[];
-      }>(`/api/user/library/platforms/${platform.toLowerCase()}/sync`, {
+      }>(`/api/user/library/platforms/${getPlatformUrlSegment(platform)}/sync`, {
         method: "POST",
         body: { accountId },
       });
