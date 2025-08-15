@@ -36,8 +36,8 @@
 
       <v-card-text>
         <!-- Statistiques générales -->
-        <v-row class="mt-4 mb-6">
-          <v-col cols="6" sm="3">
+        <v-row class="mt-4 mb-6 justify-center">
+          <v-col v-if="gameDetails.game.playtimeTotal" cols="6" sm="3">
             <div class="text-center">
               <v-icon size="32" color="primary" class="mb-1">mdi-clock</v-icon>
               <div class="text-h6">
@@ -423,8 +423,9 @@ async function toggleCompletion() {
     if (response.success && response.data) {
       // Mettre à jour les données locales
       gameDetails.value.game.isCompleted = response.data.game.isCompleted;
-      gameDetails.value.game.completedAt =
-        response.data.game.completedAt || null;
+      gameDetails.value.game.completedAt = response.data.game.completedAt
+        ? new Date(response.data.game.completedAt)
+        : undefined;
     }
   } catch (error) {
     console.error(

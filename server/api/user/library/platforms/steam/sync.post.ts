@@ -47,32 +47,40 @@ export default defineEventHandler(async (event) => {
 
     // Filtrer les jeux selon la date de dernière synchronisation
     let gamesToSync = syncResult.data;
-    
+
     if (steamAccount.lastSync) {
-      console.log(`Synchronisation incrémentale Steam depuis ${steamAccount.lastSync.toISOString()}`);
-      
+      console.log(
+        `Synchronisation incrémentale Steam depuis ${steamAccount.lastSync.toISOString()}`
+      );
+
       // Ne garder que les jeux joués après la dernière synchronisation
       // Ajouter une marge de 1 heure pour couvrir les décalages
-      const syncThreshold = new Date(steamAccount.lastSync.getTime() - 60 * 60 * 1000);
-      
+      const syncThreshold = new Date(
+        steamAccount.lastSync.getTime() - 60 * 60 * 1000
+      );
+
       const originalCount = gamesToSync.length;
       gamesToSync = syncResult.data.filter((game) => {
         // Inclure les jeux avec lastPlayed récent
         if (game.lastPlayed && new Date(game.lastPlayed) > syncThreshold) {
           return true;
         }
-        
+
         // Inclure les jeux joués dans les 2 dernières semaines (même sans lastPlayed)
         if (game.playtimeRecent && game.playtimeRecent > 0) {
           return true;
         }
-        
+
         return false;
       });
-      
-      console.log(`Filtré ${gamesToSync.length} jeux modifiés sur ${originalCount} au total`);
+
+      console.log(
+        `Filtré ${gamesToSync.length} jeux modifiés sur ${originalCount} au total`
+      );
     } else {
-      console.log("Première synchronisation Steam, traitement de tous les jeux");
+      console.log(
+        "Première synchronisation Steam, traitement de tous les jeux"
+      );
     }
 
     // Si aucun jeu n'a été joué depuis la dernière sync ET que ce n'est pas la première sync, terminer ici
@@ -86,7 +94,8 @@ export default defineEventHandler(async (event) => {
         success: true,
         syncedGames: 0,
         syncedAchievements: 0,
-        message: "Aucun jeu Steam n'a été joué depuis la dernière synchronisation",
+        message:
+          "Aucun jeu Steam n'a été joué depuis la dernière synchronisation",
       };
     }
 
@@ -100,6 +109,15 @@ export default defineEventHandler(async (event) => {
           },
         },
       });
+
+      if (
+        !gameData.lastPlayed &&
+        gameData.playtimeRecent &&
+        gameData.playtimeRecent > 0
+      ) {
+        // Si pas de lastPlayed mais que le jeu a été joué dans les 2 dernières semaines
+        gameData.lastPlayed = new Date();
+      }
 
       if (existingGame) {
         // Mettre à jour le jeu existant
@@ -144,7 +162,7 @@ export default defineEventHandler(async (event) => {
           where: { platformGameId: game.id },
           select: { achievementId: true, isUnlocked: true },
         });
-        
+
         const existingUnlockedSet = new Set(
           existingAchievements
             .filter((ach) => ach.isUnlocked)
@@ -159,9 +177,9 @@ export default defineEventHandler(async (event) => {
 
         if (achievementsResult.success && achievementsResult.data) {
           const { achievements, mostRecentUnlock } = achievementsResult.data;
-          
+
           // Mettre à jour lastPlayed du jeu si de nouveaux succès ont été débloqués
-          if (mostRecentUnlock && (!game.lastPlayed || mostRecentUnlock > game.lastPlayed)) {
+          if (mostRecentUnlock && !game.lastPlayed) {
             await prisma.platformGame.update({
               where: { id: game.id },
               data: { lastPlayed: mostRecentUnlock },
@@ -189,7 +207,11 @@ export default defineEventHandler(async (event) => {
               })),
             });
           }
-          return { gameId: game.id, count: achievements.length, hasNewUnlocks: !!mostRecentUnlock };
+          return {
+            gameId: game.id,
+            count: achievements.length,
+            hasNewUnlocks: !!mostRecentUnlock,
+          };
         }
         return { gameId: game.id, count: 0, hasNewUnlocks: false };
       } catch (error) {
@@ -224,7 +246,7 @@ export default defineEventHandler(async (event) => {
 
     // Ne pas mettre à jour lastSync en cas d'erreur
     let errorMessage = "Erreur lors de la synchronisation Steam";
-    
+
     if (error && typeof error === "object" && "statusMessage" in error) {
       errorMessage = String(error.statusMessage);
     } else if (error instanceof Error) {
@@ -235,14 +257,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: error.statusCode as number,
         statusMessage: errorMessage,
-        data: { platform: "Steam", canRetry: true }
+        data: { platform: "Steam", canRetry: true },
       });
     }
 
     throw createError({
       statusCode: 500,
       statusMessage: errorMessage,
-      data: { platform: "Steam", canRetry: true }
+      data: { platform: "Steam", canRetry: true },
     });
   }
 });

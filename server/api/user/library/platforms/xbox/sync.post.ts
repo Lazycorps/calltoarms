@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
     const games = gamesResult.data || [];
     let syncedGamesCount = 0;
     let syncedAchievementsCount = 0;
-
+    let syncError = false;
     // Traiter chaque jeu
     for (const gameData of games) {
       try {
@@ -185,6 +185,7 @@ export default defineEventHandler(async (event) => {
                 `Erreur lors de la synchronisation du succès ${achievementData.achievementId}:`,
                 achievementError
               );
+              syncError = true;
               // Continuer avec les autres succès
             }
           }
@@ -194,11 +195,20 @@ export default defineEventHandler(async (event) => {
           `Erreur lors de la synchronisation du jeu ${gameData.platformGameId}:`,
           gameError
         );
+        syncError = true;
         // Continuer avec les autres jeux
       }
     }
 
     // Mettre à jour la date de dernière synchronisation seulement en cas de succès
+    if (syncError)
+      throw createError({
+        statusCode: 500,
+        statusMessage:
+          gamesResult.error ||
+          "Erreur lors de la synchronisation des jeux Xbox",
+      });
+
     await prisma.platformAccount.update({
       where: { id: platformAccount.id },
       data: { lastSync: new Date() },

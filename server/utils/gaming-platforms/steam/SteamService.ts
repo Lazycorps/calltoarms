@@ -92,16 +92,10 @@ export class SteamService {
         return this.createSuccessResult([]);
       }
 
-      const syncDate = new Date();
       const games: GameData[] = data.response.games.map((game: SteamGame) => {
-        let lastPlayed = game.rtime_last_played
+        const lastPlayed = game.rtime_last_played
           ? new Date(game.rtime_last_played * 1000)
           : undefined;
-
-        // Si pas de lastPlayed mais que le jeu a été joué dans les 2 dernières semaines
-        if (!lastPlayed && game.playtime_2weeks && game.playtime_2weeks > 0) {
-          lastPlayed = syncDate;
-        }
 
         return {
           platformGameId: game.appid.toString(),

@@ -44,9 +44,9 @@ export class XboxService {
           account.lastSync &&
           (!title.titleHistory.lastTimePlayed ||
             new Date(title.titleHistory.lastTimePlayed) < account.lastSync);
-        if (isntPlayedSinceLastSyncro) continue;
+
         const skipNonXboxGame = title.devices[0] == "Win32";
-        if (skipNonXboxGame) continue;
+        if (isntPlayedSinceLastSyncro || skipNonXboxGame) continue;
         const gameStats = await this.fetchGameStats(
           account.platformId,
           title.serviceConfigId,
@@ -140,51 +140,53 @@ export class XboxService {
   }
 
   // Méthodes privées pour les appels API Xbox Live
-  private async fetchUserProfile(
-    xstsToken: string,
-    userHash: string
-  ): Promise<any | null> {
-    try {
-      const response = await fetch(
-        `https://profile.xboxlive.com/users/me/profile/settings?settings=GameDisplayName,AppDisplayName,AppDisplayPicRaw,Gamerscore,Gamertag,PublicGamerpic,XboxOneRep,PreferredColor,RealName,Bio,Location`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-xbl-contract-version": "3",
-            Authorization: `XBL3.0 x=${userHash};${xstsToken}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Failed to fetch Xbox profile:", errorText);
-        return null;
-      }
+  // private async fetchUserProfile(
+  //   xstsToken: string,
+  //   userHash: string
+  // ): Promise<any | null> {
+  //   try {
+  //     const config = useRuntimeConfig();
+  //     const response = await fetch(
+  //       `https://profile.xboxlive.com/users/me/profile/settings?settings=GameDisplayName,AppDisplayName,AppDisplayPicRaw,Gamerscore,Gamertag,PublicGamerpic,XboxOneRep,PreferredColor,RealName,Bio,Location`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           "x-xbl-contract-version": "3",
+  //           Authorization: `XBL3.0 x=${userHash};${xstsToken}`,
+  //           Origin: config.baseUrl,
+  //         },
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       const errorText = await response.text();
+  //       console.error("Failed to fetch Xbox profile:", errorText);
+  //       return null;
+  //     }
 
-      const data = await response.json();
-      const profileUser = data.profileUsers[0];
+  //     const data = await response.json();
+  //     const profileUser = data.profileUsers[0];
 
-      // Transformer les données du profil Xbox en format utilisable
-      const settings = profileUser.settings.reduce((acc: any, setting: any) => {
-        acc[setting.id] = setting.value;
-        return acc;
-      }, {});
-      return {
-        xuid: profileUser.id,
-        gamertag: settings.Gamertag,
-        displayName: settings.GameDisplayName || settings.Gamertag,
-        displayPicRaw: settings.PublicGamerpic,
-        gamerscore: settings.Gamerscore,
-        realName: settings.RealName,
-        bio: settings.Bio,
-        location: settings.Location,
-      };
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      return null;
-    }
-  }
+  //     // Transformer les données du profil Xbox en format utilisable
+  //     const settings = profileUser.settings.reduce((acc: any, setting: any) => {
+  //       acc[setting.id] = setting.value;
+  //       return acc;
+  //     }, {});
+  //     return {
+  //       xuid: profileUser.id,
+  //       gamertag: settings.Gamertag,
+  //       displayName: settings.GameDisplayName || settings.Gamertag,
+  //       displayPicRaw: settings.PublicGamerpic,
+  //       gamerscore: settings.Gamerscore,
+  //       realName: settings.RealName,
+  //       bio: settings.Bio,
+  //       location: settings.Location,
+  //     };
+  //   } catch (error) {
+  //     console.error("Failed to fetch user profile:", error);
+  //     return null;
+  //   }
+  // }
 
   private async fetchTitleHistory(
     xuid: string,
@@ -224,6 +226,8 @@ export class XboxService {
     xstsToken: string,
     userHash: string
   ): Promise<any | null> {
+    const config = useRuntimeConfig();
+
     try {
       const response = await fetch(
         `https://userstats.xboxlive.com/users/xuid(${xuid})/scids/${scid}/stats/wins,kills,kdratio,headshots,playtime,minutesPlayed,gameTime,timePlayed`,
@@ -234,6 +238,7 @@ export class XboxService {
             "x-xbl-contract-version": "2",
             "Accept-Language": "fr-FR",
             Authorization: `XBL3.0 x=${userHash};${xstsToken}`,
+            Origin: config.baseUrl,
           },
         }
       );
@@ -257,6 +262,8 @@ export class XboxService {
     userHash: string
   ): Promise<any | null> {
     try {
+      const config = useRuntimeConfig();
+
       const response = await fetch(
         `https://achievements.xboxlive.com/users/xuid(${xuid})/achievements?titleId=${titleId}&maxItems=1000`,
         {
@@ -266,6 +273,7 @@ export class XboxService {
             "x-xbl-contract-version": "2",
             "Accept-Language": "fr-FR",
             Authorization: `XBL3.0 x=${userHash};${xstsToken}`,
+            Origin: config.baseUrl,
           },
         }
       );
@@ -412,6 +420,7 @@ export class XboxService {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Origin: config.baseUrl,
           },
           body: {
             RelyingParty: "http://auth.xboxlive.com",
@@ -436,6 +445,7 @@ export class XboxService {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Origin: config.baseUrl,
           },
           body: {
             RelyingParty: "http://xboxlive.com",
