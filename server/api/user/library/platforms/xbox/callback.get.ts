@@ -224,7 +224,7 @@ export default defineEventHandler(async (event) => {
       accessToken: xstsToken,
       refreshToken: tokenResponse.refresh_token,
       isActive: true,
-      lastSync: new Date(),
+      lastSync: null,
       metadata: {
         userHash,
         xuid,

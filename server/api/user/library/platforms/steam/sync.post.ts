@@ -99,63 +99,82 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    // Mettre à jour ou créer les jeux dans la base de données
-    const gamePromises = gamesToSync.map(async (gameData) => {
-      const existingGame = await prisma.platformGame.findUnique({
-        where: {
-          platformAccountId_platformGameId: {
-            platformAccountId: steamAccount.id,
-            platformGameId: gameData.platformGameId,
-          },
-        },
-      });
-
-      if (
-        !gameData.lastPlayed &&
-        gameData.playtimeRecent &&
-        gameData.playtimeRecent > 0
-      ) {
-        // Si pas de lastPlayed mais que le jeu a été joué dans les 2 dernières semaines
-        gameData.lastPlayed = new Date();
-      }
-
-      if (existingGame) {
-        // Mettre à jour le jeu existant
-        return prisma.platformGame.update({
-          where: { id: existingGame.id },
-          data: {
-            name: gameData.name,
-            playtimeTotal: gameData.playtimeTotal,
-            playtimeRecent: gameData.playtimeRecent,
-            lastPlayed: gameData.lastPlayed,
-            iconUrl: gameData.iconUrl,
-            coverUrl: gameData.coverUrl,
-            isInstalled: gameData.isInstalled,
+    // Mettre à jour ou créer les jeux dans la base de données de façon séquentielle
+    console.log("Synchronisation de", gamesToSync.length, "jeux");
+    
+    const games = [];
+    
+    for (let i = 0; i < gamesToSync.length; i++) {
+      const gameData = gamesToSync[i];
+      console.log(`Synchronisation du jeu ${gameData.name} (${i + 1}/${gamesToSync.length})`);
+      
+      try {
+        const existingGame = await prisma.platformGame.findUnique({
+          where: {
+            platformAccountId_platformGameId: {
+              platformAccountId: steamAccount.id,
+              platformGameId: gameData.platformGameId,
+            },
           },
         });
-      } else {
-        // Créer un nouveau jeu
-        return prisma.platformGame.create({
-          data: {
-            platformAccountId: steamAccount.id,
-            platformGameId: gameData.platformGameId,
-            name: gameData.name,
-            playtimeTotal: gameData.playtimeTotal,
-            playtimeRecent: gameData.playtimeRecent,
-            lastPlayed: gameData.lastPlayed,
-            iconUrl: gameData.iconUrl,
-            coverUrl: gameData.coverUrl,
-            isInstalled: gameData.isInstalled,
-          },
-        });
+
+        if (
+          !gameData.lastPlayed &&
+          gameData.playtimeRecent &&
+          gameData.playtimeRecent > 0
+        ) {
+          // Si pas de lastPlayed mais que le jeu a été joué dans les 2 dernières semaines
+          gameData.lastPlayed = new Date();
+        }
+
+        let game;
+        if (existingGame) {
+          // Mettre à jour le jeu existant
+          game = await prisma.platformGame.update({
+            where: { id: existingGame.id },
+            data: {
+              name: gameData.name,
+              playtimeTotal: gameData.playtimeTotal,
+              playtimeRecent: gameData.playtimeRecent,
+              lastPlayed: gameData.lastPlayed,
+              iconUrl: gameData.iconUrl,
+              coverUrl: gameData.coverUrl,
+              isInstalled: gameData.isInstalled,
+            },
+          });
+        } else {
+          // Créer un nouveau jeu
+          game = await prisma.platformGame.create({
+            data: {
+              platformAccountId: steamAccount.id,
+              platformGameId: gameData.platformGameId,
+              name: gameData.name,
+              playtimeTotal: gameData.playtimeTotal,
+              playtimeRecent: gameData.playtimeRecent,
+              lastPlayed: gameData.lastPlayed,
+              iconUrl: gameData.iconUrl,
+              coverUrl: gameData.coverUrl,
+              isInstalled: gameData.isInstalled,
+            },
+          });
+        }
+        
+        games.push(game);
+      } catch (error) {
+        console.error(`Erreur lors de la synchronisation du jeu ${gameData.name}:`, error);
+        // Continuer avec les autres jeux même en cas d'erreur
       }
-    });
+    }
 
-    const games = await Promise.all(gamePromises);
-
-    // Synchroniser les succès pour chaque jeu
+    // Synchroniser les succès pour chaque jeu de façon séquentielle
     console.log("Synchronisation des succès pour", games.length, "jeux");
-    const achievementPromises = games.map(async (game) => {
+    
+    const achievementResults = [];
+    
+    for (let i = 0; i < games.length; i++) {
+      const game = games[i];
+      console.log(`Synchronisation des succès pour ${game.name} (${i + 1}/${games.length})`);
+      
       try {
         // Récupérer les succès existants
         const existingAchievements = await prisma.platformAchievement.findMany({
@@ -207,23 +226,35 @@ export default defineEventHandler(async (event) => {
               })),
             });
           }
-          return {
+          
+          achievementResults.push({
             gameId: game.id,
+            gameName: game.name,
             count: achievements.length,
             hasNewUnlocks: !!mostRecentUnlock,
-          };
+          });
+        } else {
+          achievementResults.push({ 
+            gameId: game.id, 
+            gameName: game.name, 
+            count: 0, 
+            hasNewUnlocks: false 
+          });
         }
-        return { gameId: game.id, count: 0, hasNewUnlocks: false };
       } catch (error) {
         console.error(
           `Erreur lors de la synchronisation des succès pour ${game.name}:`,
           error
         );
-        return { gameId: game.id, count: 0, error: true, hasNewUnlocks: false };
+        achievementResults.push({ 
+          gameId: game.id, 
+          gameName: game.name, 
+          count: 0, 
+          error: true, 
+          hasNewUnlocks: false 
+        });
       }
-    });
-
-    const achievementResults = await Promise.all(achievementPromises);
+    }
     const totalAchievements = achievementResults.reduce(
       (sum, result) => sum + result.count,
       0

@@ -67,7 +67,6 @@ export default defineEventHandler(async (event) => {
           profileUrl: authResult.data.profileUrl,
           accessToken: body.npsso, // Stocker le NPSSO pour réutilisation
           isActive: true,
-          lastSync: new Date(),
         },
       });
     } else {
@@ -83,7 +82,7 @@ export default defineEventHandler(async (event) => {
           profileUrl: authResult.data.profileUrl,
           accessToken: body.npsso, // Stocker le NPSSO pour réutilisation
           isActive: true,
-          lastSync: new Date(),
+          lastSync: null,
         },
       });
     }

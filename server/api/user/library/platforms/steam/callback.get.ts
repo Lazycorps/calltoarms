@@ -108,7 +108,6 @@ export default defineEventHandler(async (event) => {
           avatarUrl: authResult.data.avatarUrl,
           profileUrl: authResult.data.profileUrl,
           isActive: true,
-          lastSync: new Date(),
         },
       });
     } else {
@@ -123,7 +122,7 @@ export default defineEventHandler(async (event) => {
           avatarUrl: authResult.data.avatarUrl,
           profileUrl: authResult.data.profileUrl,
           isActive: true,
-          lastSync: new Date(),
+          lastSync: null,
         },
       });
     }

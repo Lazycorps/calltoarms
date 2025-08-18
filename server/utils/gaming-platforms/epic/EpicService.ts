@@ -55,7 +55,7 @@ export class EpicService {
 
         // Epic Games inclut l'account ID dans la réponse du token
         const accountId = tokenResult.data.account_id;
-        
+
         if (!accountId) {
           return this.createErrorResult(
             "Epic Games token response missing account_id"
@@ -67,10 +67,18 @@ export class EpicService {
         let displayName = tokenResult.data.displayName || accountId;
 
         // Essayer de récupérer plus d'infos du profil si possible
-        const profileResult = await this.fetchUserProfile(tokenResult.data.access_token);
+        const profileResult = await this.fetchUserProfile(
+          tokenResult.data.access_token
+        );
         if (profileResult.success && profileResult.data) {
-          username = profileResult.data.displayName || profileResult.data.name || username;
-          displayName = profileResult.data.displayName || profileResult.data.name || displayName;
+          username =
+            profileResult.data.displayName ||
+            profileResult.data.name ||
+            username;
+          displayName =
+            profileResult.data.displayName ||
+            profileResult.data.name ||
+            displayName;
         }
 
         const profile: UserProfile = {
@@ -125,19 +133,21 @@ export class EpicService {
       }
 
       const epicCredentials = credentials as unknown as EpicCredentials;
-      
+
       // Si on a un code d'autorisation, l'échanger contre un token
       if (epicCredentials.code) {
-        const tokenResult = await this.exchangeCodeForToken(epicCredentials.code);
+        const tokenResult = await this.exchangeCodeForToken(
+          epicCredentials.code
+        );
         if (!tokenResult.success || !tokenResult.data) {
           return this.createErrorResult(
             tokenResult.error || "Failed to exchange authorization code"
           );
         }
-        
+
         // Epic Games inclut l'account ID dans la réponse du token
         const accountId = tokenResult.data.account_id;
-        
+
         if (!accountId) {
           return this.createErrorResult(
             "Epic Games token response missing account_id"
@@ -149,17 +159,25 @@ export class EpicService {
           access_token: tokenResult.data.access_token ? "PRESENT" : "MISSING",
           refresh_token: tokenResult.data.refresh_token ? "PRESENT" : "MISSING",
           displayName: tokenResult.data.displayName,
-          expires_in: tokenResult.data.expires_in
+          expires_in: tokenResult.data.expires_in,
         });
 
         // Essayer de récupérer le profil, mais ne pas échouer si cela ne fonctionne pas
         let username = tokenResult.data.displayName || accountId;
         let displayName = tokenResult.data.displayName || accountId;
 
-        const profileResult = await this.fetchUserProfile(tokenResult.data.access_token);
+        const profileResult = await this.fetchUserProfile(
+          tokenResult.data.access_token
+        );
         if (profileResult.success && profileResult.data) {
-          username = profileResult.data.displayName || profileResult.data.name || username;
-          displayName = profileResult.data.displayName || profileResult.data.name || displayName;
+          username =
+            profileResult.data.displayName ||
+            profileResult.data.name ||
+            username;
+          displayName =
+            profileResult.data.displayName ||
+            profileResult.data.name ||
+            displayName;
         }
 
         const authResult: EpicAuthResult = {
@@ -176,7 +194,7 @@ export class EpicService {
           platformId: authResult.platformId,
           username: authResult.username,
           has_access_token: !!authResult.accessToken,
-          has_refresh_token: !!authResult.refreshToken
+          has_refresh_token: !!authResult.refreshToken,
         });
 
         return this.createSuccessResult(authResult);
@@ -257,7 +275,9 @@ export class EpicService {
       });
 
       if (!response.ok) {
-        console.warn(`Epic Games entitlements API error: ${response.status} ${response.statusText}`);
+        console.warn(
+          `Epic Games entitlements API error: ${response.status} ${response.statusText}`
+        );
         // Fallback vers l'API alternative si la première ne fonctionne pas
         return await this.syncGamesAlternative(account);
       }
@@ -272,11 +292,14 @@ export class EpicService {
       const games: GameData[] = await Promise.all(
         libraryData.records.map(async (item: EpicLibraryItem) => {
           // Récupérer les détails du jeu pour avoir les images
-          const gameDetails = await this.getGameDetails(item.catalogItemId, account.accessToken!);
-          
+          const gameDetails = await this.getGameDetails(
+            item.catalogItemId,
+            account.accessToken!
+          );
+
           // Convertir le temps de jeu (Epic fournit en minutes)
           const playtimeTotal = item.totalPlayTime || 0;
-          
+
           // Déterminer lastPlayed
           let lastPlayed: Date | undefined;
           if (item.lastPlayedTime) {
@@ -294,7 +317,9 @@ export class EpicService {
             lastPlayed,
             iconUrl: gameDetails?.iconUrl,
             coverUrl: gameDetails?.coverUrl,
-            isInstalled: item.installStatus === "Installed" || item.isCompleteInstall === true,
+            isInstalled:
+              item.installStatus === "Installed" ||
+              item.isCompleteInstall === true,
           };
         })
       );
@@ -309,15 +334,21 @@ export class EpicService {
     }
   }
 
-  private async syncGamesAlternative(account: PlatformAccount): Promise<SyncResult<GameData[]>> {
+  private async syncGamesAlternative(
+    account: PlatformAccount
+  ): Promise<SyncResult<GameData[]>> {
     try {
-      console.warn("Epic Games library API not available - Epic Games requires special permissions for library access");
-      console.warn("Your Epic Games developer application may need additional approvals to access user libraries");
-      
+      console.warn(
+        "Epic Games library API not available - Epic Games requires special permissions for library access"
+      );
+      console.warn(
+        "Your Epic Games developer application may need additional approvals to access user libraries"
+      );
+
       // Pour l'instant, retourner une liste vide avec un message informatif
       // L'utilisateur pourra toujours s'authentifier mais n'aura pas de synchronisation de jeux
       return this.createSuccessResult([]);
-      
+
       /*
       // Code pour quand l'API sera disponible avec les bonnes permissions
       const libraryUrl = `https://api.epicgames.dev/epic/ecom/v1/platforms/EPIC/identities/${account.platformId}/ownership`;
@@ -347,13 +378,16 @@ export class EpicService {
     }
   }
 
-  private async getGameDetails(catalogItemId: string, accessToken: string): Promise<{name?: string, iconUrl?: string, coverUrl?: string} | null> {
+  private async getGameDetails(
+    catalogItemId: string,
+    accessToken: string
+  ): Promise<{ name?: string; iconUrl?: string; coverUrl?: string } | null> {
     try {
       const detailsUrl = `${this.baseUrl}/epic/catalog/v1/items/${catalogItemId}`;
-      
+
       const response = await fetch(detailsUrl, {
         headers: {
-          "Authorization": `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -363,19 +397,21 @@ export class EpicService {
       }
 
       const gameData = await response.json();
-      
+
       let iconUrl: string | undefined;
       let coverUrl: string | undefined;
-      
+
       // Extraire les images des keyImages
       if (gameData.keyImages && Array.isArray(gameData.keyImages)) {
-        const iconImage = gameData.keyImages.find((img: any) => 
-          img.type === "Thumbnail" || img.type === "OfferImageWide"
+        const iconImage = gameData.keyImages.find(
+          (img: any) =>
+            img.type === "Thumbnail" || img.type === "OfferImageWide"
         );
-        const coverImage = gameData.keyImages.find((img: any) => 
-          img.type === "DieselStoreFrontWide" || img.type === "OfferImageWide"
+        const coverImage = gameData.keyImages.find(
+          (img: any) =>
+            img.type === "DieselStoreFrontWide" || img.type === "OfferImageWide"
         );
-        
+
         iconUrl = iconImage?.url;
         coverUrl = coverImage?.url;
       }
@@ -383,7 +419,7 @@ export class EpicService {
       return {
         name: gameData.title,
         iconUrl,
-        coverUrl
+        coverUrl,
       };
     } catch (error) {
       console.warn(`Failed to fetch game details for ${catalogItemId}:`, error);
@@ -405,22 +441,29 @@ export class EpicService {
 
       // Récupérer les achievements du jeu avec l'API Epic Games
       const achievementsUrl = `${this.baseUrl}/epic/achievements/v1/platforms/epic/sandbox/${gameId}/accounts/${account.platformId}/achievements`;
-      
+
       const response = await fetch(achievementsUrl, {
         headers: {
-          "Authorization": `Bearer ${account.accessToken}`,
+          Authorization: `Bearer ${account.accessToken}`,
           "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         // Si l'API ne fonctionne pas, essayer l'API alternative
-        return await this.syncAchievementsAlternative(account, gameId, existingAchievements);
+        return await this.syncAchievementsAlternative(
+          account,
+          gameId,
+          existingAchievements
+        );
       }
 
       const achievementsData: EpicAchievementsResponse = await response.json();
 
-      if (!achievementsData.playerAchievements || achievementsData.playerAchievements.length === 0) {
+      if (
+        !achievementsData.playerAchievements ||
+        achievementsData.playerAchievements.length === 0
+      ) {
         return this.createSuccessResult({
           achievements: [],
           mostRecentUnlock: undefined,
@@ -428,37 +471,43 @@ export class EpicService {
       }
 
       // Mapper les achievements Epic Games vers notre format
-      const achievements: AchievementData[] = achievementsData.playerAchievements.map((epicAch: EpicAchievement) => {
-        const isUnlocked = !!epicAch.progress?.playerAward;
-        const unlockedAt = isUnlocked && epicAch.progress.playerAward.awardedAt 
-          ? new Date(epicAch.progress.playerAward.awardedAt)
-          : undefined;
+      const achievements: AchievementData[] =
+        achievementsData.playerAchievements.map((epicAch: EpicAchievement) => {
+          const isUnlocked = !!epicAch.progress?.playerAward;
+          const unlockedAt =
+            isUnlocked && epicAch.progress.playerAward.awardedAt
+              ? new Date(epicAch.progress.playerAward.awardedAt)
+              : undefined;
 
-        return {
-          achievementId: epicAch.achievementName,
-          name: epicAch.achievementName.replace(/([A-Z])/g, ' $1').trim(), // Convertir camelCase en phrase
-          description: undefined, // Epic ne fournit pas de description dans cette API
-          iconUrl: undefined, // Nécessiterait une requête supplémentaire
-          isUnlocked,
-          unlockedAt,
-          rarity: undefined,
-          points: epicAch.XP || undefined,
-        };
-      });
+          return {
+            achievementId: epicAch.achievementName,
+            name: epicAch.achievementName.replace(/([A-Z])/g, " $1").trim(), // Convertir camelCase en phrase
+            description: undefined, // Epic ne fournit pas de description dans cette API
+            iconUrl: undefined, // Nécessiterait une requête supplémentaire
+            isUnlocked,
+            unlockedAt,
+            rarity: undefined,
+            points: epicAch.XP || undefined,
+          };
+        });
 
       // Trouver le succès le plus récent parmi les nouveaux
       let mostRecentUnlock: Date | undefined;
       if (existingAchievements) {
         const newAchievements = achievements.filter(
-          (ach) => ach.isUnlocked && !existingAchievements.has(ach.achievementId)
+          (ach) =>
+            ach.isUnlocked && !existingAchievements.has(ach.achievementId)
         );
-        
+
         if (newAchievements.length > 0) {
           mostRecentUnlock = newAchievements
             .filter((ach) => ach.unlockedAt)
             .reduce((latest, current) => {
-              if (!latest || !current.unlockedAt) return latest || current.unlockedAt;
-              return current.unlockedAt! > latest ? current.unlockedAt! : latest;
+              if (!latest || !current.unlockedAt)
+                return latest || current.unlockedAt;
+              return current.unlockedAt! > latest
+                ? current.unlockedAt!
+                : latest;
             }, undefined as Date | undefined);
         }
       }
@@ -486,16 +535,18 @@ export class EpicService {
     try {
       // API alternative pour les achievements Epic Games
       const achievementsUrl = `${this.baseUrl}/epic/stats/v1/stats/${account.platformId}/${gameId}/achievements`;
-      
+
       const response = await fetch(achievementsUrl, {
         headers: {
-          "Authorization": `Bearer ${account.accessToken}`,
+          Authorization: `Bearer ${account.accessToken}`,
           "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        console.warn(`Epic Games achievements API not available for game ${gameId}: ${response.statusText}`);
+        console.warn(
+          `Epic Games achievements API not available for game ${gameId}: ${response.statusText}`
+        );
         return this.createSuccessResult({
           achievements: [],
           mostRecentUnlock: undefined,
@@ -514,7 +565,9 @@ export class EpicService {
             description: achievement.description,
             iconUrl: achievement.iconUrl,
             isUnlocked: achievement.unlocked || false,
-            unlockedAt: achievement.unlockTime ? new Date(achievement.unlockTime) : undefined,
+            unlockedAt: achievement.unlockTime
+              ? new Date(achievement.unlockTime)
+              : undefined,
             rarity: achievement.rarity,
             points: achievement.gamerscore || achievement.xp,
           });
@@ -525,15 +578,19 @@ export class EpicService {
       let mostRecentUnlock: Date | undefined;
       if (existingAchievements) {
         const newAchievements = achievements.filter(
-          (ach) => ach.isUnlocked && !existingAchievements.has(ach.achievementId)
+          (ach) =>
+            ach.isUnlocked && !existingAchievements.has(ach.achievementId)
         );
-        
+
         if (newAchievements.length > 0) {
           mostRecentUnlock = newAchievements
             .filter((ach) => ach.unlockedAt)
             .reduce((latest, current) => {
-              if (!latest || !current.unlockedAt) return latest || current.unlockedAt;
-              return current.unlockedAt! > latest ? current.unlockedAt! : latest;
+              if (!latest || !current.unlockedAt)
+                return latest || current.unlockedAt;
+              return current.unlockedAt! > latest
+                ? current.unlockedAt!
+                : latest;
             }, undefined as Date | undefined);
         }
       }
@@ -543,7 +600,10 @@ export class EpicService {
         mostRecentUnlock,
       });
     } catch (error) {
-      console.warn(`Failed to sync Epic Games achievements (alternative) for game ${gameId}:`, error);
+      console.warn(
+        `Failed to sync Epic Games achievements (alternative) for game ${gameId}:`,
+        error
+      );
       return this.createSuccessResult({
         achievements: [],
         mostRecentUnlock: undefined,
@@ -597,7 +657,9 @@ export class EpicService {
         body: new URLSearchParams({
           grant_type: "authorization_code",
           code: code,
-          redirect_uri: `${useRuntimeConfig().public.baseUrl || "http://localhost:3000"}/api/user/library/platforms/epic/callback`,
+          redirect_uri: `${
+            useRuntimeConfig().public.baseUrl || "http://localhost:3000"
+          }/api/user/library/platforms/epic/callback`,
         }),
       });
 
@@ -613,7 +675,7 @@ export class EpicService {
         has_access_token: !!tokenData.access_token,
         has_refresh_token: !!tokenData.refresh_token,
         has_account_id: !!tokenData.account_id,
-        expires_in: tokenData.expires_in
+        expires_in: tokenData.expires_in,
       });
       return this.createSuccessResult(tokenData);
     } catch (error) {
@@ -630,21 +692,27 @@ export class EpicService {
   ): Promise<SyncResult<EpicUserResponse>> {
     try {
       // Essayer d'abord l'API utilisateur standard
-      let response = await fetch(`https://api.epicgames.dev/epic/id/v1/accounts`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      // Si l'API standard ne fonctionne pas, essayer l'API alternative
-      if (!response.ok) {
-        response = await fetch(`https://account-public-service-prod.ol.epicgames.com/account/api/public/account/me`, {
+      let response = await fetch(
+        `https://api.epicgames.dev/epic/id/v1/accounts`,
+        {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-        });
+        }
+      );
+
+      // Si l'API standard ne fonctionne pas, essayer l'API alternative
+      if (!response.ok) {
+        response = await fetch(
+          `https://account-public-service-prod.ol.epicgames.com/account/api/public/account/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
 
       if (!response.ok) {
@@ -655,17 +723,19 @@ export class EpicService {
       }
 
       const userData: EpicUserResponse = await response.json();
-      
+
       // Si l'API retourne un tableau (comme certaines APIs Epic Games), prendre le premier élément
       if (Array.isArray(userData) && userData.length > 0) {
         return this.createSuccessResult(userData[0]);
       }
-      
+
       return this.createSuccessResult(userData);
     } catch (error) {
-      console.warn(`Failed to fetch Epic Games profile: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`);
+      console.warn(
+        `Failed to fetch Epic Games profile: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
       return this.createErrorResult(
         `Failed to fetch Epic Games profile: ${
           error instanceof Error ? error.message : "Unknown error"
