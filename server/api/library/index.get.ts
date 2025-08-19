@@ -1,5 +1,4 @@
 import { defineEventHandler, getQuery, createError } from "h3";
-import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import type { GamingPlatform, Prisma } from "@prisma/client";
 import type {
@@ -11,13 +10,7 @@ export default defineEventHandler(
   async (event): Promise<LibraryResponseDTO<PlatformGameCardDTO[]>> => {
     try {
       // Vérifier l'authentification
-      const user = await serverSupabaseUser(event);
-      if (!user) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: "Authentification requise",
-        });
-      }
+      const user = event.context.user;
 
       // Récupérer les paramètres de la requête
       const query = getQuery(event);

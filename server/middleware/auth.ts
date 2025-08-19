@@ -2,7 +2,7 @@ import { serverSupabaseClient } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
   // Vérifiez si la route nécessite une authentification
-  if (event.path.startsWith("/api/user")) {
+  if (event.path.startsWith("/api/")) {
     const client = await serverSupabaseClient(event);
     const {
       data: { user },
@@ -16,6 +16,5 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ajouter l'utilisateur à l'événement pour y accéder dans les gestionnaires
-    event.context.user = user;
   }
 });

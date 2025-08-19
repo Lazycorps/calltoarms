@@ -241,7 +241,7 @@ const handleGameClick = async (game: PlatformGameCardDTO) => {
 
     // Récupérer les données de comparaison
     const comparison = await $fetch(
-      `/api/user/games/${game.id}/compare/${friend.friendId}`
+      `/api/activity/games/${game.id}/compare/${friend.friendId}`
     );
 
     comparisonData.value = comparison;

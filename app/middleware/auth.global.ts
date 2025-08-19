@@ -1,5 +1,6 @@
 export default defineNuxtRouteMiddleware(async (_to, _from) => {
   // Côté client, vérifier l'utilisateur et ses droits admin
+  if (_to.path.startsWith("/login")) return;
   if (import.meta.client) {
     const user = useSupabaseUser();
     const userStore = useUserStore();
@@ -13,7 +14,7 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
       await userStore.init();
     }
 
-    if (!userStore.user?.admin) {
+    if (_to.path.includes("admin") && !userStore.user?.admin) {
       throw createError({
         statusCode: 403,
         statusMessage: "Accès administrateur requis",
@@ -28,7 +29,7 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
       // Utiliser l'API pour vérifier les droits admin
       const response = await $fetch("/api/user/current");
 
-      if (!response || !response.admin) {
+      if (!response || (_to.path.includes("admin") && !response.admin)) {
         throw createError({
           statusCode: 403,
           statusMessage: "Accès administrateur requis",
