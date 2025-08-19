@@ -88,7 +88,7 @@ async function connectWithSteamOAuth() {
     success.value = null;
 
     // Rediriger vers l'endpoint d'authentification Steam OAuth
-    window.location.href = "/api/user/library/platforms/steam/auth";
+    window.location.href = "/api/library/platforms/steam/auth";
   } catch (err) {
     console.error("Erreur lors de la connexion Steam OAuth:", err);
     error.value =

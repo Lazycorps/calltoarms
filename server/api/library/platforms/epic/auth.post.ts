@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
     // Rediriger vers le flow OAuth Epic Games
     const config = useRuntimeConfig();
     const baseUrl = config.public.baseUrl || "http://localhost:3000";
-    
-    await sendRedirect(event, `${baseUrl}/api/user/library/platforms/epic/login`);
+
+    await sendRedirect(event, `${baseUrl}/api/library/platforms/epic/login`);
   } catch (error) {
     console.error("Erreur lors de la redirection Epic Games OAuth:", error);
 

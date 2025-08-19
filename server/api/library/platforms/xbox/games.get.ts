@@ -1,4 +1,4 @@
-// server/api/user/library/platforms/xbox/games.ts
+// server/api/library/platforms/xbox/games.ts
 
 import { defineEventHandler, getQuery, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";

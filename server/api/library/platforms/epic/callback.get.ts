@@ -48,13 +48,16 @@ export default defineEventHandler(async (event) => {
 
     // Créer une instance du service Epic Games et échanger le code contre les tokens
     const epicService = new EpicService();
-    
+
     // Échanger le code contre les tokens directement
-    const tokenResult = await epicService.exchangeCodeForToken(validatedData.code);
+    const tokenResult = await epicService.exchangeCodeForToken(
+      validatedData.code
+    );
     if (!tokenResult.success || !tokenResult.data) {
       throw createError({
         statusCode: 400,
-        statusMessage: tokenResult.error || "Impossible d'échanger le code Epic Games",
+        statusMessage:
+          tokenResult.error || "Impossible d'échanger le code Epic Games",
       });
     }
 
@@ -87,7 +90,7 @@ export default defineEventHandler(async (event) => {
       has_access_token: !!accessToken,
       has_refresh_token: !!refreshToken,
       access_token_length: accessToken ? accessToken.length : 0,
-      refresh_token_length: refreshToken ? refreshToken.length : 0
+      refresh_token_length: refreshToken ? refreshToken.length : 0,
     });
 
     let platformAccount;
@@ -131,11 +134,11 @@ export default defineEventHandler(async (event) => {
       id: platformAccount.id,
       platformId: platformAccount.platformId,
       has_access_token: !!platformAccount.accessToken,
-      has_refresh_token: !!platformAccount.refreshToken
+      has_refresh_token: !!platformAccount.refreshToken,
     });
 
     // Rediriger vers la page de bibliothèque avec un message de succès
-    await sendRedirect(event, `${baseUrl}/user/library?epic_connected=true`);
+    await sendRedirect(event, `${baseUrl}/library?epic_connected=true`);
   } catch (error) {
     console.error("Erreur lors du callback Epic Games:", error);
 
@@ -146,7 +149,7 @@ export default defineEventHandler(async (event) => {
       // Rediriger avec le message d'erreur
       await sendRedirect(
         event,
-        `${baseUrl}/user/library?epic_error=${encodeURIComponent(
+        `${baseUrl}/library?epic_error=${encodeURIComponent(
           error.statusMessage || "Erreur d'authentification Epic Games"
         )}`
       );
@@ -156,7 +159,7 @@ export default defineEventHandler(async (event) => {
     // Rediriger avec une erreur générique
     await sendRedirect(
       event,
-      `${baseUrl}/user/library?epic_error=${encodeURIComponent(
+      `${baseUrl}/library?epic_error=${encodeURIComponent(
         "Erreur interne du serveur"
       )}`
     );

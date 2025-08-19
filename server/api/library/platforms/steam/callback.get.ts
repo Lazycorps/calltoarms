@@ -128,7 +128,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Rediriger vers la page de bibliothèque avec un message de succès
-    await sendRedirect(event, `${baseUrl}/user/library?steam_connected=true`);
+    await sendRedirect(event, `${baseUrl}/library?steam_connected=true`);
   } catch (error) {
     console.error("Erreur lors du callback Steam:", error);
 
@@ -148,7 +148,7 @@ export default defineEventHandler(async (event) => {
       };
       await sendRedirect(
         event,
-        `${baseUrl}/user/library?steam_error=${encodeURIComponent(
+        `${baseUrl}/library?steam_error=${encodeURIComponent(
           errorWithMessage.statusMessage || "Erreur d'authentification Steam"
         )}`
       );
@@ -157,7 +157,7 @@ export default defineEventHandler(async (event) => {
     // Rediriger avec une erreur générique
     await sendRedirect(
       event,
-      `${baseUrl}/user/library?steam_error=${encodeURIComponent(
+      `${baseUrl}/library?steam_error=${encodeURIComponent(
         "Erreur interne du serveur"
       )}`
     );

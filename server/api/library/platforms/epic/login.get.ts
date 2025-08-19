@@ -14,25 +14,31 @@ export default defineEventHandler(async (event) => {
 
     const config = useRuntimeConfig();
     const baseUrl = config.public.baseUrl || "http://localhost:3000";
+    const clientId = config.epicClientId;
 
-    // Générer l'URL de connexion Steam OpenID
-    const params = {
-      "openid.ns": "http://specs.openid.net/auth/2.0",
-      "openid.mode": "checkid_setup",
-      "openid.return_to": `${baseUrl}/api/user/library/platforms/steam/callback`,
-      "openid.realm": baseUrl,
-      "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
-      "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
-    };
+    if (!clientId) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Epic Games client ID non configuré",
+      });
+    }
 
-    const paramString = new URLSearchParams(params).toString();
-    const steamLoginUrl = `https://steamcommunity.com/openid/login?${paramString}`;
+    // Générer l'URL de connexion Epic Games OAuth
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: `${baseUrl}/api/library/platforms/epic/callback`,
+      response_type: "code",
+      scope: "basic_profile",
+      state: user.id, // Utiliser l'ID utilisateur comme state pour la validation
+    });
 
-    // Rediriger vers Steam pour l'authentification
-    await sendRedirect(event, steamLoginUrl);
+    const epicLoginUrl = `https://www.epicgames.com/id/authorize?${params.toString()}`;
+
+    // Rediriger vers Epic Games pour l'authentification
+    await sendRedirect(event, epicLoginUrl);
   } catch (error) {
     console.error(
-      "Erreur lors de l'initiation de l'authentification Steam:",
+      "Erreur lors de l'initiation de l'authentification Epic Games:",
       error
     );
 

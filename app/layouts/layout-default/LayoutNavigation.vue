@@ -38,7 +38,7 @@
           prepend-icon="mdi-bookshelf"
           title="Library"
           value="Library"
-          to="/user/library"
+          to="/library"
         />
         <v-list-item
           prepend-icon="mdi-account-heart"
@@ -72,7 +72,7 @@
         </v-badge>
         <span>Notifications</span>
       </v-btn>
-      <v-btn to="/user/library">
+      <v-btn to="/library">
         <v-icon>mdi-bookshelf</v-icon>
         <span>Library</span>
       </v-btn>

@@ -396,39 +396,42 @@ const {
   status: mostPlayedGamesStatus,
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
-} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/mostPlayed", {
+} = await useFetch<PlatformGameCardDTO[]>("/api/library/mostPlayed", {
   query: computed(() => ({ period: selectedPeriod.value })),
 });
 
-const { 
-  status: recentlyPlayedGamesStatus, 
+const {
+  status: recentlyPlayedGamesStatus,
   data: recentlyPlayedGames,
-  refresh: refreshRecentlyPlayedGames 
-} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyPlayed");
+  refresh: refreshRecentlyPlayedGames,
+} = await useFetch<PlatformGameCardDTO[]>("/api/library/recentlyPlayed");
 
-const { 
-  status: recentlyCompletedGamesStatus, 
+const {
+  status: recentlyCompletedGamesStatus,
   data: recentlyCompletedGames,
-  refresh: refreshRecentlyCompletedGames 
-} = await useFetch<PlatformGameCardDTO[]>("/api/user/library/recentlyCompleted");
+  refresh: refreshRecentlyCompletedGames,
+} = await useFetch<PlatformGameCardDTO[]>("/api/library/recentlyCompleted");
 
 async function syncPlatform(platform: {
   id: number;
   platform: GamingPlatform;
 }) {
   const snackbarStore = useSnackbarStore();
-  
+
   try {
     syncingPlatforms.value.add(platform.id);
-    const result = await gamingPlatformsStore.syncPlatform(platform.id, platform.platform);
-    
+    const result = await gamingPlatformsStore.syncPlatform(
+      platform.id,
+      platform.platform
+    );
+
     if (result.success) {
       snackbarStore.showSuccess(`Synchronisation ${platform.platform} réussie`);
       // Recharger les données après synchronisation réussie
       await Promise.all([
         refreshRecentlyPlayedGames(),
         refreshRecentlyCompletedGames(),
-        refreshMostPlayedGames()
+        refreshMostPlayedGames(),
       ]);
     } else {
       snackbarStore.showError(result.error);

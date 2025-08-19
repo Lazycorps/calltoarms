@@ -659,7 +659,7 @@ export class EpicService {
           code: code,
           redirect_uri: `${
             useRuntimeConfig().public.baseUrl || "http://localhost:3000"
-          }/api/user/library/platforms/epic/callback`,
+          }/api/library/platforms/epic/callback`,
         }),
       });
 

@@ -90,7 +90,7 @@ async function connectWithEpicOAuth() {
     success.value = null;
 
     // Rediriger vers l'endpoint d'authentification Epic Games OAuth
-    window.location.href = "/api/user/library/platforms/epic/login";
+    window.location.href = "/api/library/platforms/epic/login";
   } catch (err) {
     console.error("Erreur lors de la connexion Epic Games OAuth:", err);
     error.value =

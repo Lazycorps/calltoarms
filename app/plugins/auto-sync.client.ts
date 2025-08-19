@@ -2,7 +2,7 @@ export default defineNuxtPlugin(() => {
   // Ce plugin ne s'exécute que côté client
   if (import.meta.server) return;
 
-  const user = useSupabaseUser();
+  // const user = useSupabaseUser();
 
   // Attendre que l'utilisateur soit chargé
   // watch(

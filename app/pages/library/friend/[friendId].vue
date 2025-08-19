@@ -210,7 +210,10 @@
       </v-card>
 
       <!-- Jeux récemment terminés -->
-      <v-card v-if="recentlyCompletedGames && recentlyCompletedGames.length > 0" class="mb-6">
+      <v-card
+        v-if="recentlyCompletedGames && recentlyCompletedGames.length > 0"
+        class="mb-6"
+      >
         <v-card-title>
           <div class="d-flex align-center">
             <v-icon class="me-2">mdi-check-circle</v-icon>
@@ -340,7 +343,7 @@ const {
   pending,
   error,
   refresh,
-} = await useFetch(`/api/user/library/friend/${friendId}`);
+} = await useFetch(`/api/library/friend/${friendId}`);
 
 // Computed
 const recentlyPlayedGames = computed<GameCard[]>(() => {
@@ -365,19 +368,19 @@ const {
   status: mostPlayedGamesStatus,
   data: mostPlayedGames,
   refresh: refreshMostPlayedGames,
-} = await useFetch<GameCard[]>(
-  `/api/user/library/friend/${friendId}/mostPlayed`,
-  {
-    query: computed(() => ({ period: selectedPeriod.value })),
-    default: () => [],
-  }
-);
+} = await useFetch<GameCard[]>(`/api/library/friend/${friendId}/mostPlayed`, {
+  query: computed(() => ({ period: selectedPeriod.value })),
+  default: () => [],
+});
 
 // API pour les jeux récemment terminés de l'ami
 const { status: recentlyCompletedGamesStatus, data: recentlyCompletedGames } =
-  await useFetch<GameCard[]>(`/api/user/library/friend/${friendId}/recentlyCompleted`, {
-    default: () => [],
-  });
+  await useFetch<GameCard[]>(
+    `/api/library/friend/${friendId}/recentlyCompleted`,
+    {
+      default: () => [],
+    }
+  );
 
 function viewPlatformGames(platform: { id: number; platform: GamingPlatform }) {
   selectedPlatformForGames.value = platform;

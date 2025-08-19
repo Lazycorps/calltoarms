@@ -30,11 +30,11 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
   function getPlatformUrlSegment(platform: GamingPlatform): string {
     const mapping: Record<GamingPlatform, string> = {
       STEAM: "steam",
-      PLAYSTATION: "playstation", 
+      PLAYSTATION: "playstation",
       XBOX: "xbox",
       NINTENDO: "nintendo",
       EPIC_GAMES: "epic",
-      GOG: "gog"
+      GOG: "gog",
     };
     return mapping[platform] || platform.toLowerCase();
   }
@@ -70,7 +70,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         connectedPlatforms: PlatformAccountDTO[];
         supportedPlatforms: GamingPlatform[];
         stats: PlatformStats;
-      }>("/api/user/library/platforms");
+      }>("/api/library/platforms");
 
       connectedPlatforms.value = response.connectedPlatforms;
       supportedPlatforms.value = response.supportedPlatforms;
@@ -94,7 +94,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       const response = await $fetch<{
         success: boolean;
         account: PlatformAccount;
-      }>(`/api/user/library/platforms/${getPlatformUrlSegment(platform)}/auth`, {
+      }>(`/api/library/platforms/${getPlatformUrlSegment(platform)}/auth`, {
         method: "POST",
         body: credentials,
       });
@@ -122,7 +122,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         success: boolean;
         gamesCount: number;
         games: PlatformGame[];
-      }>(`/api/user/library/platforms/${getPlatformUrlSegment(platform)}/sync`, {
+      }>(`/api/library/platforms/${getPlatformUrlSegment(platform)}/sync`, {
         method: "POST",
         body: { accountId },
       });
@@ -156,17 +156,18 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         err.status === 401
       ) {
         clearPlatformCredentials(platform);
-        errorMessage = "Session PlayStation expirée. Veuillez vous reconnecter.";
+        errorMessage =
+          "Session PlayStation expirée. Veuillez vous reconnecter.";
         canRetry = false;
       }
 
       // Retourner les détails de l'erreur au lieu de stocker dans le store
-      return { 
-        success: false, 
-        error: errorMessage, 
+      return {
+        success: false,
+        error: errorMessage,
         platform,
         canRetry,
-        statusCode: err?.status || err?.statusCode || 500
+        statusCode: err?.status || err?.statusCode || 500,
       };
     } finally {
       loading.value = false;
@@ -202,9 +203,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           offset: number;
           hasMore: boolean;
         };
-      }>(
-        `/api/user/library${params.toString() ? `?${params.toString()}` : ""}`
-      );
+      }>(`/api/library${params.toString() ? `?${params.toString()}` : ""}`);
 
       if (response.success) {
         // Transformer les jeux pour s'assurer que _count existe
@@ -283,14 +282,14 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           return {
             platform: account.platform,
             accountId: account.id,
-            ...result
+            ...result,
           };
         } catch (error) {
           return {
             platform: account.platform,
             accountId: account.id,
             success: false,
-            error: error instanceof Error ? error.message : "Erreur inconnue"
+            error: error instanceof Error ? error.message : "Erreur inconnue",
           };
         }
       })
@@ -305,13 +304,13 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
           platform: platform.platform,
           accountId: platform.id,
           success: false,
-          error: result.reason?.message || "Erreur de synchronisation"
+          error: result.reason?.message || "Erreur de synchronisation",
         };
       }
     });
 
-    const successCount = results.filter(r => r.success).length;
-    const errorCount = results.filter(r => !r.success).length;
+    const successCount = results.filter((r) => r.success).length;
+    const errorCount = results.filter((r) => !r.success).length;
 
     return {
       success: successCount > 0,
@@ -319,8 +318,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       summary: {
         total: results.length,
         success: successCount,
-        errors: errorCount
-      }
+        errors: errorCount,
+      },
     };
   }
 

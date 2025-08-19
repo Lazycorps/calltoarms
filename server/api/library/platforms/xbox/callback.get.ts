@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// server/api/user/library/platforms/xbox/callback.ts
+// server/api/library/platforms/xbox/callback.ts
 // Configuration pour PUBLIC CLIENT avec comptes personnels Microsoft uniquement
 
 import {
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
       // PAS de client_secret pour public client
       code: String(code),
       grant_type: "authorization_code",
-      redirect_uri: `${config.public.baseUrl}/api/user/library/platforms/xbox/callback`,
+      redirect_uri: `${config.public.baseUrl}/api/library/platforms/xbox/callback`,
       code_verifier: codeVerifier, // PKCE obligatoire
       scope: scopes.join(" "), // Ajouter le scope dans le body
     });
@@ -262,14 +262,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const redirectUrl = new URL(`${config.public.baseUrl}/user/library`);
+    const redirectUrl = new URL(`${config.public.baseUrl}/library`);
     redirectUrl.searchParams.append("xbox_linked", "true");
     redirectUrl.searchParams.append("status", "success");
 
     return sendRedirect(event, redirectUrl.toString());
   } catch (error: any) {
     console.error("Erreur:", error);
-    const redirectUrl = new URL(`${config.public.baseUrl}/user/library`);
+    const redirectUrl = new URL(`${config.public.baseUrl}/library`);
     redirectUrl.searchParams.append("xbox_linked", "false");
     redirectUrl.searchParams.append(
       "error",

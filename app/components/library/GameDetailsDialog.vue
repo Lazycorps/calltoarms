@@ -350,7 +350,7 @@ async function loadGameDetails() {
   loading.value = true;
   try {
     const response = await $fetch<GameDetailsDTO>(
-      `/api/user/library/game/${props.gameId}`
+      `/api/library/game/${props.gameId}`
     );
 
     gameDetails.value = response;
@@ -411,7 +411,7 @@ async function toggleCompletion() {
   updatingCompletion.value = true;
   try {
     const response = await $fetch(
-      `/api/user/library/game/${props.gameId}/completion`,
+      `/api/library/game/${props.gameId}/completion`,
       {
         method: "PATCH",
         body: {
