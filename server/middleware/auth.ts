@@ -16,5 +16,6 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ajouter l'utilisateur à l'événement pour y accéder dans les gestionnaires
+    event.context.user = user;
   }
 });

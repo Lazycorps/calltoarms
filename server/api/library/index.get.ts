@@ -9,8 +9,7 @@ import type {
 export default defineEventHandler(
   async (event): Promise<LibraryResponseDTO<PlatformGameCardDTO[]>> => {
     try {
-      // Vérifier l'authentification
-      const user = event.context.user;
+      const currentUserId = event.context.user.id;
 
       // Récupérer les paramètres de la requête
       const query = getQuery(event);
@@ -24,14 +23,14 @@ export default defineEventHandler(
       // Construire la requête de base
       const whereClause: Prisma.PlatformGameWhereInput = {
         platformAccount: {
-          userId: user.id,
+          userId: currentUserId,
         },
       };
 
       // Ajouter le filtre de plateforme si spécifié
       if (platform) {
         whereClause.platformAccount = {
-          userId: user.id,
+          userId: currentUserId,
           platform: platform,
         };
       }

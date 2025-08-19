@@ -40,7 +40,7 @@
         </template>
         <v-list>
           <div v-if="user.user">
-            <v-list-item @click="navigateToProfile">
+            <v-list-item to="/user/profile">
               <template #prepend>
                 <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
                 {{ user.user?.name }}
@@ -89,10 +89,4 @@ function login() {
   const router = useRouter();
   router.push("login");
 }
-
-function navigateToProfile(){
-  const router = useRouter();
-  router.push("/user/profil");
-}
-
 </script>

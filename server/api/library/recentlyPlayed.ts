@@ -1,5 +1,4 @@
 import { defineEventHandler, createError } from "h3";
-import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import type { PlatformGameCardDTO } from "~~/shared/types/library";
 
@@ -29,14 +28,7 @@ function formatPlaytime(minutes: number): string {
 export default defineEventHandler(
   async (event): Promise<PlatformGameCardDTO[]> => {
     try {
-      // Vérifier l'authentification
-      const user = await serverSupabaseUser(event);
-      if (!user) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: "Authentification requise",
-        });
-      }
+      const currentUserId = event.context.user.id;
 
       const now = new Date();
       const dateFilter = new Date(
@@ -49,7 +41,7 @@ export default defineEventHandler(
       const recentlyPlayedRaw = await prisma.platformGame.findMany({
         where: {
           platformAccount: {
-            userId: user.id,
+            userId: currentUserId,
           },
           lastPlayed: {
             gt: dateFilter,

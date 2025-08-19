@@ -1,5 +1,4 @@
 import { defineEventHandler, createError, getQuery } from "h3";
-import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 import type { PlatformGameCardDTO } from "~~/shared/types/library";
@@ -30,14 +29,7 @@ function formatPlaytime(minutes: number): string {
 export default defineEventHandler(
   async (event): Promise<PlatformGameCardDTO[]> => {
     try {
-      // Vérifier l'authentification
-      const user = await serverSupabaseUser(event);
-      if (!user) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: "Authentification requise",
-        });
-      }
+      const currentUserId = event.context.user.id;
 
       // Récupérer le paramètre de période
       const query = getQuery(event);
@@ -80,7 +72,7 @@ export default defineEventHandler(
       // Construire les conditions de filtrage
       const whereConditions = {
         platformAccount: {
-          userId: user.id,
+          userId: currentUserId,
           isActive: true,
         },
         playtimeTotal: {
