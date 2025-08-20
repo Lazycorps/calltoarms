@@ -35,6 +35,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       NINTENDO: "nintendo",
       EPIC_GAMES: "epic",
       GOG: "gog",
+      RIOT: "riot",
     };
     return mapping[platform] || platform.toLowerCase();
   }

@@ -58,6 +58,10 @@ export default defineNuxtConfig({
 
     epicClientId: process.env.EPIC_CLIENT_ID,
     epicClientSecret: process.env.EPIC_CLIENT_SECRET,
+
+    // Riot Games API configuration
+    riotApiKey: process.env.RIOT_API_KEY,
+
     // Development mode configuration
     devMode: process.env.NODE_ENV === "development",
     public: {

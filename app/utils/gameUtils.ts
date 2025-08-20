@@ -8,6 +8,7 @@ export function getPlatformIcon(platform: GamingPlatform): string {
     NINTENDO: "mdi-nintendo-switch",
     EPIC_GAMES: "mdi-gamepad-variant",
     GOG: "mdi-gamepad-variant",
+    RIOT: "mdi-sword-cross",
   };
   return icons[platform] || "mdi-gamepad-variant";
 }
