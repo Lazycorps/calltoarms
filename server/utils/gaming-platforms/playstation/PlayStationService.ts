@@ -9,7 +9,12 @@ import type {
 import type { PlayStationCredentials } from "./playstation-types";
 
 // Import de la bibliothèque psn-api
-import type { UserThinTrophy, TrophyTitle, Trophy } from "psn-api";
+import type {
+  UserThinTrophy,
+  TrophyTitle,
+  Trophy,
+  UserPlayedGamesResponse,
+} from "psn-api";
 import {
   exchangeAccessCodeForAuthTokens,
   exchangeNpssoForAccessCode,
@@ -18,6 +23,7 @@ import {
   getUserTrophiesEarnedForTitle,
   getTitleTrophies,
   getProfileFromUserName,
+  getUserPlayedGames,
 } from "psn-api";
 
 export class PlayStationService {
@@ -117,21 +123,35 @@ export class PlayStationService {
         return this.createSuccessResult([]);
       }
 
-      const games: GameData[] = userTitles.trophyTitles.map(
-        (game: TrophyTitle) => {
-          return {
-            platformGameId: game.npCommunicationId,
-            name: game.trophyTitleName,
-            playtimeTotal: 0,
-            playtimeRecent: undefined, // PlayStation API ne fournit pas cette info
-            lastPlayed: new Date(game.lastUpdatedDateTime),
-            iconUrl: game.trophyTitleIconUrl,
-            coverUrl: game.trophyTitleIconUrl,
-            isInstalled: false, // Information non disponible via l'API trophées
-            isPs5Game: game.trophyTitlePlatform.includes("PS5"),
-          };
-        }
+      // Récupérer les derniers jeux jouer par l'utilisateur
+      const userPlayedGames = await getUserPlayedGames(
+        { accessToken: this.accessToken },
+        "me",
+        { limit: 100, offset: 0 }
       );
+      if (!userPlayedGames.titles) {
+        return this.createSuccessResult([]);
+      }
+      const games: GameData[] = [];
+      userTitles.trophyTitles.forEach((game) => {
+        const moreGameInfo = userPlayedGames.titles.find(
+          (t) =>
+            t.name.replace("™", "") == game.trophyTitleName.replace("™", "")
+        );
+        games.push({
+          platformGameId: game.npCommunicationId,
+          name: game.trophyTitleName,
+          playtimeTotal: moreGameInfo
+            ? this.convertISODurationToMinutes(moreGameInfo?.playDuration)
+            : 0,
+          playtimeRecent: undefined, // PlayStation API ne fournit pas cette info
+          lastPlayed: new Date(game.lastUpdatedDateTime),
+          iconUrl: game.trophyTitleIconUrl,
+          coverUrl: game.trophyTitleIconUrl,
+          isInstalled: false, // Information non disponible via l'API trophées
+          isPs5Game: game.trophyTitlePlatform.includes("PS5"),
+        });
+      });
 
       return this.createSuccessResult(games);
     } catch (error) {
@@ -141,6 +161,35 @@ export class PlayStationService {
         }`
       );
     }
+  }
+
+  convertISODurationToMinutes(duration: string) {
+    // Vérifier que la chaîne commence par "PT"
+    if (!duration.startsWith("PT")) {
+      throw new Error('Format invalide. La durée doit commencer par "PT"');
+    }
+
+    // Retirer "PT" du début
+    const timePart = duration.substring(2);
+
+    // Regex pour extraire heures, minutes et secondes
+    const regex = /(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/;
+    const matches = timePart.match(regex);
+
+    if (!matches) {
+      throw new Error("Format de durée invalide");
+    }
+
+    // Extraire les valeurs (0 par défaut si non présent)
+    const hours = parseInt(matches[1] || "0");
+    const minutes = parseInt(matches[2] || "0");
+    const seconds = parseFloat(matches[3] || "0");
+
+    // Calculer le total en minutes
+    const totalMinutes = hours * 60 + minutes + seconds / 60;
+
+    // Retourner le résultat arrondi
+    return Math.round(totalMinutes);
   }
 
   async syncAchievements(

@@ -1,5 +1,4 @@
 import { defineEventHandler, readBody, createError } from "h3";
-import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 
 interface PlayStationAuthRequest {
@@ -9,14 +8,7 @@ interface PlayStationAuthRequest {
 
 export default defineEventHandler(async (event) => {
   try {
-    // Vérifier l'authentification
-    const user = await serverSupabaseUser(event);
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: "Authentification requise",
-      });
-    }
+    const currentUserId = event.context.user.id;
 
     // Lire les données de la requête
     const body = await readBody<PlayStationAuthRequest>(event);
@@ -47,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const existingAccount = await prisma.platformAccount.findUnique({
       where: {
         userId_platform: {
-          userId: user.id,
+          userId: currentUserId,
           platform: "PLAYSTATION",
         },
       },
@@ -73,7 +65,7 @@ export default defineEventHandler(async (event) => {
       // Créer un nouveau compte
       platformAccount = await prisma.platformAccount.create({
         data: {
-          userId: user.id,
+          userId: currentUserId,
           platform: "PLAYSTATION",
           platformId: authResult.data.platformId,
           username: authResult.data.username,
