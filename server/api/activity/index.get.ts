@@ -38,14 +38,16 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
     const threeMonthAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 90 jours
 
     // Fonction de transformation DTO
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const transformGameToDTO = (game: any): PlatformGameCardDTO => ({
       id: game.id,
       name: game.name,
-      iconUrl: game.iconUrl || undefined,
-      coverUrl: game.coverUrl || undefined,
-      lastPlayed: game.lastPlayed || undefined,
+      iconUrl: game.iconUrl,
+      coverUrl: game.coverUrl,
+      lastPlayed: game.lastPlayed,
       playtimeTotal: game.playtimeTotal,
       platform: game.platformAccount.platform,
+      platformGameId: game.platformGameId,
       achievementsCount: game.achievements?.length || 0,
       totalAchievements: game._count?.achievements || 0,
       achievementPercentage:
@@ -57,14 +59,17 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           : 0,
       isCompleted: game.isCompleted,
       // Ajouter les informations de l'ami si disponibles
-      friendName: game.platformAccount?.user?.name || undefined,
-      friendSlug: game.platformAccount?.user?.slug || undefined,
+      friendName: game.platformAccount?.user?.name,
+      friendSlug: game.platformAccount?.user?.slug,
     });
 
     if (friendIds.length === 0) {
       return {
         friendsActivity: {
           recentlyPlayed: [],
+          recentlyCompleted: [],
+        },
+        myActivity: {
           recentlyCompleted: [],
         },
         popularInCircle: {
@@ -296,6 +301,9 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       friendsActivity: {
         recentlyPlayed: friendsRecentlyPlayed.map(transformGameToDTO),
         recentlyCompleted: friendsRecentlyCompleted.map(transformGameToDTO),
+      },
+      myActivity: {
+        recentlyCompleted: [], // TODO: Implémenter l'activité personnelle de l'utilisateur
       },
       popularInCircle: {
         games: popularGameDetails

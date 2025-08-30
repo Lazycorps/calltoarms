@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery, sendRedirect, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { SteamService } from "@@/server/utils/gaming-platforms/steam/SteamService";
+import { SteamService } from "~~/server/services/library/SteamService";
 import { z } from "zod";
 import prisma from "~~/lib/prisma";
 

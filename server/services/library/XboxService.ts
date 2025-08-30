@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GamingPlatform, PlatformAccount } from "@prisma/client";
-import type { GameData, AchievementData, SyncResult } from "../base/types";
+import type {
+  GameData,
+  AchievementData,
+  SyncResult,
+} from "@@/server/types/library/base";
 import prisma from "~~/lib/prisma";
 interface XboxTokens {
   userHash: string;
@@ -138,55 +142,6 @@ export class XboxService {
       );
     }
   }
-
-  // Méthodes privées pour les appels API Xbox Live
-  // private async fetchUserProfile(
-  //   xstsToken: string,
-  //   userHash: string
-  // ): Promise<any | null> {
-  //   try {
-  //     const config = useRuntimeConfig();
-  //     const response = await fetch(
-  //       `https://profile.xboxlive.com/users/me/profile/settings?settings=GameDisplayName,AppDisplayName,AppDisplayPicRaw,Gamerscore,Gamertag,PublicGamerpic,XboxOneRep,PreferredColor,RealName,Bio,Location`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "x-xbl-contract-version": "3",
-  //           Authorization: `XBL3.0 x=${userHash};${xstsToken}`,
-  //           Origin: config.baseUrl,
-  //         },
-  //       }
-  //     );
-  //     if (!response.ok) {
-  //       const errorText = await response.text();
-  //       console.error("Failed to fetch Xbox profile:", errorText);
-  //       return null;
-  //     }
-
-  //     const data = await response.json();
-  //     const profileUser = data.profileUsers[0];
-
-  //     // Transformer les données du profil Xbox en format utilisable
-  //     const settings = profileUser.settings.reduce((acc: any, setting: any) => {
-  //       acc[setting.id] = setting.value;
-  //       return acc;
-  //     }, {});
-  //     return {
-  //       xuid: profileUser.id,
-  //       gamertag: settings.Gamertag,
-  //       displayName: settings.GameDisplayName || settings.Gamertag,
-  //       displayPicRaw: settings.PublicGamerpic,
-  //       gamerscore: settings.Gamerscore,
-  //       realName: settings.RealName,
-  //       bio: settings.Bio,
-  //       location: settings.Location,
-  //     };
-  //   } catch (error) {
-  //     console.error("Failed to fetch user profile:", error);
-  //     return null;
-  //   }
-  // }
 
   private async fetchTitleHistory(
     xuid: string,

@@ -186,8 +186,8 @@ export default defineEventHandler(async (event) => {
       throw error;
     });
 
-    const userHash = xstsTokenResponse.DisplayClaims.xui[0].uhs;
-    const xuid = xstsTokenResponse.DisplayClaims.xui[0].xid;
+    const userHash = xstsTokenResponse.DisplayClaims?.xui?.[0]?.uhs;
+    const xuid = xstsTokenResponse.DisplayClaims?.xui?.[0]?.xid;
     const xstsToken = xstsTokenResponse.Token;
 
     // 4. Récupérer le profil Xbox
@@ -213,6 +213,13 @@ export default defineEventHandler(async (event) => {
     }, {});
 
     // 5. Sauvegarder en base de données
+    if (!xuid) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Impossible de récupérer l'identifiant Xbox",
+      });
+    }
+    
     const accountData = {
       platformId: xuid,
       username: settings.Gamertag,

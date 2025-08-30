@@ -134,6 +134,12 @@ export default defineEventHandler(async (event) => {
             // Ne pas exposer les tokens et informations sensibles
           },
         },
+        achievements: {
+          select: {
+            id: true,
+            isUnlocked: true,
+          },
+        },
         _count: {
           select: {
             achievements: true,
@@ -215,12 +221,31 @@ export default defineEventHandler(async (event) => {
       success: true,
       friendInfo,
       connectedPlatforms: accounts,
-      games: games.map((game) => ({
-        ...game,
-        _count: {
-          achievements: 0, // À implémenter si nécessaire
-        },
-      })),
+      games: games.map((game) => {
+        const unlockedAchievements = game.achievements.filter(
+          (achievement) => achievement.isUnlocked
+        ).length;
+        const totalAchievements = game._count.achievements;
+        const achievementPercentage =
+          totalAchievements > 0
+            ? Math.round((unlockedAchievements / totalAchievements) * 100)
+            : 0;
+
+        return {
+          id: game.id,
+          name: game.name,
+          iconUrl: game.iconUrl,
+          coverUrl: game.coverUrl,
+          lastPlayed: game.lastPlayed,
+          playtimeTotal: game.playtimeTotal,
+          platformGameId: game.platformGameId,
+          platform: game.platformAccount.platform,
+          achievementsCount: unlockedAchievements,
+          totalAchievements: totalAchievements,
+          achievementPercentage: achievementPercentage,
+          isCompleted: game.isCompleted,
+        };
+      }),
       pagination: {
         total: totalCount,
         limit,

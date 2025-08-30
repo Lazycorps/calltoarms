@@ -1,9 +1,9 @@
 // Utilities
-import type { FriendDTO } from "#shared/models/friend";
-import { FriendStatus } from "#shared/models/friend";
+import type { FriendDTO } from "~~/shared/types/friend";
+import { FriendStatus } from "~~/shared/types/friend";
 import { defineStore } from "pinia";
 import { computed, onMounted, ref } from "vue";
-import type { UserDTO } from "#shared/models/user";
+import type { UserDTO } from "~~/shared/types/user";
 import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 export const useUserStore = defineStore("user", () => {

@@ -1,98 +1,6 @@
-<script setup lang="ts">
-import type { PlatformGameCardDTO } from "~~/shared/types/library";
-
-interface Props {
-  game: PlatformGameCardDTO;
-  showPlaytime?: boolean;
-  showLastPlayed?: boolean;
-  showFriend?: boolean;
-  showCompletionDate?: boolean; // Pour afficher "Terminé le X" au lieu de "Dernière partie"
-  clickable?: boolean;
-}
-
-const emit = defineEmits<{
-  click: [game: PlatformGameCardDTO]
-}>();
-
-const props = withDefaults(defineProps<Props>(), {
-  showPlaytime: true,
-  showLastPlayed: true,
-  showFriend: true,
-  showCompletionDate: false,
-  clickable: false,
-});
-
-const handleClick = () => {
-  if (props.clickable) {
-    emit('click', props.game);
-  }
-};
-
-const formatPlaytime = (minutes: number): string => {
-  if (minutes < 60) return `${minutes} min`;
-  
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  
-  if (hours < 24) {
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
-  }
-  
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-  
-  if (remainingHours > 0) {
-    return `${days}j ${remainingHours}h`;
-  }
-  
-  return `${days}j`;
-};
-
-const formatLastPlayed = (date: string | undefined): string => {
-  if (!date) return 'Jamais joué';
-  
-  const played = new Date(date);
-  const now = new Date();
-  const diffInHours = Math.floor((now.getTime() - played.getTime()) / (1000 * 60 * 60));
-  
-  if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays === 1) return 'Hier';
-  if (diffInDays < 7) return `Il y a ${diffInDays} jours`;
-  
-  const diffInWeeks = Math.floor(diffInDays / 7);
-  if (diffInWeeks === 1) return 'La semaine dernière';
-  if (diffInWeeks < 4) return `Il y a ${diffInWeeks} semaines`;
-  
-  return played.toLocaleDateString('fr-FR', { 
-    day: 'numeric', 
-    month: 'short' 
-  });
-};
-
-const getPlatformColor = (platform: string): string => {
-  switch (platform) {
-    case 'STEAM': return 'blue';
-    case 'PLAYSTATION': return 'indigo';
-    case 'XBOX': return 'green';
-    default: return 'grey';
-  }
-};
-
-const getPlatformIcon = (platform: string): string => {
-  switch (platform) {
-    case 'STEAM': return 'mdi-steam';
-    case 'PLAYSTATION': return 'mdi-sony-playstation';
-    case 'XBOX': return 'mdi-microsoft-xbox';
-    default: return 'mdi-gamepad-variant';
-  }
-};
-</script>
-
 <template>
-  <v-card 
-    class="game-card" 
+  <v-card
+    class="game-card"
     elevation="2"
     hover
     :style="clickable ? 'cursor: pointer;' : ''"
@@ -107,12 +15,12 @@ const getPlatformIcon = (platform: string): string => {
         cover
         class="cover-image"
       >
-        <template v-slot:error>
+        <template #error>
           <div class="cover-fallback d-flex align-center justify-center">
             <v-icon size="48" color="white">mdi-gamepad-variant</v-icon>
           </div>
         </template>
-        
+
         <!-- Overlay avec pourcentage de complétion -->
         <div class="cover-overlay">
           <v-chip
@@ -122,13 +30,13 @@ const getPlatformIcon = (platform: string): string => {
             class="completion-chip"
           >
             <v-icon start size="16">
-              {{ game.isCompleted ? 'mdi-trophy' : 'mdi-progress-check' }}
+              {{ game.isCompleted ? "mdi-trophy" : "mdi-progress-check" }}
             </v-icon>
             {{ game.achievementPercentage }}%
           </v-chip>
         </div>
       </v-img>
-      
+
       <!-- Fallback si pas d'image cover -->
       <div v-else class="cover-fallback d-flex align-center justify-center">
         <v-icon size="48" color="white">mdi-gamepad-variant</v-icon>
@@ -141,7 +49,7 @@ const getPlatformIcon = (platform: string): string => {
       <h3 class="text-subtitle-1 font-weight-bold mb-2 text-truncate">
         {{ game.name }}
       </h3>
-      
+
       <!-- Informations principales -->
       <div class="d-flex align-center justify-space-between mb-2">
         <!-- Plateforme -->
@@ -154,7 +62,7 @@ const getPlatformIcon = (platform: string): string => {
         >
           {{ game.platform }}
         </v-chip>
-        
+
         <!-- Statut terminé si applicable -->
         <v-chip
           v-if="game.isCompleted"
@@ -166,10 +74,10 @@ const getPlatformIcon = (platform: string): string => {
           Terminé
         </v-chip>
       </div>
-      
+
       <!-- Nom de l'ami -->
-      <div 
-        v-if="showFriend && game.friendName" 
+      <div
+        v-if="showFriend && game.friendName"
         class="d-flex align-center mb-2"
       >
         <v-icon size="16" class="me-1">mdi-account</v-icon>
@@ -177,25 +85,32 @@ const getPlatformIcon = (platform: string): string => {
           {{ game.friendName }}
         </span>
       </div>
-      
+
       <!-- Informations de jeu -->
       <div v-if="showPlaytime && game.playtimeTotal > 0">
         <div class="d-flex align-center mb-1">
           <v-icon size="16" class="me-1">mdi-clock-outline</v-icon>
-          <span class="text-body-2">{{ formatPlaytime(game.playtimeTotal) }}</span>
+          <span class="text-body-2">{{
+            formatPlaytime(game.playtimeTotal)
+          }}</span>
         </div>
-        
-        <div 
-          v-if="(showLastPlayed || showCompletionDate) && game.lastPlayed" 
+
+        <div
+          v-if="(showLastPlayed || showCompletionDate) && game.lastPlayed"
           class="d-flex align-center"
         >
           <v-icon size="16" class="me-1">
-            {{ showCompletionDate && game.isCompleted ? 'mdi-trophy-outline' : 'mdi-calendar-clock' }}
+            {{
+              showCompletionDate && game.isCompleted
+                ? "mdi-trophy-outline"
+                : "mdi-calendar-clock"
+            }}
           </v-icon>
           <span class="text-body-2 text-medium-emphasis">
-            {{ showCompletionDate && game.isCompleted 
-               ? `Terminé ${formatLastPlayed(game.lastPlayed)}` 
-               : formatLastPlayed(game.lastPlayed) 
+            {{
+              showCompletionDate && game.isCompleted
+                ? `Terminé ${formatLastPlayed(game.lastPlayed)}`
+                : formatLastPlayed(game.lastPlayed)
             }}
           </span>
         </div>
@@ -203,6 +118,109 @@ const getPlatformIcon = (platform: string): string => {
     </v-card-text>
   </v-card>
 </template>
+<script setup lang="ts">
+import type { PlatformGameCardDTO } from "~~/shared/types/library";
+
+interface Props {
+  game: PlatformGameCardDTO;
+  showPlaytime?: boolean;
+  showLastPlayed?: boolean;
+  showFriend?: boolean;
+  showCompletionDate?: boolean; // Pour afficher "Terminé le X" au lieu de "Dernière partie"
+  clickable?: boolean;
+}
+
+const emit = defineEmits<{
+  click: [game: PlatformGameCardDTO];
+}>();
+
+const props = withDefaults(defineProps<Props>(), {
+  showPlaytime: true,
+  showLastPlayed: true,
+  showFriend: true,
+  showCompletionDate: false,
+  clickable: false,
+});
+
+const handleClick = () => {
+  if (props.clickable) {
+    emit("click", props.game);
+  }
+};
+
+const formatPlaytime = (minutes: number): string => {
+  if (minutes < 60) return `${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours < 24) {
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}min`
+      : `${hours}h`;
+  }
+
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
+
+  if (remainingHours > 0) {
+    return `${days}j ${remainingHours}h`;
+  }
+
+  return `${days}j`;
+};
+
+const formatLastPlayed = (date: Date | undefined): string => {
+  if (!date) return "Jamais joué";
+
+  const played = date;
+  const now = new Date();
+  const diffInHours = Math.floor(
+    (now.getTime() - played.getTime()) / (1000 * 60 * 60)
+  );
+
+  if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return "Hier";
+  if (diffInDays < 7) return `Il y a ${diffInDays} jours`;
+
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  if (diffInWeeks === 1) return "La semaine dernière";
+  if (diffInWeeks < 4) return `Il y a ${diffInWeeks} semaines`;
+
+  return played.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+  });
+};
+
+const getPlatformColor = (platform: string): string => {
+  switch (platform) {
+    case "STEAM":
+      return "blue";
+    case "PLAYSTATION":
+      return "indigo";
+    case "XBOX":
+      return "green";
+    default:
+      return "grey";
+  }
+};
+
+const getPlatformIcon = (platform: string): string => {
+  switch (platform) {
+    case "STEAM":
+      return "mdi-steam";
+    case "PLAYSTATION":
+      return "mdi-sony-playstation";
+    case "XBOX":
+      return "mdi-microsoft-xbox";
+    default:
+      return "mdi-gamepad-variant";
+  }
+};
+</script>
 
 <style scoped>
 .game-card {
@@ -229,8 +247,9 @@ const getPlatformIcon = (platform: string): string => {
 
 .cover-fallback {
   height: 120px;
-  background: linear-gradient(45deg, 
-    rgba(var(--v-theme-primary), 0.8), 
+  background: linear-gradient(
+    45deg,
+    rgba(var(--v-theme-primary), 0.8),
     rgba(var(--v-theme-secondary), 0.6)
   );
   border-radius: 4px 4px 0 0;
@@ -257,7 +276,7 @@ const getPlatformIcon = (platform: string): string => {
   .game-card {
     max-width: 100%;
   }
-  
+
   .cover-container {
     height: 100px;
   }

@@ -1,6 +1,6 @@
 import { defineEventHandler, getRouterParam } from "h3";
 import prisma from "~~/lib/prisma";
-import { GameMaintenanceDTO } from "#shared/models/maintenance/gameMaintenance";
+import { GameMaintenanceDTO } from "~~/shared/types/admin/gameMaintenance";
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");

@@ -1,7 +1,7 @@
 // server/api/library/platforms/xbox/sync.ts
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { XboxService } from "@@/server/utils/gaming-platforms/xbox/XboxService";
+import { XboxService } from "~~/server/services/library/XboxService";
 import prisma from "~~/lib/prisma";
 
 interface XboxSyncRequest {

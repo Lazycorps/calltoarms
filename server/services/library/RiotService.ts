@@ -2,20 +2,21 @@ import type { GamingPlatform, PlatformAccount } from "@prisma/client";
 import type {
   UserProfile,
   GameData,
-  AchievementData,
   PlatformCredentials,
   SyncResult,
-} from "../base/types";
+} from "~~/server/types/library/base";
 import type {
   RiotCredentials,
-  RiotApiResponse,
   RiotAccount,
   RiotSummoner,
   RiotMatch,
+  RiotParticipant,
   TftMatch,
+  TftParticipant,
   ValorantMatch,
-  RiotGameData,
-} from "./riot-types";
+  ValorantPlayer,
+  LoRMatch,
+} from "~~/server/types/library/riotSync";
 
 export class RiotService {
   readonly platform: GamingPlatform = "RIOT";
@@ -31,7 +32,7 @@ export class RiotService {
       asia: "https://asia.api.riotgames.com",
       europe: "https://europe.api.riotgames.com",
       esports: "https://esports.api.riotgames.com",
-    },
+    } as Record<string, string>,
     // League of Legends API (platform routing)
     lol: {
       br1: "https://br1.api.riotgames.com",
@@ -50,7 +51,7 @@ export class RiotService {
       tw2: "https://tw2.api.riotgames.com",
       vn2: "https://vn2.api.riotgames.com",
       ru: "https://ru.api.riotgames.com",
-    },
+    } as Record<string, string>,
     // VALORANT API
     valorant: {
       ap: "https://ap.api.riotgames.com",
@@ -59,7 +60,7 @@ export class RiotService {
       kr: "https://kr.api.riotgames.com",
       latam: "https://latam.api.riotgames.com",
       na: "https://na.api.riotgames.com",
-    },
+    } as Record<string, string>,
   };
 
   // Mapping platform -> continental pour League of Legends
@@ -330,11 +331,11 @@ export class RiotService {
         const matchResponse = await this.makeApiRequest(matchUrl);
 
         if (matchResponse.success && matchResponse.data) {
-          const match = matchResponse.data as any; // Type plus flexible pour gérer les variations d'API
+          const match = matchResponse.data as RiotMatch;
 
           // Trouver le participant
           const participant = match.info?.participants?.find(
-            (p: any) => p.puuid === account.platformId
+            (p: RiotParticipant) => p.puuid === account.platformId
           );
 
           if (participant && match.info) {
@@ -503,9 +504,9 @@ export class RiotService {
         const matchResponse = await this.makeApiRequest(matchUrl);
 
         if (matchResponse.success && matchResponse.data) {
-          const match = matchResponse.data as any;
+          const match = matchResponse.data as TftMatch;
           const participant = match.info?.participants?.find(
-            (p: any) => p.puuid === account.platformId
+            (p: TftParticipant) => p.puuid === account.platformId
           );
 
           if (participant && match.info) {
@@ -618,7 +619,7 @@ export class RiotService {
         const matchResponse = await this.makeApiRequest(matchUrl);
 
         if (matchResponse.success && matchResponse.data) {
-          const match = matchResponse.data as any;
+          const match = matchResponse.data as ValorantMatch;
 
           // Structure de l'API VALORANT
           if (match.matchInfo) {
@@ -636,7 +637,7 @@ export class RiotService {
           } else if (match.players) {
             // Format alternatif de l'API
             const player = match.players.find(
-              (p: any) => p.puuid === account.platformId
+              (p: ValorantPlayer) => p.puuid === account.platformId
             );
             if (player && player.stats) {
               const duration = Math.round(
@@ -749,7 +750,7 @@ export class RiotService {
         const recentMatchResponse = await this.makeApiRequest(recentMatchUrl);
 
         if (recentMatchResponse.success && recentMatchResponse.data) {
-          const match = recentMatchResponse.data as any;
+          const match = recentMatchResponse.data as LoRMatch;
           if (match.info?.game_start_time_utc) {
             lastPlayed = new Date(match.info.game_start_time_utc);
           }
@@ -782,7 +783,7 @@ export class RiotService {
     }
   }
 
-  private async makeApiRequest(url: string): Promise<SyncResult<any>> {
+  private async makeApiRequest(url: string): Promise<SyncResult<unknown>> {
     try {
       console.log(`[Riot API] Request: ${url}`);
 
@@ -857,8 +858,7 @@ export class RiotService {
 
   private getContinentalRegion(
     platformRegion: string
-  ): "americas" | "asia" | "europe" | "sea" {
-    // SEA n'est pas une région continentale valide pour l'API Riot, on utilise 'asia'
+  ): "americas" | "asia" | "europe" {
     const continental = this.platformToContinental[platformRegion];
     if (continental === "sea") {
       return "asia";
