@@ -1,0 +1,1 @@
+ALTER TYPE "GamingPlatform" ADD VALUE 'RIOT';
