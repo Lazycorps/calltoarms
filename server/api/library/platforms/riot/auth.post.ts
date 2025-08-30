@@ -1,8 +1,8 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { RiotService } from "@@/server/utils/gaming-platforms/riot/RiotService";
-import prisma from "@@/lib/prisma";
-import type { RiotCredentials } from "@@/server/utils/gaming-platforms/riot/riot-types";
+import { RiotService } from "~~/server/services/library/RiotService";
+import prisma from "~~/lib/prisma";
+import type { RiotCredentials } from "~~/server/types/library/riotSync";
 
 interface AuthRequest {
   riotId: string;
@@ -33,14 +33,15 @@ export default defineEventHandler(async (event) => {
     if (!/^.+#.+$/.test(body.riotId)) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Format Riot ID invalide. Utilisez le format: GameName#TagLine",
+        statusMessage:
+          "Format Riot ID invalide. Utilisez le format: GameName#TagLine",
       });
     }
 
     // Créer les credentials
     const credentials: RiotCredentials = {
       riotId: body.riotId,
-      region: body.region || 'americas', // Région par défaut
+      region: body.region || "americas", // Région par défaut
     };
 
     // Créer une instance du service Riot
@@ -51,7 +52,8 @@ export default defineEventHandler(async (event) => {
     if (!authResult.success || !authResult.data) {
       throw createError({
         statusCode: 400,
-        statusMessage: authResult.error || "Échec de l'authentification Riot Games",
+        statusMessage:
+          authResult.error || "Échec de l'authentification Riot Games",
       });
     }
 
@@ -118,7 +120,8 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erreur interne du serveur lors de l'authentification Riot Games",
+      statusMessage:
+        "Erreur interne du serveur lors de l'authentification Riot Games",
     });
   }
 });

@@ -294,10 +294,6 @@
               <v-icon class="me-2">mdi-microsoft-xbox</v-icon>
               Xbox
             </v-tab>
-            <v-tab value="epic">
-              <v-icon class="me-2">mdi-gamepad-variant</v-icon>
-              Epic Games
-            </v-tab>
             <v-tab value="riot">
               <v-icon class="me-2">mdi-sword-cross</v-icon>
               Riot Games
@@ -313,9 +309,6 @@
             </v-tabs-window-item>
             <v-tabs-window-item value="xbox">
               <XboxConnector @connected="onPlatformConnected" />
-            </v-tabs-window-item>
-            <v-tabs-window-item value="epic">
-              <EpicConnector :on-success="onPlatformConnected" />
             </v-tabs-window-item>
             <v-tabs-window-item value="riot">
               <RiotConnector :on-success="onPlatformConnected" />
@@ -369,7 +362,6 @@ import type { GamingPlatform } from "@prisma/client";
 import SteamConnector from "~/components/library/SteamConnector.vue";
 import PlayStationConnector from "~/components/library/PlayStationConnector.vue";
 import XboxConnector from "~/components/library/XboxConnector.vue";
-import EpicConnector from "~/components/library/EpicConnector.vue";
 import RiotConnector from "~/components/library/RiotConnector.vue";
 import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
@@ -432,7 +424,7 @@ async function syncPlatform(platform: {
       platform.id,
       platform.platform
     );
-
+    if (!result) return;
     if (result.success) {
       snackbarStore.showSuccess(`Synchronisation ${platform.platform} réussie`);
       // Recharger les données après synchronisation réussie
@@ -442,7 +434,7 @@ async function syncPlatform(platform: {
         refreshMostPlayedGames(),
       ]);
     } else {
-      snackbarStore.showError(result.error);
+      snackbarStore.showError(result.error ?? "");
     }
   } finally {
     syncingPlatforms.value.delete(platform.id);

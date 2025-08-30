@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import type { NotificationReceivedDTO } from "#shared/models/notificationReceived";
-import type { NotificationDTO } from "~~/shared/models/notification";
+import type { NotificationReceivedDTO } from "~~/shared/types/notificationReceived";
+import type { NotificationDTO } from "~~/shared/types/notification";
 
 export const useNotificationsStore = defineStore("notifications", {
   state: () => ({

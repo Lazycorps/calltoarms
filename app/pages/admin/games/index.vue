@@ -165,12 +165,7 @@ import type {
   GameMaintenanceDTO,
   GameCreateDTO,
   GameUpdateDTO,
-} from "#shared/models/maintenance/gameMaintenance";
-
-// Middleware pour vérifier les droits admin
-definePageMeta({
-  middleware: ["auth-admin"],
-});
+} from "~~/shared/types/admin/gameMaintenance";
 
 // Données réactives
 const games = ref<GameMaintenanceDTO[]>([]);

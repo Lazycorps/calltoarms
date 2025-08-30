@@ -96,8 +96,8 @@ export default defineEventHandler(
         take: 10,
       });
 
-      const recentlyCompletedGames: PlatformGameCardDTO[] = recentlyCompletedRaw.map(
-        (game) => {
+      const recentlyCompletedGames: PlatformGameCardDTO[] =
+        recentlyCompletedRaw.map((game) => {
           const unlockedAchievements = game.achievements.filter(
             (achievement) => achievement.isUnlocked
           ).length;
@@ -110,23 +110,26 @@ export default defineEventHandler(
           return {
             id: game.id,
             name: game.name,
-            iconUrl: game.iconUrl || undefined,
-            coverUrl: game.coverUrl || undefined,
-            lastPlayed: game.lastPlayed || undefined,
+            iconUrl: game.iconUrl,
+            coverUrl: game.coverUrl,
+            lastPlayed: game.lastPlayed,
             playtimeTotal: game.playtimeTotal,
             platform: game.platformAccount.platform,
+            platformGameId: game.platformGameId,
             achievementsCount: unlockedAchievements,
             totalAchievements: totalAchievements,
             achievementPercentage: achievementPercentage,
             isCompleted: game.isCompleted,
-            completedAt: game.completedAt || undefined,
+            completedAt: game.completedAt,
           };
-        }
-      );
+        });
 
       return recentlyCompletedGames;
     } catch (error) {
-      console.error("Erreur lors de la récupération des jeux terminés de l'ami:", error);
+      console.error(
+        "Erreur lors de la récupération des jeux terminés de l'ami:",
+        error
+      );
 
       if (error && typeof error === "object" && "statusCode" in error) {
         throw error;

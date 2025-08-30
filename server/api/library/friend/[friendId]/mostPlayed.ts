@@ -113,6 +113,7 @@ export default defineEventHandler(async (event) => {
         playtimeTotal: true,
         platformGameId: true,
         lastPlayed: true,
+        isCompleted: true,
         achievements: {
           select: {
             id: true,
@@ -159,6 +160,7 @@ export default defineEventHandler(async (event) => {
         achievementsCount: unlockedAchievements,
         totalAchievements: totalAchievements,
         achievementPercentage: achievementPercentage,
+        isCompleted: game.isCompleted,
       };
     });
 

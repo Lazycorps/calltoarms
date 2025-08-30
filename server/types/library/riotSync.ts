@@ -3,7 +3,8 @@
 
 export interface RiotCredentials {
   riotId: string; // Format: GameName#TagLine
-  region?: string; // Région du serveur (na1, euw1, kr, etc.)
+  region: string; // Région du serveur (na1, euw1, kr, etc.)
+  [key: string]: string | number | boolean;
 }
 
 export interface RiotApiResponse<T = any> {

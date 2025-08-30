@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Call to Arms is a Nuxt 4 social gaming platform that allows users to:
+
 - Connect gaming platforms (Steam, PlayStation, etc.)
 - Track games and playtime across platforms
 - Send notifications to friends about gaming sessions
@@ -13,18 +14,21 @@ Call to Arms is a Nuxt 4 social gaming platform that allows users to:
 ## Essential Commands
 
 ### Development
+
 ```bash
 npm install          # Install dependencies
 npm run dev         # Start development server on http://localhost:3000
 ```
 
 ### Building
+
 ```bash
 npm run build       # Build for production
 npm run preview     # Preview production build locally
 ```
 
 ### Database
+
 ```bash
 npx prisma migrate dev     # Run database migrations
 npx prisma generate        # Generate Prisma client
@@ -34,6 +38,7 @@ npx prisma studio         # Open Prisma Studio for database management
 ## Architecture
 
 ### Tech Stack
+
 - **Frontend**: Nuxt 4, Vue 3, Vuetify 3, Pinia
 - **Backend**: Nuxt server API routes, Prisma ORM
 - **Database**: PostgreSQL
@@ -42,6 +47,7 @@ npx prisma studio         # Open Prisma Studio for database management
 - **Gaming APIs**: Steam Web API, PlayStation Network API
 
 ### Directory Structure
+
 - `/app` - Frontend Vue application
   - `/components` - Reusable Vue components organized by feature
   - `/pages` - File-based routing pages
@@ -56,10 +62,12 @@ npx prisma studio         # Open Prisma Studio for database management
     - `/notifications` - Notification system endpoints
     - `/user` - User management and library endpoints
   - `/middleware` - Server middleware (auth)
-  - `/utils` - Server utilities including gaming platform services
+  - `/services` - Server services (function used by by API)
+  - `/utils` - Server utilities
+  - `/types` - Server only data models
 - `/prisma` - Database schema and migrations
 - `/shared` - Shared TypeScript models, DTOs between frontend and backend
-  - `/models` - Core data models
+  - `/types` - Core data models
   - `/utils` - Shared utilities
 - `/docs` - Platform integration documentation
 
@@ -68,9 +76,11 @@ npx prisma studio         # Open Prisma Studio for database management
 1. **Gaming Platform Abstraction**: Uses abstract `PlatformService` base class to handle multiple gaming platforms uniformly. Each platform (Steam, PlayStation) implements this interface.
 
 2. **API Structure**: RESTful endpoints follow pattern `/api/[resource]/[action].[method].ts`
+
    - Example: `/api/platforms/steam/sync.post.ts`
 
-3. **Authentication Flow**: 
+3. **Authentication Flow**:
+
    - Supabase handles user authentication
    - Server middleware validates auth tokens
    - Gaming platform credentials stored separately in database
@@ -80,6 +90,7 @@ npx prisma studio         # Open Prisma Studio for database management
 ### Environment Variables
 
 Required environment variables:
+
 - **Database**: `DATABASE_URL`, `DIRECT_URL`
 - **Auth**: `SUPABASE_URL`, `SUPABASE_KEY`
 - **Firebase**: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_STORAGE_BUCKET`, `FIREBASE_MESSAGING_SENDER_ID`, `FIREBASE_APP_ID`, `FIREBASE_VAPID_KEY`
@@ -129,7 +140,7 @@ Required environment variables:
 ### Component Organization
 
 - `/components/friends/` - Friend management components
-- `/components/game/` - Game-related UI components  
+- `/components/game/` - Game-related UI components
 - `/components/library/` - Gaming library and platform connectors
 - `/components/notifications/` - Notification system UI
 

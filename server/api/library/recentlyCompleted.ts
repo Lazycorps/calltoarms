@@ -70,16 +70,17 @@ export default defineEventHandler(
           return {
             id: game.id,
             name: game.name,
-            iconUrl: game.iconUrl || undefined,
-            coverUrl: game.coverUrl || undefined,
-            lastPlayed: game.lastPlayed || undefined,
+            iconUrl: game.iconUrl,
+            coverUrl: game.coverUrl,
+            lastPlayed: game.lastPlayed,
             playtimeTotal: game.playtimeTotal,
+            platformGameId: game.platformGameId,
             platform: game.platformAccount.platform,
             achievementsCount: unlockedAchievements,
             totalAchievements: totalAchievements,
             achievementPercentage: achievementPercentage,
             isCompleted: game.isCompleted,
-            completedAt: game.completedAt || undefined,
+            completedAt: game.completedAt,
           };
         });
 

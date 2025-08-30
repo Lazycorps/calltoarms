@@ -1,6 +1,6 @@
 import { useFirebase } from "./useFirebase";
 import { getToken, onMessage, type MessagePayload } from "firebase/messaging";
-import type { MessageDTO } from "#shared/models/message";
+import type { MessageDTO } from "~~/shared/types/message";
 export const useFirebaseMessaging = () => {
   /**
    * Send a push notification to selected users

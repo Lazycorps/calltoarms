@@ -6,4 +6,5 @@ export type { GameStatsDTO } from "./gameStatsDTO";
 export type { LibraryResponseDTO } from "./libraryResponseDTO";
 export type { GameDetailsDTO } from "./gameDetailsDTO";
 export type { LibraryStatsDTO } from "./libraryStatsDTO";
-export type { activityDTO } from "./activityDTO";
+export type { ActivityDTO } from "./activityDTO";
+export type { activityDTO } from "./activityHubDTO";

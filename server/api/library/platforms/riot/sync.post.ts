@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { RiotService } from "@@/server/utils/gaming-platforms/riot/RiotService";
+import { RiotService } from "~~/server/services/library/RiotService";
 import prisma from "@@/lib/prisma";
 
 export default defineEventHandler(async (event) => {
@@ -48,13 +48,19 @@ export default defineEventHandler(async (event) => {
     // Synchroniser tous les jeux sans filtrage
     const gamesToSync = syncResult.data;
     console.log("Synchronisation de", gamesToSync.length, "jeux Riot Games");
-    
+
     const games = [];
-    
+
     for (let i = 0; i < gamesToSync.length; i++) {
       const gameData = gamesToSync[i];
-      console.log(`Synchronisation du jeu ${gameData.name} (${i + 1}/${gamesToSync.length})`);
+      if (!gameData) continue;
       
+      console.log(
+        `Synchronisation du jeu ${gameData.name} (${i + 1}/${
+          gamesToSync.length
+        })`
+      );
+
       try {
         const existingGame = await prisma.platformGame.findUnique({
           where: {
@@ -98,10 +104,13 @@ export default defineEventHandler(async (event) => {
             },
           });
         }
-        
+
         games.push(game);
       } catch (error) {
-        console.error(`Erreur lors de la synchronisation du jeu ${gameData.name}:`, error);
+        console.error(
+          `Erreur lors de la synchronisation du jeu ${gameData.name}:`,
+          error
+        );
         // Continuer avec les autres jeux même en cas d'erreur
       }
     }

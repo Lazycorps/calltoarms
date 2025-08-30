@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from "h3";
 import prisma from "~~/lib/prisma";
-import { GameMaintenanceDTO } from "#shared/models/maintenance/gameMaintenance";
+import { GameMaintenanceDTO } from "~~/shared/types/admin/gameMaintenance";
 
 interface GameFilters {
   search?: string;

@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { SteamService } from "@@/server/utils/gaming-platforms/steam/SteamService";
+import { SteamService } from "~~/server/services/library/SteamService";
 import prisma from "@@/lib/prisma";
 
 export default defineEventHandler(async (event) => {
@@ -101,13 +101,19 @@ export default defineEventHandler(async (event) => {
 
     // Mettre à jour ou créer les jeux dans la base de données de façon séquentielle
     console.log("Synchronisation de", gamesToSync.length, "jeux");
-    
+
     const games = [];
-    
+
     for (let i = 0; i < gamesToSync.length; i++) {
       const gameData = gamesToSync[i];
-      console.log(`Synchronisation du jeu ${gameData.name} (${i + 1}/${gamesToSync.length})`);
+      if (!gameData) continue;
       
+      console.log(
+        `Synchronisation du jeu ${gameData.name} (${i + 1}/${
+          gamesToSync.length
+        })`
+      );
+
       try {
         const existingGame = await prisma.platformGame.findUnique({
           where: {
@@ -158,23 +164,32 @@ export default defineEventHandler(async (event) => {
             },
           });
         }
-        
+
         games.push(game);
       } catch (error) {
-        console.error(`Erreur lors de la synchronisation du jeu ${gameData.name}:`, error);
+        console.error(
+          `Erreur lors de la synchronisation du jeu ${gameData.name}:`,
+          error
+        );
         // Continuer avec les autres jeux même en cas d'erreur
       }
     }
 
     // Synchroniser les succès pour chaque jeu de façon séquentielle
     console.log("Synchronisation des succès pour", games.length, "jeux");
-    
+
     const achievementResults = [];
-    
+
     for (let i = 0; i < games.length; i++) {
       const game = games[i];
-      console.log(`Synchronisation des succès pour ${game.name} (${i + 1}/${games.length})`);
+      if (!game) continue;
       
+      console.log(
+        `Synchronisation des succès pour ${game.name} (${i + 1}/${
+          games.length
+        })`
+      );
+
       try {
         // Récupérer les succès existants
         const existingAchievements = await prisma.platformAchievement.findMany({
@@ -226,7 +241,7 @@ export default defineEventHandler(async (event) => {
               })),
             });
           }
-          
+
           achievementResults.push({
             gameId: game.id,
             gameName: game.name,
@@ -234,11 +249,11 @@ export default defineEventHandler(async (event) => {
             hasNewUnlocks: !!mostRecentUnlock,
           });
         } else {
-          achievementResults.push({ 
-            gameId: game.id, 
-            gameName: game.name, 
-            count: 0, 
-            hasNewUnlocks: false 
+          achievementResults.push({
+            gameId: game.id,
+            gameName: game.name,
+            count: 0,
+            hasNewUnlocks: false,
           });
         }
       } catch (error) {
@@ -246,12 +261,12 @@ export default defineEventHandler(async (event) => {
           `Erreur lors de la synchronisation des succès pour ${game.name}:`,
           error
         );
-        achievementResults.push({ 
-          gameId: game.id, 
-          gameName: game.name, 
-          count: 0, 
-          error: true, 
-          hasNewUnlocks: false 
+        achievementResults.push({
+          gameId: game.id,
+          gameName: game.name,
+          count: 0,
+          error: true,
+          hasNewUnlocks: false,
         });
       }
     }

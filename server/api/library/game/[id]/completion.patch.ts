@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, readBody } from "h3";
+import { defineEventHandler, createError, readBody, getRouterParam } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import type {
@@ -76,7 +76,7 @@ export default defineEventHandler(
       let completedDate = existingGame.lastPlayed;
 
       if (existingGame.achievements.length > 0) {
-        const latestAchievementDate = existingGame.achievements[0].unlockedAt;
+        const latestAchievementDate = existingGame.achievements[0]?.unlockedAt;
         if (latestAchievementDate) {
           completedDate = latestAchievementDate;
         }

@@ -69,8 +69,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
-import type { GameDTO } from "#shared/models/game";
-import type { MessageDTO } from "#shared/models/message";
+import type { GameDTO } from "~~/shared/types/game";
+import type { MessageDTO } from "~~/shared/types/message";
 import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessaging";
 
 const usersStore = useUserStore();

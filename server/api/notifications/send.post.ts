@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from "h3";
 import prisma from "~~/lib/prisma";
 import { getFirebaseMessaging } from "../../../server/utils/firebase-admin";
-import type { MessageDTO } from "#shared/models/message";
+import type { MessageDTO } from "~~/shared/types/message";
 
 interface CreateNotificationRequest {
   notification: MessageDTO;

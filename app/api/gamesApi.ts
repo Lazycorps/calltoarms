@@ -1,4 +1,4 @@
-import type { GameDTO } from "#shared/models/game";
+import type { GameDTO } from "~~/shared/types/game";
 
 export function useGamesApi() {
   async function getGames(name: string): Promise<GameDTO[]> {

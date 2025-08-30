@@ -7,9 +7,10 @@ export interface GameCard {
   coverUrl: string | null;
   lastPlayed: Date | null;
   playtimeTotal: number;
-  platformGameId: number;
+  platformGameId: string;
   platform: GamingPlatform;
   achievementsCount: number;
   totalAchievements: number;
   achievementPercentage: number;
+  isCompleted: boolean;
 }

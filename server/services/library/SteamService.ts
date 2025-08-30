@@ -5,7 +5,7 @@ import type {
   AchievementData,
   PlatformCredentials,
   SyncResult,
-} from "../base/types";
+} from "@@/server/types/library/base";
 import type {
   SteamCredentials,
   SteamApiResponse,
@@ -16,7 +16,7 @@ import type {
   SteamUserProfile,
   SteamGame,
   SteamAchievement,
-} from "./steam-types";
+} from "@@/server/types/library/steamSync";
 
 export class SteamService {
   readonly platform: GamingPlatform = "STEAM";
@@ -283,6 +283,11 @@ export class SteamService {
       }
 
       const player = data.response.players[0];
+      // Vérifier que le profil existe
+      if (!player) {
+        return this.createErrorResult("Steam user profile is undefined");
+      }
+      
       // Retourner directement les données de l'API Steam
       const profile: SteamUserProfile = player;
 
