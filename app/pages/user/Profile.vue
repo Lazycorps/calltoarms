@@ -139,6 +139,16 @@ const steamID = ref("");
 const riotID = ref("");
 const epicID = ref("");
 const bnetID = ref("");
+
+// Original values for reset functionality
+const originalData = ref({
+  username: "",
+  steamID: "",
+  riotID: "",
+  epicID: "",
+  bnetID: "",
+  avatarUrl: ""
+});
 const rules = {
   required: (v: string) => !!v || "Required.",
   min: (v: string) => v.length >= 4 || "Min 4 characters",
@@ -161,11 +171,17 @@ function toggleEdition() {
 }
 
 function cancelEdition() {
+  resetForm();
   isFormReadonly.value = true;
 }
 
 function resetForm() {
-  console.log('reset');
+  username.value = originalData.value.username;
+  steamID.value = originalData.value.steamID;
+  riotID.value = originalData.value.riotID;
+  epicID.value = originalData.value.epicID;
+  bnetID.value = originalData.value.bnetID;
+  avatarUrl.value = originalData.value.avatarUrl;
 }
 
 function triggerAvatarUpload() {
@@ -217,6 +233,16 @@ async function saveProfile() {
       body: profileData
     });
 
+    // Update original data after successful save
+    originalData.value = {
+      username: username.value,
+      steamID: steamID.value,
+      riotID: riotID.value,
+      epicID: epicID.value,
+      bnetID: bnetID.value,
+      avatarUrl: avatarUrl.value
+    };
+    
     isFormReadonly.value = true;
   } catch (error) {
     console.error('Error saving profile:', error);
@@ -229,12 +255,24 @@ async function fetchProfile() {
   try {
     loading.value = true;
     const userProfile = await $fetch("/api/user/profile");
+    
+    // Set current values
     username.value = userProfile?.username ?? "";
     steamID.value = userProfile?.steamID ?? "";
     riotID.value = userProfile?.riotID ?? "";
     epicID.value = userProfile?.epicID ?? "";
     bnetID.value = userProfile?.bnetID ?? "";
     avatarUrl.value = userProfile?.avatarUrl ?? "";
+    
+    // Store original values for reset
+    originalData.value = {
+      username: userProfile?.username ?? "",
+      steamID: userProfile?.steamID ?? "",
+      riotID: userProfile?.riotID ?? "",
+      epicID: userProfile?.epicID ?? "",
+      bnetID: userProfile?.bnetID ?? "",
+      avatarUrl: userProfile?.avatarUrl ?? ""
+    };
   } finally {
     loading.value = false;
   }
