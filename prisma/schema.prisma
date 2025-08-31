@@ -92,7 +92,6 @@ enum GamingPlatform {
     PLAYSTATION
     XBOX
     NINTENDO
-    EPIC_GAMES
     GOG
     RIOT
 }
