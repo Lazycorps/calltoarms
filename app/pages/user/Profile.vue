@@ -61,20 +61,20 @@
             <v-row>
               <v-col cols="12" md="3">
                 <v-text-field label="Steam ID" variant="outlined" :readonly="isFormReadonly"
-                  prepend-inner-icon="mdi-steam" color="primary" hint="Votre identifiant Steam" persistent-hint />
+                  v-model="steamID" prepend-inner-icon="mdi-steam" color="primary" hint="Votre identifiant Steam" persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
                 <v-text-field label="Riot ID" variant="outlined" :readonly="isFormReadonly"
-                  prepend-inner-icon="mdi-sword-cross" color="primary" hint="Format: Pseudo#TAG" persistent-hint />
+                  v-model="riotID" prepend-inner-icon="mdi-sword-cross" color="primary" hint="Format: Pseudo#TAG" persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
                 <v-text-field label="Epic Games" variant="outlined" :readonly="isFormReadonly"
-                  prepend-inner-icon="mdi-rocket-launch" color="primary" hint="Votre pseudo Epic Games"
+                  v-model="epicID" prepend-inner-icon="mdi-rocket-launch" color="primary" hint="Votre pseudo Epic Games"
                   persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
                 <v-text-field label="Battle.net" variant="outlined" :readonly="isFormReadonly"
-                  prepend-inner-icon="mdi-alpha-b-circle-outline" color="primary" hint="Format: Pseudo#1234"
+                  v-model="bnetID" prepend-inner-icon="mdi-alpha-b-circle-outline" color="primary" hint="Format: Pseudo#1234"
                   persistent-hint />
               </v-col>
             </v-row>
@@ -102,6 +102,8 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/user';
+
 const supabase = useSupabaseClient();
 const router = useRouter();
 
@@ -112,6 +114,12 @@ const isFormReadonly = ref(true);
 const username = ref("");
 const email = ref("");
 const userNameChanged = ref(false);
+
+// Platform IDs
+const steamID = ref("");
+const riotID = ref("");
+const epicID = ref("");
+const bnetID = ref("");
 const rules = {
   required: (v: string) => !!v || "Required.",
   min: (v: string) => v.length >= 4 || "Min 4 characters",
@@ -142,7 +150,28 @@ function resetForm() {
 }
 
 async function saveProfile() {
-  console.log('save');
+  try {
+    loadingUpdateUser.value = true;
+    
+    const profileData = {
+      username: username.value,
+      steamID: steamID.value,
+      riotID: riotID.value,
+      epicID: epicID.value,
+      bnetID: bnetID.value
+    };
+
+    await $fetch("/api/user/profile", {
+      method: "POST",
+      body: profileData
+    });
+
+    isFormReadonly.value = true;
+  } catch (error) {
+    console.error('Error saving profile:', error);
+  } finally {
+    loadingUpdateUser.value = false;
+  }
 }
 
 async function fetchUser() {
