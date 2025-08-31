@@ -39,7 +39,7 @@
           <v-card-text class="pa-6">
             <v-row>
               <v-col cols="12" md="3">                
-                <v-text-field label="Pseudo" v-model="username" :readonly="isFormReadonly"
+                <v-text-field label="Pseudo" v-model="username" :disabled="isFormReadonly" :readonly="isFormReadonly"
                   :rules="[rules.required, rules.min, rules.max]" variant="outlined" prepend-inner-icon="mdi-account"
                   class="mb-4" color="primary" />
               </v-col>
@@ -60,20 +60,20 @@
           <v-card-text class="pa-6">
             <v-row>
               <v-col cols="12" md="3">
-                <v-text-field label="Steam ID" variant="outlined" :readonly="isFormReadonly"
+                <v-text-field label="Steam ID" variant="outlined" :disabled="isFormReadonly" :readonly="isFormReadonly"
                   v-model="steamID" prepend-inner-icon="mdi-steam" color="primary" hint="Votre identifiant Steam" persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
-                <v-text-field label="Riot ID" variant="outlined" :readonly="isFormReadonly"
+                <v-text-field label="Riot ID" variant="outlined" :disabled="isFormReadonly" :readonly="isFormReadonly"
                   v-model="riotID" prepend-inner-icon="mdi-sword-cross" color="primary" hint="Format: Pseudo#TAG" persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
-                <v-text-field label="Epic Games" variant="outlined" :readonly="isFormReadonly"
+                <v-text-field label="Epic Games" variant="outlined" :disabled="isFormReadonly" :readonly="isFormReadonly"
                   v-model="epicID" prepend-inner-icon="mdi-rocket-launch" color="primary" hint="Votre pseudo Epic Games"
                   persistent-hint />
               </v-col>
               <v-col cols="12" md="3">
-                <v-text-field label="Battle.net" variant="outlined" :readonly="isFormReadonly"
+                <v-text-field label="Battle.net" variant="outlined" :disabled="isFormReadonly" :readonly="isFormReadonly"
                   v-model="bnetID" prepend-inner-icon="mdi-alpha-b-circle-outline" color="primary" hint="Format: Pseudo#1234"
                   persistent-hint />
               </v-col>
@@ -132,7 +132,7 @@ const rules = {
 };
 const loadingUpdateUser = ref(false);
 onMounted(async () => {
-  await fetchUser();
+  await fetchProfile();
 });
 
 const { user } = useUserStore();
@@ -174,12 +174,15 @@ async function saveProfile() {
   }
 }
 
-async function fetchUser() {
+async function fetchProfile() {
   try {
     loading.value = true;
-    const userConnected = await $fetch("/api/user/current");
-    username.value = userConnected?.name ?? "";
-    email.value = userConnected?.email ?? "";
+    const userProfile = await $fetch("/api/user/profile");
+    username.value = userProfile?.username ?? "";
+    steamID.value = userProfile?.steamID ?? "";
+    riotID.value = userProfile?.riotID ?? "";
+    epicID.value = userProfile?.epicID ?? "";
+    bnetID.value = userProfile?.bnetID ?? "";
   } finally {
     loading.value = false;
   }
