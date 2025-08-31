@@ -5,9 +5,29 @@
         <!-- En-tête du profil -->
         <v-card class="mb-6" elevation="2">
           <v-card-text class="text-center pa-8">
-            <v-avatar size="120" class="mb-4">
-              <v-img :src="avatar || '/avatar_placeholder.png'" :alt="user?.name" />
-            </v-avatar>
+            <div class="position-relative d-inline-block">
+              <v-avatar size="120" class="mb-4">
+                <v-img :src="avatarUrl || '/avatar_placeholder.png'" :alt="user?.name" />
+              </v-avatar>
+              <v-btn 
+                v-if="!isFormReadonly" 
+                icon 
+                size="small" 
+                color="primary" 
+                class="position-absolute" 
+                style="bottom: 0; right: 0;" 
+                @click="triggerAvatarUpload"
+              >
+                <v-icon>mdi-camera</v-icon>
+              </v-btn>
+              <input 
+                ref="avatarInput" 
+                type="file" 
+                accept="image/*" 
+                style="display: none" 
+                @change="handleAvatarChange"
+              />
+            </div>
             <div class="d-flex align-center justify-center mb-2">
               <h1 class="text-h4 font-weight-bold mr-3">
                 {{ user?.name || 'Profil utilisateur' }}
@@ -107,13 +127,12 @@ import { useUserStore } from '~/stores/user';
 const supabase = useSupabaseClient();
 const router = useRouter();
 
-const avatar = ref('');
+const avatarUrl = ref('');
+const avatarInput = ref<HTMLInputElement>();
 
 const loading = ref(true);
 const isFormReadonly = ref(true);
 const username = ref("");
-const email = ref("");
-const userNameChanged = ref(false);
 
 // Platform IDs
 const steamID = ref("");
@@ -149,6 +168,37 @@ function resetForm() {
   console.log('reset');
 }
 
+function triggerAvatarUpload() {
+  avatarInput.value?.click();
+}
+
+async function handleAvatarChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  
+  if (!file) return;
+  
+  try {
+    loadingUpdateUser.value = true;
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const response = await $fetch('/api/user/avatar', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (response.avatarUrl) {
+      avatarUrl.value = response.avatarUrl;
+    }
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+  } finally {
+    loadingUpdateUser.value = false;
+  }
+}
+
 async function saveProfile() {
   try {
     loadingUpdateUser.value = true;
@@ -158,7 +208,8 @@ async function saveProfile() {
       steamID: steamID.value,
       riotID: riotID.value,
       epicID: epicID.value,
-      bnetID: bnetID.value
+      bnetID: bnetID.value,
+      avatarUrl: avatarUrl.value
     };
 
     await $fetch("/api/user/profile", {
@@ -183,32 +234,7 @@ async function fetchProfile() {
     riotID.value = userProfile?.riotID ?? "";
     epicID.value = userProfile?.epicID ?? "";
     bnetID.value = userProfile?.bnetID ?? "";
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function updateUsername() {
-  try {
-    loadingUpdateUser.value = true;
-    const userUpdated = await $fetch("/api/user/username", {
-      method: "POST",
-      body: {
-        username: username.value,
-      },
-    });
-    username.value = userUpdated?.name ?? "";
-  } finally {
-    loadingUpdateUser.value = false;
-  }
-}
-
-async function signOut() {
-  try {
-    loading.value = true;
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    router.push("/login");
+    avatarUrl.value = userProfile?.avatarUrl ?? "";
   } finally {
     loading.value = false;
   }

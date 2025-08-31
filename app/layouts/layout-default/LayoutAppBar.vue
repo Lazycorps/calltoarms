@@ -32,10 +32,10 @@
       </v-btn>
       <v-menu location="bottom" width="200px">
         <template #activator="{ props }">
-          <h3>{{ user.user?.name }}</h3>
+          <h3>{{ user.user?.profile?.username }}</h3>
           <v-btn class="text-none" stacked v-bind="props">
             <v-avatar>
-              <v-img :src="avatar || '/avatar_placeholder.png'" />
+              <v-img :src="user.user?.profile?.avatarUrl || '/avatar_placeholder.png'" />
             </v-avatar>
           </v-btn>
         </template>
@@ -43,8 +43,8 @@
           <div v-if="user.user">
             <v-list-item to="/user/profile">
               <template #prepend>
-                <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
-                {{ user.user?.name }}
+                <v-icon size="40" class="mr-3">mdi-account</v-icon>
+                Profil
               </template>
             </v-list-item>
             <v-divider class="mt-2" />

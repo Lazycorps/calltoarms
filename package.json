@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.11.2",
     "@prisma/client": "^6.15.0",
     "@prisma/nuxt": "^0.3.0",
+    "@types/uuid": "^10.0.0",
     "@xboxreplay/xboxlive-auth": "^5.1.0",
     "eslint": "^9.34.0",
     "firebase": "^12.2.1",
@@ -23,6 +24,7 @@
     "nuxt": "^4.0.3",
     "pinia": "^3.0.3",
     "psn-api": "^2.15.0",
+    "uuid": "^11.1.0",
     "vue": "^3.5.20",
     "vue-router": "^4.5.1"
   },

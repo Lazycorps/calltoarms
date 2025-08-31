@@ -26,14 +26,15 @@ model User {
 }
 
 model Profile {
-  id       Int    @id @default(autoincrement())
-  username String
-  steamID  String
-  riotID   String
-  epicID   String
-  bnetID   String
-  userId   String @unique // IMPORTANT: unique pour 1-1
-  user     User   @relation(fields: [userId], references: [id])
+  id        Int     @id @default(autoincrement())
+  username  String
+  steamID   String
+  riotID    String
+  epicID    String
+  bnetID    String
+  avatarUrl String?
+  userId    String  @unique // IMPORTANT: unique pour 1-1
+  user      User    @relation(fields: [userId], references: [id])
 }
 
 model Game {

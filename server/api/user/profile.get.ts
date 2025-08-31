@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Error saving profile",
+      statusMessage: "Error fetching profile",
     });
   } finally {
     await prisma.$disconnect();

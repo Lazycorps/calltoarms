@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  const { username, steamID, riotID, epicID, bnetID } = body;
+  const { username, steamID, riotID, epicID, bnetID, avatarUrl } = body;
 
   if (!username) {
     throw createError({
@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
           riotID: riotID || "",
           epicID: epicID || "",
           bnetID: bnetID || "",
+          avatarUrl: avatarUrl || null,
         },
       });
     } else {
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event) => {
           riotID: riotID || "",
           epicID: epicID || "",
           bnetID: bnetID || "",
+          avatarUrl: avatarUrl || null,
         },
       });
     }
