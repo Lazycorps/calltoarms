@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
-import { PlayStationService } from "@@/server/utils/gaming-platforms/playstation/PlayStationService";
+import { PlayStationService } from "~~/server/services/library/PlayStationService";
 import prisma from "@@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 

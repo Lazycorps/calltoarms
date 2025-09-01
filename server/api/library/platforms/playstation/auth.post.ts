@@ -1,5 +1,6 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import prisma from "~~/lib/prisma";
+import { PlayStationService } from "~~/server/services/library/PlayStationService";
 
 interface PlayStationAuthRequest {
   username: string;

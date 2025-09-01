@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody } from "h3";
 import prisma from "~~/lib/prisma";
-import type { GameCreateDTO } from "#shared/models/maintenance/gameMaintenance";
-import { GameMaintenanceDTO } from "#shared/models/maintenance/gameMaintenance";
+import type { GameCreateDTO } from "~~/shared/types/admin/gameMaintenance";
+import { GameMaintenanceDTO } from "~~/shared/types/admin/gameMaintenance";
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as GameCreateDTO;

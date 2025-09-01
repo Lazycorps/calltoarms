@@ -7,6 +7,14 @@ export default defineEventHandler(async (event) => {
 
   const user = await prisma.user.findFirst({
     where: { id: userConnected.id },
+    include: {
+      Profile: {
+        select: {
+          username: true,
+          avatarUrl: true,
+        },
+      },
+    },
   });
   return {
     ...user,

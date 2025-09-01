@@ -32,9 +32,10 @@
       </v-btn>
       <v-menu location="bottom" width="200px">
         <template #activator="{ props }">
+          <h3>{{ user.user?.profile?.username }}</h3>
           <v-btn class="text-none" stacked v-bind="props">
             <v-avatar>
-              <v-icon size="40">mdi-account-circle</v-icon>
+              <v-img :src="user.user?.profile?.avatarUrl || '/avatar_placeholder.png'" />
             </v-avatar>
           </v-btn>
         </template>
@@ -42,8 +43,8 @@
           <div v-if="user.user">
             <v-list-item to="/user/profile">
               <template #prepend>
-                <v-icon size="40" class="mr-3">mdi-account-circle</v-icon>
-                {{ user.user?.name }}
+                <v-icon size="40" class="mr-3">mdi-account</v-icon>
+                Profil
               </template>
             </v-list-item>
             <v-divider class="mt-2" />
@@ -75,6 +76,8 @@ import { useFirebaseMessaging } from "~/composables/firebase/useFirebaseMessagin
 const user = useUserStore();
 const { mobile } = useDisplay();
 const notificationPermission = usePermission("notifications");
+
+const avatar = ref('');
 
 async function enablePermission() {
   const { requestNotificationPermission } = useFirebaseMessaging();

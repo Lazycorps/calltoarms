@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type {
@@ -8,7 +9,7 @@ import type {
 import type {
   PlatformGameWithAccount,
   PlatformStats,
-} from "~~/shared/models/gamingPlatform";
+} from "~~/shared/types/gamingPlatform";
 import type { PlatformAccountDTO } from "~~/shared/types/library";
 
 export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
@@ -33,7 +34,6 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       PLAYSTATION: "playstation",
       XBOX: "xbox",
       NINTENDO: "nintendo",
-      EPIC_GAMES: "epic",
       GOG: "gog",
       RIOT: "riot",
     };
@@ -133,28 +133,29 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         await loadPlatforms();
         return { success: true, data: response.games };
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Erreur lors de la synchronisation:", err);
 
       // Extraire les détails de l'erreur pour les retourner au composant
       let errorMessage = `Erreur lors de la synchronisation ${platform}`;
       let canRetry = true;
 
-      if (err?.data?.statusMessage) {
-        errorMessage = err.data.statusMessage;
-      } else if (err?.statusMessage) {
-        errorMessage = err.statusMessage;
-      } else if (err?.message) {
-        errorMessage = err.message;
+      const error = err as any;
+      if (error?.data?.statusMessage) {
+        errorMessage = error.data.statusMessage;
+      } else if (error?.statusMessage) {
+        errorMessage = error.statusMessage;
+      } else if (error?.message) {
+        errorMessage = error.message;
       }
 
       // Si l'erreur est liée à l'authentification PlayStation, nettoyer les credentials
       if (
         platform === "PLAYSTATION" &&
-        err &&
-        typeof err === "object" &&
-        "status" in err &&
-        err.status === 401
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 401
       ) {
         clearPlatformCredentials(platform);
         errorMessage =
@@ -168,7 +169,7 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         error: errorMessage,
         platform,
         canRetry,
-        statusCode: err?.status || err?.statusCode || 500,
+        statusCode: error?.status || error?.statusCode || 500,
       };
     } finally {
       loading.value = false;
@@ -302,8 +303,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
         return result.value;
       } else {
         return {
-          platform: platform.platform,
-          accountId: platform.id,
+          platform: platform?.platform || ("UNKNOWN" as GamingPlatform),
+          accountId: platform?.id || 0,
           success: false,
           error: result.reason?.message || "Erreur de synchronisation",
         };

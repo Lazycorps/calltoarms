@@ -134,6 +134,8 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import { useSnackbarStore } from "~/stores/snackbar";
 import type { GamingPlatform } from "@prisma/client";
+import type { PlatformGameWithAccount } from "~~/shared/types/gamingPlatform";
+import type { PlatformGameCardDTO } from "~~/shared/types/library/platformGameCardDTO";
 import GameDetailsDialog from "~/components/library/GameDetailsDialog.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
 
@@ -189,8 +191,38 @@ const platformOptions = computed(() => {
   return platforms;
 });
 
+// Fonction de transformation des données
+function transformGameToCardDTO(
+  game: PlatformGameWithAccount
+): PlatformGameCardDTO {
+  const achievementsCount = game._count?.achievements || 0;
+  // Pour le moment, on utilise le nombre total d'achievements comme totalAchievements
+  // Cela devra être ajusté quand on aura les données complètes des achievements
+  const totalAchievements = achievementsCount;
+
+  return {
+    id: game.id,
+    name: game.name,
+    iconUrl: game.iconUrl || null,
+    coverUrl: game.coverUrl || null,
+    lastPlayed: game.lastPlayed || null,
+    playtimeTotal: game.playtimeTotal || 0,
+    platformGameId: game.platformGameId,
+    platform: game.platformAccount.platform,
+    achievementsCount,
+    totalAchievements,
+    achievementPercentage:
+      totalAchievements > 0
+        ? Math.round((achievementsCount / totalAchievements) * 100)
+        : 0,
+    isCompleted: game.completedAt !== null,
+  };
+}
+
 // Computed
-const games = computed(() => gamingPlatformsStore.allGames);
+const games = computed(() =>
+  gamingPlatformsStore.allGames.map(transformGameToCardDTO)
+);
 const loading = computed(() => gamingPlatformsStore.loading);
 
 // Méthodes
@@ -217,17 +249,25 @@ async function syncGames() {
   if (!props.accountId || !props.platform) return;
 
   const snackbarStore = useSnackbarStore();
-  
+
   try {
     syncing.value = true;
-    const result = await gamingPlatformsStore.syncPlatform(props.accountId, props.platform);
-    
-    if (result.success) {
+    const result = await gamingPlatformsStore.syncPlatform(
+      props.accountId,
+      props.platform
+    );
+
+    if (result && result.success) {
       snackbarStore.showSuccess(`Synchronisation ${props.platform} réussie`);
       await loadGames(); // Recharger les jeux après synchronisation
-    } else {
+    } else if (result && result.error) {
       snackbarStore.showError(result.error);
+    } else {
+      snackbarStore.showError("Erreur lors de la synchronisation");
     }
+  } catch (error) {
+    console.error("Erreur lors de la synchronisation:", error);
+    snackbarStore.showError("Erreur lors de la synchronisation");
   } finally {
     syncing.value = false;
   }

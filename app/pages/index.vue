@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { GameDTO } from "#shared/models/game";
+import { GameDTO } from "~~/shared/types/game";
 import { onMounted, ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
 // import GameVue from "./games/Game.vue";

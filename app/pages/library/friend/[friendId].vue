@@ -318,7 +318,7 @@ import { ref, computed, watch } from "vue";
 import type { GamingPlatform } from "@prisma/client";
 import GameCardVue from "~/components/library/GameCard.vue";
 import PlatformGamesList from "~/components/library/PlatformGamesList.vue";
-import type { GameCard } from "~~/shared/models/gameCard";
+import type { GameCard } from "~~/shared/types/gameCard";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
 import {
   formatPlaytimeInDays,
@@ -350,7 +350,7 @@ const recentlyPlayedGames = computed<GameCard[]>(() => {
   if (!friendData.value?.games) return [];
   return friendData.value.games
     .filter(
-      (game: any) =>
+      (game) =>
         game.lastPlayed &&
         new Date(game.lastPlayed).getTime() >
           Date.now() - 14 * 24 * 60 * 60 * 1000

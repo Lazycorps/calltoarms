@@ -225,7 +225,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useUserStore } from "~/stores/user";
-import { FriendStatus } from "#shared/models/friend";
+import { FriendStatus } from "~~/shared/types/friend";
 
 const userStore = useUserStore();
 const activeTab = ref("all");

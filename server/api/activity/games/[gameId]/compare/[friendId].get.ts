@@ -1,47 +1,15 @@
 import { defineEventHandler, getRouterParam, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
-
-interface GameComparisonDTO {
-  game: {
-    id: number;
-    name: string;
-    platform: string;
-    iconUrl?: string;
-    coverUrl?: string;
-  };
-  friend: {
-    name: string;
-    slug: string;
-    stats: {
-      playtimeTotal: number;
-      achievementsCount: number;
-      totalAchievements: number;
-      achievementPercentage: number;
-      isCompleted: boolean;
-      lastPlayed?: Date;
-    };
-  };
-  user: {
-    stats?: {
-      playtimeTotal: number;
-      achievementsCount: number;
-      totalAchievements: number;
-      achievementPercentage: number;
-      isCompleted: boolean;
-      lastPlayed?: Date;
-    };
-    hasGame: boolean;
-  };
-}
+import type { GameComparisonDTO, GameStatsDTO } from "~~/shared/types/activity/gameComparisonDTO";
 
 export default defineEventHandler(async (event): Promise<GameComparisonDTO> => {
   try {
     const config = useRuntimeConfig();
-    let userId: string;
+    let userId: string = "";
 
     // Mode développement avec bypass d'auth
-    if (config.devMode && config.devUserId) {
+    if (config.devMode && config.devUserId && typeof config.devUserId === 'string') {
       userId = config.devUserId;
     } else {
       const user = await serverSupabaseUser(event);
@@ -145,7 +113,7 @@ export default defineEventHandler(async (event): Promise<GameComparisonDTO> => {
       ? Math.round((friendAchievementsCount / friendTotalAchievements) * 100)
       : 0;
 
-    let userStats = undefined;
+    let userStats: GameStatsDTO | undefined = undefined;
     if (userGameData) {
       const userAchievementsCount = userGameData.achievements.length;
       const userTotalAchievements = userGameData._count.achievements;

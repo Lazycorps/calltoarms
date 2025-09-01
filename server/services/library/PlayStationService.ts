@@ -5,16 +5,11 @@ import type {
   AchievementData,
   PlatformCredentials,
   SyncResult,
-} from "../base/types";
-import type { PlayStationCredentials } from "./playstation-types";
+} from "@@/server/types/library/base";
+import type { PlayStationCredentials } from "@@/server/types/library/playstationSync";
 
 // Import de la bibliothèque psn-api
-import type {
-  UserThinTrophy,
-  TrophyTitle,
-  Trophy,
-  UserPlayedGamesResponse,
-} from "psn-api";
+import type { UserThinTrophy, Trophy } from "psn-api";
 import {
   exchangeAccessCodeForAuthTokens,
   exchangeNpssoForAccessCode,

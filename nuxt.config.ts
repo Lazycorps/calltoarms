@@ -8,6 +8,9 @@ export default defineNuxtConfig({
   build: {
     transpile: ["vuetify"],
   },
+  typescript: {
+    typeCheck: true,
+  },
   modules: [
     "@nuxt/eslint",
     "@nuxtjs/supabase",
@@ -55,9 +58,6 @@ export default defineNuxtConfig({
 
     microsoftClientSecret: process.env.MICROSOFT_CLIENT_SECRET,
     microsoftClientId: process.env.MICROSOFT_CLIENT_ID,
-
-    epicClientId: process.env.EPIC_CLIENT_ID,
-    epicClientSecret: process.env.EPIC_CLIENT_SECRET,
 
     // Riot Games API configuration
     riotApiKey: process.env.RIOT_API_KEY,
