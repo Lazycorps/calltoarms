@@ -377,7 +377,6 @@ function getPlatformIcon(platform: GamingPlatform): string {
     XBOX: "mdi-microsoft-xbox",
     NINTENDO: "mdi-nintendo-switch",
     GOG: "mdi-gamepad-variant",
-    EPIC_GAMES: "mdi-gamepad-variant",
     RIOT: "mdi-gamepad-variant",
   };
   return icons[platform] || "mdi-gamepad-variant";

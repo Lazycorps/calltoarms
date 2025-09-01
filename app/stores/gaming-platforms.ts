@@ -34,7 +34,6 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
       PLAYSTATION: "playstation",
       XBOX: "xbox",
       NINTENDO: "nintendo",
-      EPIC_GAMES: "epic",
       GOG: "gog",
       RIOT: "riot",
     };

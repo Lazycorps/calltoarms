@@ -6,7 +6,6 @@ export function getPlatformIcon(platform: GamingPlatform): string {
     PLAYSTATION: "mdi-sony-playstation",
     XBOX: "mdi-microsoft-xbox",
     NINTENDO: "mdi-nintendo-switch",
-    EPIC_GAMES: "mdi-gamepad-variant",
     GOG: "mdi-gamepad-variant",
     RIOT: "mdi-sword-cross",
   };
