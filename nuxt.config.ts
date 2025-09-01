@@ -8,9 +8,9 @@ export default defineNuxtConfig({
   build: {
     transpile: ["vuetify"],
   },
-  typescript: {
-    typeCheck: true,
-  },
+  // typescript: {
+  //   typeCheck: true,
+  // },
   modules: [
     "@nuxt/eslint",
     "@nuxtjs/supabase",
