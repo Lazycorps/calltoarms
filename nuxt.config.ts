@@ -24,6 +24,9 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@vueuse/nuxt",
   ],
+  experimental: {
+    componentIslands: true,
+  },
   vite: {
     vue: {
       template: {
