@@ -65,7 +65,7 @@
     <v-card>
       <v-card-title>
         <v-icon class="me-2">mdi-gamepad-variant</v-icon>
-        Mes Jeux {{ platform }}
+        Mes Jeux {{ props.platform || "Toutes plateformes" }}
       </v-card-title>
 
       <v-card-text>
@@ -134,10 +134,9 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useGamingPlatformsStore } from "~/stores/gaming-platforms";
 import { useSnackbarStore } from "~/stores/snackbar";
 import type { GamingPlatform } from "@prisma/client";
-import type { PlatformGameWithAccount } from "~~/shared/types/gamingPlatform";
-import type { PlatformGameCardDTO } from "~~/shared/types/library/platformGameCardDTO";
 import GameDetailsDialog from "~/components/library/GameDetailsDialog.vue";
 import GameCardVue from "~/components/library/GameCard.vue";
+import { useLibrary } from "~/composables/useLibrary";
 
 // Props
 interface Props {
@@ -149,8 +148,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Store
+// Store (pour la synchronisation seulement)
 const gamingPlatformsStore = useGamingPlatformsStore();
+
+// Composable pour la gestion des jeux
+const library = useLibrary({
+  friendId: props.friendId,
+  accountId: props.accountId,
+  autoLoad: false,
+});
 
 // État local
 const searchQuery = ref("");
@@ -191,39 +197,9 @@ const platformOptions = computed(() => {
   return platforms;
 });
 
-// Fonction de transformation des données
-function transformGameToCardDTO(
-  game: PlatformGameWithAccount
-): PlatformGameCardDTO {
-  const achievementsCount = game._count?.achievements || 0;
-  // Pour le moment, on utilise le nombre total d'achievements comme totalAchievements
-  // Cela devra être ajusté quand on aura les données complètes des achievements
-  const totalAchievements = achievementsCount;
-
-  return {
-    id: game.id,
-    name: game.name,
-    iconUrl: game.iconUrl || null,
-    coverUrl: game.coverUrl || null,
-    lastPlayed: game.lastPlayed || null,
-    playtimeTotal: game.playtimeTotal || 0,
-    platformGameId: game.platformGameId,
-    platform: game.platformAccount.platform,
-    achievementsCount,
-    totalAchievements,
-    achievementPercentage:
-      totalAchievements > 0
-        ? Math.round((achievementsCount / totalAchievements) * 100)
-        : 0,
-    isCompleted: game.completedAt !== null,
-  };
-}
-
 // Computed
-const games = computed(() =>
-  gamingPlatformsStore.allGames.map(transformGameToCardDTO)
-);
-const loading = computed(() => gamingPlatformsStore.loading);
+const games = computed(() => library.games.value);
+const loading = computed(() => library.loading.value);
 
 // Méthodes
 let searchTimeout: NodeJS.Timeout;
@@ -236,7 +212,7 @@ function debouncedSearch() {
 }
 
 async function loadGames() {
-  await gamingPlatformsStore.loadAllGames({
+  await library.loadGames({
     platform: props.platform || selectedPlatform.value || undefined,
     search: searchQuery.value || undefined,
     sortBy: sortBy.value as "name" | "playtime" | "lastPlayed",

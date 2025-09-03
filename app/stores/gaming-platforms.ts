@@ -176,6 +176,8 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     }
   }
 
+  const libraryComposable = useLibrary({ autoLoad: false });
+
   async function loadAllGames(options?: {
     platform?: GamingPlatform;
     search?: string;
@@ -184,55 +186,17 @@ export const useGamingPlatformsStore = defineStore("gaming-platforms", () => {
     limit?: number;
     offset?: number;
   }) {
-    try {
-      loading.value = true;
-      error.value = null;
-
-      const params = new URLSearchParams();
-      if (options?.platform) params.append("platform", options.platform);
-      if (options?.search) params.append("search", options.search);
-      if (options?.sortBy) params.append("sortBy", options.sortBy);
-      if (options?.sortOrder) params.append("sortOrder", options.sortOrder);
-      if (options?.limit) params.append("limit", options.limit.toString());
-      if (options?.offset) params.append("offset", options.offset.toString());
-
-      const response = await $fetch<{
-        success: boolean;
-        data: PlatformGameWithAccount[];
-        pagination: {
-          total: number;
-          limit: number;
-          offset: number;
-          hasMore: boolean;
-        };
-      }>(`/api/library${params.toString() ? `?${params.toString()}` : ""}`);
-
-      if (response.success) {
-        // Transformer les jeux pour s'assurer que _count existe
-        const transformedGames = response.data.map((game) => ({
-          ...game,
-          _count: game._count || { achievements: 0 },
-        }));
-
-        if (options?.offset && options.offset > 0) {
-          // Ajouter à la liste existante (pagination)
-          allGames.value.push(...transformedGames);
-        } else {
-          // Remplacer la liste
-          allGames.value = transformedGames;
-        }
-        return {
-          ...response,
-          games: transformedGames,
-        };
-      }
-    } catch (err) {
-      console.error("Erreur lors du chargement des jeux:", err);
-      error.value = "Impossible de charger les jeux";
-      throw err;
-    } finally {
-      loading.value = false;
+    const response = await libraryComposable.loadGames(options, options?.offset ? options.offset > 0 : false);
+    
+    if (response?.success) {
+      allGames.value = libraryComposable.games;
+      return {
+        ...response,
+        games: response.data,
+      };
     }
+    
+    return response;
   }
 
   // Garder l'ancienne méthode pour la compatibilité
