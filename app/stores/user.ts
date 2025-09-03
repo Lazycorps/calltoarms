@@ -63,10 +63,12 @@ export const useUserStore = defineStore("user", () => {
           id: userConnected?.id ?? "",
           name: userConnected?.name ?? "",
           admin: userConnected?.admin ?? false,
-          profile: {
-            username: userConnected.Profile?.username ?? "User",
-            avatarUrl: userConnected.Profile?.avatarUrl ?? ""
-          }
+          username: userConnected?.name ?? "",
+          avatarUrl: userConnected?.avatarUrl ?? "",
+          steamID: userConnected?.steamID ?? "",
+          riotID: userConnected?.riotID ?? "",
+          epicID: userConnected?.epicID ?? "",
+          bnetID: userConnected?.bnetID ?? "",
         };
       } else user.value = null;
     } finally {

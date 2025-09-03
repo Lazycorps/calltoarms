@@ -32,10 +32,10 @@
       </v-btn>
       <v-menu location="bottom" width="200px">
         <template #activator="{ props }">
-          <h3>{{ user.user?.profile?.username }}</h3>
+          <h3>{{ user.user?.username }}</h3>
           <v-btn class="text-none" stacked v-bind="props">
             <v-avatar>
-              <v-img :src="user.user?.profile?.avatarUrl || '/avatar_placeholder.png'" />
+              <v-img :src="user.user?.avatarUrl || '/avatar_placeholder.png'" />
             </v-avatar>
           </v-btn>
         </template>
