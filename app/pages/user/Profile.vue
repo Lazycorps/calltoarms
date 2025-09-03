@@ -124,9 +124,6 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user';
 
-const supabase = useSupabaseClient();
-const router = useRouter();
-
 const avatarUrl = ref('');
 const avatarInput = ref<HTMLInputElement>();
 
@@ -164,7 +161,7 @@ onMounted(async () => {
   await fetchProfile();
 });
 
-const { user } = useUserStore();
+const { user, fetchUser } = useUserStore();
 
 function toggleEdition() {
   isFormReadonly.value = false;
@@ -207,6 +204,7 @@ async function handleAvatarChange(event: Event) {
     
     if (response.avatarUrl) {
       avatarUrl.value = response.avatarUrl;
+      await fetchUser();
     }
   } catch (error) {
     console.error('Error uploading avatar:', error);
@@ -244,6 +242,8 @@ async function saveProfile() {
     };
     
     isFormReadonly.value = true;
+
+    await fetchUser();
   } catch (error) {
     console.error('Error saving profile:', error);
   } finally {

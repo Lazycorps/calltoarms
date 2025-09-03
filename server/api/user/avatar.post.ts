@@ -52,18 +52,9 @@ export default defineEventHandler(async (event) => {
     const avatarUrl = `/uploads/avatars/${uniqueFilename}`;
 
     // Mettre à jour le profil avec la nouvelle URL d'avatar
-    const profile = await prisma.profile.upsert({
-      where: { userId },
-      update: { avatarUrl },
-      create: {
-        userId,
-        username: '',
-        steamID: '',
-        riotID: '',
-        epicID: '',
-        bnetID: '',
-        avatarUrl
-      }
+    const profile = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
     });
 
     return { avatarUrl };
