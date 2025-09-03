@@ -1,7 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -36,28 +33,25 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Générer un nom unique pour le fichier
-    const fileExtension = file.filename.split('.').pop();
-    const uniqueFilename = `${uuidv4()}.${fileExtension}`;
-    
-    // Créer le dossier uploads/avatars s'il n'existe pas
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'avatars');
-    await mkdir(uploadsDir, { recursive: true });
-    
-    // Sauvegarder le fichier
-    const filePath = join(uploadsDir, uniqueFilename);
-    await writeFile(filePath, file.data);
-    
-    // URL relative pour la base de données
-    const avatarUrl = `/uploads/avatars/${uniqueFilename}`;
+    // Vérifier la taille du fichier (limite à 5MB)
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+    if (file.data.length > maxSizeInBytes) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "File too large. Maximum size is 5MB"
+      });
+    }
 
-    // Mettre à jour le profil avec la nouvelle URL d'avatar
-    const profile = await prisma.user.update({
+    // Convertir en base64 avec le type MIME
+    const base64Data = `data:${file.type};base64,${file.data.toString('base64')}`;
+
+    // Mettre à jour l'utilisateur avec l'avatar en base64
+    await prisma.user.update({
       where: { id: userId },
-      data: { avatarUrl },
+      data: { avatarUrl: base64Data },
     });
 
-    return { avatarUrl };
+    return { avatarUrl: base64Data };
 
   } catch (error) {
     console.error('Avatar upload error:', error);
