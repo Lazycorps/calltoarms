@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
           id: true,
           name: true,
           slug: true,
+          avatarUrl: true
         },
       },
       friend: {
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
           id: true,
           name: true,
           slug: true,
+          avatarUrl: true
         },
       },
     },

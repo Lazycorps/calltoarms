@@ -16,11 +16,13 @@ export class FriendDTO {
     id: string;
     name: string;
     slug: string;
+    avatarUrl: string;
   };
   friend?: {
     id: string;
     name: string;
     slug: string;
+    avatarUrl: string;
   };
   isSender = false;
 }
