@@ -54,7 +54,8 @@
             >
               <template #prepend>
                 <v-avatar color="primary" class="text-uppercase">
-                  {{ (friend.friend?.name || "").charAt(0) }}
+                  <v-img v-if="friend.friend?.avatarUrl" :src="friend.friend?.avatarUrl" />
+                  <span v-else>{{ (friend.friend?.name || "").charAt(0) }}</span>
                 </v-avatar>
               </template>
 
