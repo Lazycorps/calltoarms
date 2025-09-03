@@ -203,7 +203,7 @@
               md="4"
               lg="2"
             >
-              <GameCardVue :game="game" :read-only="true" />
+              <GameCardVue :game="game" :read-only="true" :user-id="friendId" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -236,7 +236,7 @@
               md="4"
               lg="2"
             >
-              <GameCardVue :game="game" :read-only="true" />
+              <GameCardVue :game="game" :read-only="true" :user-id="friendId" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -276,7 +276,7 @@
               md="4"
               lg="2"
             >
-              <GameCardVue :game="game" :read-only="true" />
+              <GameCardVue :game="game" :read-only="true" :user-id="friendId" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -309,6 +309,7 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+
     </div>
   </v-container>
 </template>
@@ -391,6 +392,7 @@ function viewAllGames() {
   selectedPlatformForGames.value = null;
   showGamesDialog.value = true;
 }
+
 
 // Watchers
 watch(selectedPeriod, () => {

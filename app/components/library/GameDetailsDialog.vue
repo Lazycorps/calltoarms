@@ -68,7 +68,7 @@
               </div>
             </div>
           </v-col>
-          <v-col cols="6" sm="3">
+          <v-col v-if="canEditGame" cols="6" sm="3">
             <div class="text-center">
               <v-btn
                 :icon="
@@ -91,6 +91,31 @@
                   gameDetails.game.isCompleted && gameDetails.game.completedAt
                     ? formatDate(gameDetails.game.completedAt)
                     : "Cliquer pour terminé"
+                }}
+              </div>
+            </div>
+          </v-col>
+          <v-col v-else cols="6" sm="3">
+            <div class="text-center">
+              <v-icon
+                :color="gameDetails.game.isCompleted ? 'success' : 'grey'"
+                size="32"
+                class="mb-1"
+              >
+                {{
+                  gameDetails.game.isCompleted
+                    ? 'mdi-check-circle'
+                    : 'mdi-progress-clock'
+                }}
+              </v-icon>
+              <div class="text-h6">
+                {{ gameDetails.game.isCompleted ? "Terminé" : "En cours" }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{
+                  gameDetails.game.isCompleted && gameDetails.game.completedAt
+                    ? formatDate(gameDetails.game.completedAt)
+                    : "Statut du jeu"
                 }}
               </div>
             </div>
@@ -269,6 +294,7 @@ import type {
 const props = defineProps<{
   modelValue: boolean;
   gameId: number | null;
+  userId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -294,6 +320,13 @@ const sortOptions = [
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
+});
+
+// Debug: vérifier la valeur d'isOwnGame
+const canEditGame = computed(() => {
+  const result = gameDetails.value?.isOwnGame === true;
+  console.log('GameDetails isOwnGame:', gameDetails.value?.isOwnGame, 'canEditGame:', result);
+  return result;
 });
 
 const filteredAchievements = computed(() => {
@@ -349,9 +382,12 @@ async function loadGameDetails() {
 
   loading.value = true;
   try {
-    const response = await $fetch<GameDetailsDTO>(
-      `/api/library/game/${props.gameId}`
-    );
+    const url = `/api/library/game/${props.gameId}`;
+    const params = props.userId ? { userId: props.userId } : {};
+    
+    const response = await $fetch<GameDetailsDTO>(url, {
+      query: params,
+    });
 
     gameDetails.value = response;
   } catch (error) {

@@ -1,7 +1,8 @@
-import { defineEventHandler, createError } from "h3";
+import { defineEventHandler, getRouterParam, getQuery, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import type { GameDetailsDTO } from "~~/shared/types/library";
+import { requireFriendship } from "~~/server/services/friendService";
 
 export default defineEventHandler(async (event): Promise<GameDetailsDTO> => {
   try {
@@ -23,17 +24,32 @@ export default defineEventHandler(async (event): Promise<GameDetailsDTO> => {
       });
     }
 
-    // Récupérer le jeu avec ses succès
+    // Récupérer l'ID du propriétaire du jeu depuis la query (optionnel)
+    const query = getQuery(event);
+    const targetUserId = (query.userId as string) || user.id;
+
+    // Si un userId est spécifié et qu'il n'est pas celui de l'utilisateur connecté,
+    // vérifier d'abord qu'ils sont amis
+    if (targetUserId !== user.id) {
+      await requireFriendship(
+        user.id,
+        targetUserId,
+        "Vous n'avez pas accès aux jeux de cet utilisateur"
+      );
+    }
+
+    // Récupérer le jeu avec ses succès directement depuis le bon utilisateur
     const game = await prisma.platformGame.findFirst({
       where: {
         id: parseInt(gameId),
         platformAccount: {
-          userId: user.id,
+          userId: targetUserId,
         },
       },
       include: {
         platformAccount: {
           select: {
+            userId: true,
             id: true,
             platform: true,
             platformId: true,
@@ -96,8 +112,12 @@ export default defineEventHandler(async (event): Promise<GameDetailsDTO> => {
         .length,
     };
 
+    // Déterminer si c'est le jeu de l'utilisateur connecté ou d'un ami
+    const isOwnGame = targetUserId === user.id;
+
     // Mapper vers DTO
     const gameDetailsDTO: GameDetailsDTO = {
+      isOwnGame,
       game: {
         id: game.id,
         platformGameId: game.platformGameId,

@@ -2,6 +2,7 @@ import { defineEventHandler, getRouterParam, getQuery, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
 import { MostPlayedGamesPeriodes } from "~~/shared/constantes/constantes";
+import { requireFriendship } from "~~/server/services/friendService";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,29 +25,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Vérifier que l'utilisateur et l'ami sont bien amis
-    const friendship = await prisma.friend.findFirst({
-      where: {
-        OR: [
-          {
-            userId: user.id,
-            friendId: friendId,
-            status: "ACCEPTED",
-          },
-          {
-            userId: friendId,
-            friendId: user.id,
-            status: "ACCEPTED",
-          },
-        ],
-      },
-    });
-
-    if (!friendship) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Vous n'êtes pas ami avec cet utilisateur",
-      });
-    }
+    await requireFriendship(
+      user.id,
+      friendId,
+      "Vous n'êtes pas ami avec cet utilisateur"
+    );
 
     // Récupérer le paramètre de période
     const query = getQuery(event);

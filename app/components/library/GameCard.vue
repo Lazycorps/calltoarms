@@ -46,7 +46,11 @@
       </v-card-title>
     </v-card>
     <!-- Dialog des détails du jeu -->
-    <GameDetailsDialog v-model="showGameDetailsDialog" :game-id="game.id" />
+    <GameDetailsDialog 
+      v-model="showGameDetailsDialog" 
+      :game-id="game.id" 
+      :user-id="userId"
+    />
   </div>
 </template>
 
@@ -55,9 +59,10 @@ import type { GameCard } from "~~/shared/types/gameCard";
 import GameDetailsDialog from "./GameDetailsDialog.vue";
 
 const showGameDetailsDialog = ref(false);
-const { game, readOnly = false } = defineProps<{
+const { game, userId } = defineProps<{
   game: GameCard;
   readOnly?: boolean;
+  userId?: string;
 }>();
 
 function formatPlaytime(minutes: number): string {
@@ -82,9 +87,8 @@ function getAchievementColor(percentage: number): string {
 }
 
 function viewGameDetails() {
-  if (!readOnly) {
-    showGameDetailsDialog.value = true;
-  }
+  // Permettre la consultation des détails même en mode readOnly
+  showGameDetailsDialog.value = true;
 }
 </script>
 
