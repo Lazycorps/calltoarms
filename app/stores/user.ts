@@ -189,5 +189,6 @@ export const useUserStore = defineStore("user", () => {
     logout,
     signIn,
     init,
+    fetchUser
   };
 });
