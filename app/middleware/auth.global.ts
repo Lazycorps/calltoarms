@@ -1,18 +1,19 @@
 export default defineNuxtRouteMiddleware(async (_to, _from) => {
   // Côté client, vérifier l'utilisateur et ses droits admin
-  if (_to.path.startsWith("/login")) return;
+
   if (import.meta.client) {
     const user = useSupabaseUser();
     const userStore = useUserStore();
-
-    if (!user.value) {
-      return navigateTo("/login");
-    }
 
     // Attendre que le store soit initialisé
     if (!userStore.user) {
       await userStore.init();
     }
+
+    if (!user.value) {
+      return navigateTo("/login");
+    }
+    if (_to.path.startsWith("/login")) return navigateTo("/");
 
     if (_to.path.includes("admin") && !userStore.user?.admin) {
       throw createError({
