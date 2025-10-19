@@ -1,9 +1,10 @@
 import { defineEventHandler, createError } from "h3";
 import { serverSupabaseUser } from "#supabase/server";
 import prisma from "~~/lib/prisma";
-import type { activityDTO, PlatformGameCardDTO } from "~~/shared/types/library";
+import type { PlatformGameCardDTO } from "~~/shared/types/library";
+import type { ActivityHubDTO } from "~~/shared/types/library/activityHubDTO";
 
-export default defineEventHandler(async (event): Promise<activityDTO> => {
+export default defineEventHandler(async (event): Promise<ActivityHubDTO> => {
   try {
     // Mode production avec authentification normale
     const user = await serverSupabaseUser(event);
@@ -35,7 +36,8 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
     );
 
     const now = new Date();
-    const threeMonthAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 90 jours
+    const oneYearMonthAgo = new Date(now.getTime() - 360 * 24 * 60 * 60 * 1000); // 90 jours
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 90 jours
 
     // Fonction de transformation DTO
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,13 +74,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
         myActivity: {
           recentlyCompleted: [],
         },
-        popularInCircle: {
-          games: [],
-          totalFriendsPlaying: 0,
-        },
-        recommendations: {
-          basedOnFriends: [],
-        },
         stats: {
           totalFriends: 0,
           activeFriendsThisWeek: 0,
@@ -92,9 +87,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       where: {
         platformAccount: {
           userId: { in: friendIds },
-        },
-        lastPlayed: {
-          gt: threeMonthAgo,
         },
       },
       select: {
@@ -143,9 +135,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           userId: { in: friendIds },
         },
         isCompleted: true,
-        lastPlayed: {
-          gt: threeMonthAgo,
-        },
       },
       select: {
         id: true,
@@ -168,107 +157,7 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
         },
       },
       orderBy: { lastPlayed: "desc" },
-      take: 5,
-    });
-
-    // 3. Jeux populaires dans le cercle d'amis
-    const popularGames = await prisma.platformGame.groupBy({
-      by: ["name"],
-      where: {
-        platformAccount: {
-          userId: { in: friendIds },
-        },
-        lastPlayed: {
-          gt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
-        },
-      },
-      _count: {
-        id: true,
-      },
-      orderBy: {
-        _count: {
-          id: "desc",
-        },
-      },
-      take: 8,
-    });
-
-    // Récupérer les détails des jeux populaires
-    const popularGameDetails = await Promise.all(
-      popularGames.map(async (game) => {
-        const gameDetail = await prisma.platformGame.findFirst({
-          where: {
-            name: game.name,
-            platformAccount: {
-              userId: { in: friendIds },
-            },
-          },
-          select: {
-            id: true,
-            name: true,
-            iconUrl: true,
-            coverUrl: true,
-            playtimeTotal: true,
-            lastPlayed: true,
-            isCompleted: true,
-            platformAccount: {
-              select: { platform: true },
-            },
-            _count: { select: { achievements: true } },
-            achievements: {
-              where: { isUnlocked: true },
-              select: { id: true },
-            },
-          },
-        });
-        return gameDetail;
-      })
-    );
-
-    // 4. Recommandations basées sur les amis
-    const userGames = await prisma.platformGame.findMany({
-      where: {
-        platformAccount: {
-          userId: userId,
-        },
-      },
-      select: { name: true },
-    });
-
-    const userGameNames = new Set(userGames.map((g) => g.name));
-
-    const recommendations = await prisma.platformGame.findMany({
-      where: {
-        platformAccount: {
-          userId: { in: friendIds },
-        },
-        name: {
-          notIn: Array.from(userGameNames),
-        },
-        OR: [{ isCompleted: true }, { playtimeTotal: { gt: 120 } }],
-      },
-      select: {
-        id: true,
-        name: true,
-        iconUrl: true,
-        coverUrl: true,
-        playtimeTotal: true,
-        lastPlayed: true,
-        isCompleted: true,
-        platformAccount: {
-          select: {
-            platform: true,
-            user: { select: { name: true, slug: true } },
-          },
-        },
-        _count: { select: { achievements: true } },
-        achievements: {
-          where: { isUnlocked: true },
-          select: { id: true },
-        },
-      },
-      orderBy: [{ isCompleted: "desc" }, { playtimeTotal: "desc" }],
-      take: 6,
+      take: 10,
     });
 
     // 5. Statistiques
@@ -278,7 +167,7 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
           userId: { in: friendIds },
         },
         lastPlayed: {
-          gt: threeMonthAgo,
+          gt: oneWeekAgo,
         },
       },
       select: {
@@ -304,15 +193,6 @@ export default defineEventHandler(async (event): Promise<activityDTO> => {
       },
       myActivity: {
         recentlyCompleted: [], // TODO: Implémenter l'activité personnelle de l'utilisateur
-      },
-      popularInCircle: {
-        games: popularGameDetails
-          .filter((g) => g)
-          .map(transformGameToDTO) as PlatformGameCardDTO[],
-        totalFriendsPlaying: friendIds.length,
-      },
-      recommendations: {
-        basedOnFriends: recommendations.map(transformGameToDTO),
       },
       stats: {
         totalFriends: friendIds.length,

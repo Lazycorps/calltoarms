@@ -22,7 +22,7 @@
       Erreur lors du chargement des données
     </v-alert>
 
-    <template v-if="Data">
+    <template v-if="activity">
       <!-- Statistiques -->
       <v-row>
         <v-col cols="12" sm="4">
@@ -31,7 +31,7 @@
               >mdi-account-group</v-icon
             >
             <div class="text-h4 font-weight-bold">
-              {{ Data.stats.totalFriends }}
+              {{ activity.stats.totalFriends }}
             </div>
             <div class="text-body-2 text-medium-emphasis">Amis connectés</div>
           </v-card>
@@ -43,7 +43,7 @@
               >mdi-gamepad-variant</v-icon
             >
             <div class="text-h4 font-weight-bold">
-              {{ Data.stats.activeFriendsThisWeek }}
+              {{ activity.stats.activeFriendsThisWeek }}
             </div>
             <div class="text-body-2 text-medium-emphasis">
               Actifs cette semaine
@@ -57,7 +57,7 @@
               >mdi-library-shelves</v-icon
             >
             <div class="text-h4 font-weight-bold">
-              {{ Data.stats.totalGamesInCircle }}
+              {{ activity.stats.totalGamesInCircle }}
             </div>
             <div class="text-body-2 text-medium-emphasis">
               Jeux dans votre cercle
@@ -95,20 +95,20 @@
           <ActivityCardSection
             title="Récemment joués"
             icon="mdi-clock-outline"
-            :item-count="Data.friendsActivity.recentlyPlayed.length"
+            :item-count="activity.friendsActivity.recentlyPlayed.length"
             item-label="jeu"
             item-label-plural="jeux"
             empty-message="Aucune activité récente de vos amis"
           >
             <GameCard
-              v-for="game in Data.friendsActivity.recentlyPlayed"
+              v-for="game in activity.friendsActivity.recentlyPlayed"
               :key="game.id"
               :game="game"
               :show-playtime="false"
               :clickable="!!game.friendName"
               class="flex-grow-1"
               :style="`min-width: 280px; max-width: 400px;`"
-              @click="handleGameClick"
+              @click="handleGameClick($event)"
             />
           </ActivityCardSection>
         </v-col>
@@ -118,7 +118,7 @@
           <ActivityCardSection
             title="Récemment terminés"
             icon="mdi-trophy"
-            :item-count="Data.friendsActivity.recentlyCompleted.length"
+            :item-count="activity.friendsActivity.recentlyCompleted.length"
             item-label="jeu"
             item-label-plural="jeux"
             card-min-width="280px"
@@ -126,7 +126,7 @@
             empty-message="Aucun jeu récemment terminé par vos amis"
           >
             <GameCard
-              v-for="game in Data.friendsActivity.recentlyCompleted"
+              v-for="game in activity.friendsActivity.recentlyCompleted"
               :key="game.id"
               :game="game"
               :show-playtime="false"
@@ -135,34 +135,8 @@
               :clickable="!!game.friendName"
               class="flex-grow-1"
               :style="`min-width: 280px; max-width: 400px;`"
-              @click="handleGameClick"
+              @click="handleGameClick($event)"
             />
-          </ActivityCardSection>
-        </v-col>
-        <!-- Recommandations -->
-        <v-col cols="12">
-          <ActivityCardSection
-            title="Recommandations pour vous"
-            icon="mdi-lightbulb-outline"
-            :item-count="Data.recommendations.basedOnFriends.length"
-            item-label="jeu"
-            item-label-plural="jeux"
-            empty-message="Aucune recommandation disponible pour le moment"
-          >
-            <div class="notification-scroll-container">
-              <div class="notification-scroll-content">
-                <GameCard
-                  v-for="game in Data.recommendations.basedOnFriends"
-                  :key="game.id"
-                  :game="game"
-                  :show-last-played="false"
-                  :clickable="!!game.friendName"
-                  class="flex-grow-1"
-                  :style="`min-width: 280px; max-width: 350px;`"
-                  @click="handleGameClick"
-                />
-              </div>
-            </div>
           </ActivityCardSection>
         </v-col>
       </v-row>
@@ -184,32 +158,31 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import type { activityDTO, PlatformGameCardDTO } from "~~/shared/types/library";
+import type { PlatformGameCardDTO } from "~~/shared/types/library";
 import type { FriendGameNotificationDTO } from "~~/shared/types/activity";
 import GameCard from "~/components/activity/GameCard.vue";
 import GameComparisonDialog from "~/components/activity/GameComparisonDialog.vue";
 import ActivityCardSection from "~/components/activity/ActivityCardSection.vue";
 import FriendNotificationCard from "~/components/activity/FriendNotificationCard.vue";
+import type { ActivityHubDTO } from "~~/shared/types/library/activityHubDTO";
 
 const {
-  data: Data,
+  data: activity,
   pending,
   error,
   refresh,
-} = await useFetch<activityDTO>("/api/activity");
+} = await useFetch<ActivityHubDTO>("/api/activity");
 
 // Récupérer les notifications d'amis
 const {
-  data: friendNotificationsData,
+  data: notifications,
   pending: notificationsPending,
   refresh: refreshNotifications,
-} = await useFetch<{ success: boolean; data: FriendGameNotificationDTO[] }>(
+} = await useFetch<{ success: boolean; activity: FriendGameNotificationDTO[] }>(
   "/api/activity/friend-notifications"
 );
 
-const friendNotifications = computed(
-  () => friendNotificationsData.value?.data || []
-);
+const friendNotifications = computed(() => notifications.value?.activity || []);
 
 // Fonction de refresh globale
 const refreshAll = async () => {
@@ -229,11 +202,11 @@ const handleGameClick = async (game: PlatformGameCardDTO) => {
   try {
     // Trouver l'ID de l'ami - pour simplifier, on utilise le nom
     // Dans une vraie app, il faudrait stocker l'friendId dans le DTO
-    const friends = Data.value?.stats
+    const friends = activity.value?.stats
       ? await $fetch("/api/user/friends", { query: { status: "ACCEPTED" } })
       : [];
 
-    const friend = friends.find((f: any) => f.friend?.name === game.friendName);
+    const friend = friends.find((f) => f.friend?.name === game.friendName);
     if (!friend) {
       console.error("Ami non trouvé");
       return;

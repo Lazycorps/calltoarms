@@ -1,6 +1,6 @@
 export interface ActivityDTO {
   id: string;
-  type: 'gaming' | 'achievement' | 'completion' | 'social';
+  type: "gaming" | "achievement" | "completion" | "social";
   timestamp: Date;
   platformGame?: {
     id: number;
